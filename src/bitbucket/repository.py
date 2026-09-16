@@ -7,6 +7,7 @@ from bitbucket.resources.default_reviewers import DefaultReviewersResource
 from bitbucket.resources.hooks import HooksResource
 from bitbucket.resources.permissions import RepositoryPermissionsResource
 from bitbucket.resources.pull_requests import PullRequestsResource
+from bitbucket.resources.refs import RefsResource
 
 if TYPE_CHECKING:
     from bitbucket._transport import Transport
@@ -23,3 +24,4 @@ class RepositoryClient:
         self.commit_statuses = CommitStatusesResource(transport, workspace, slug)
         self.hooks = HooksResource(transport, base_path)
         self.permissions = RepositoryPermissionsResource(transport, base_path)
+        self.refs = RefsResource(transport, base_path)
