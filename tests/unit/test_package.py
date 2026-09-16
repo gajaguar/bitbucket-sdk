@@ -5,9 +5,9 @@ from typing import Final
 import bitbucket
 
 EXPECTED_EXPORTS: Final = (  # ruff: ignore[split-static-string]
-    "AuthenticationError BitbucketAPIError BitbucketError ConfigurationError ConflictError ErrorBody "
-    "ForbiddenError MissingCredentialsError NotFoundError RateLimitError ServerError TransportError "
-    "ValidationError __version__"
+    "AccountId AuthenticationError BitbucketAPIError BitbucketError CommentId CommitHash ConfigurationError "
+    "ConflictError ErrorBody ForbiddenError MissingCredentialsError NotFoundError PullRequestId RateLimitError "
+    "RepositorySlug ServerError TransportError Uuid ValidationError WorkspaceSlug __version__"
 ).split()
 
 
