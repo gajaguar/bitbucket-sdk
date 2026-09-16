@@ -9,3 +9,4 @@ CommentId = NewType("CommentId", int)  # pylint: disable=app-module-const-naming
 AccountId = NewType("AccountId", str)  # pylint: disable=app-module-const-naming,app-require-final
 Uuid = NewType("Uuid", str)  # pylint: disable=app-module-const-naming,app-require-final
 CommitHash = NewType("CommitHash", str)  # pylint: disable=app-module-const-naming,app-require-final
+TaskId = NewType("TaskId", int)  # pylint: disable=app-module-const-naming,app-require-final
