@@ -1,0 +1,122 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "bitbucket-unofficial-sdk"
+version = "0.0.0"
+description = "Unofficial, typed Python SDK for the Bitbucket Cloud REST API."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+  { name = "G.A.JAGUAR", email = "dev@gajaguar.com" },
+]
+requires-python = ">=3.14"
+keywords = ["bitbucket", "pull-requests", "sdk", "api-client"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.14",
+  "Typing :: Typed",
+]
+dependencies = [
+  "httpx>=0.28",
+  "pydantic>=2.11",
+]
+
+[project.urls]
+Homepage = "https://github.com/gajaguar/bitbucket-sdk"
+Repository = "https://github.com/gajaguar/bitbucket-sdk"
+Issues = "https://github.com/gajaguar/bitbucket-sdk/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bitbucket"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=bitbucket --cov-report=term-missing --cov-fail-under=90"
+markers = [
+  "live: hits the real Bitbucket API (requires ATLASSIAN_USER_EMAIL, ATLASSIAN_API_KEY, BITBUCKET_WORKSPACE)",
+]
+
+[tool.coverage.run]
+source = ["src/bitbucket"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+  "pragma: no cover",
+  "if __name__ == .__main__.:",
+  "raise NotImplementedError",
+]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 119
+lint.select = ["ALL"]
+lint.ignore = ["missing-trailing-comma", "CPY", "D"]
+lint.isort.section-order = [
+  "future",
+  "standard-library",
+  "third-party",
+  "first-party",
+  "local-folder",
+]
+lint.isort.force-single-line = true
+lint.isort.case-sensitive = true
+lint.flake8-type-checking.runtime-evaluated-base-classes = [
+  "pydantic.BaseModel",
+  "bitbucket.models.base.BitbucketModel",
+]
+lint.flake8-bugbear.extend-immutable-calls = ["pydantic.Field"]
+lint.per-file-ignores."src/bitbucket/models/**/*.py" = ["builtin-attribute-shadowing"]
+lint.per-file-ignores."src/bitbucket/resources/**/*.py" = ["builtin-argument-shadowing", "builtin-attribute-shadowing", "too-many-arguments"]
+lint.per-file-ignores."tests/**/*.py" = [ "ANN", "ARG", "magic-value-comparison", "assert", "private-member-access"]
+
+[tool.mypy]
+strict = true
+exclude = ["tests/"]
+
+[tool.pylint.main]
+load-plugins = ["checkers"]
+
+[tool.pylint.format]
+# Ruff owns formatting and line length (see [tool.ruff] line-length above).
+max-line-length = 119
+
+[tool.pylint."messages control"]
+disable = [
+  "missing-module-docstring",
+  "missing-class-docstring",
+  "missing-function-docstring",
+  # Thin transport/client classes and test doubles legitimately expose one method.
+  "too-few-public-methods",
+  # Read/write pydantic models and re-export lists are repetitive by design.
+  "duplicate-code",
+]
+
+[tool.pyright]
+include = ["src"]
+exclude = ["**/.venv", "**/node_modules", "tests"]
+
+[dependency-groups]
+dev = [
+  "mypy>=2.1.0",
+  "pre-commit>=4.0",
+  "pylint-plugin",
+  "pylint>=4.0.5",
+  "pyright>=1.1.409",
+  "pytest>=8.0",
+  "pytest-cov>=6.0",
+  "respx>=0.22",
+  "ruff>=0.15.15",
+]
+
+[tool.uv.sources]
+pylint-plugin = { git = "https://github.com/gajaguar/pylint-plugin", tag = "v1.1.1" }
+
+[tool.uv]
+python-preference = "only-system"
+python-downloads = "never"
