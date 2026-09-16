@@ -5,7 +5,7 @@ from typing import Final
 import bitbucket
 
 EXPECTED_EXPORTS: Final = (  # ruff: ignore[split-static-string]
-    "NO_RETRY AccountId AuthenticationError BitbucketAPIError BitbucketError CommentId CommitHash "
+    "NO_RETRY AccountId AuthenticationError BitbucketAPIError BitbucketError ClientOptions CommentId CommitHash "
     "ConfigurationError ConflictError CqsKind ErrorBody ForbiddenError MissingCredentialsError NotFoundError "
     "PullRequestId RateLimitError RepositorySlug RetryPolicy ServerError TransportError Uuid ValidationError "
     "WorkspaceSlug __version__"
