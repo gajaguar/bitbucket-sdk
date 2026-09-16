@@ -90,10 +90,10 @@ flowchart LR
 ## Modeling
 
 Every response is a frozen pydantic model (`BitbucketModel` base:
-`populate_by_name=True`, `extra="allow"`, every field optional). Unlike the
-sibling `clockify-sdk`, there is **no `alias_generator`** — Bitbucket's wire
-names are already snake_case — so only the two reserved-word fields
-(`Links.self_`, `CommentInline.from_`) carry an explicit `Field(alias=...)`.
+`populate_by_name=True`, `extra="allow"`, every field optional). There is
+**no `alias_generator`** — Bitbucket's wire names are already snake_case —
+so only the two reserved-word fields (`Links.self_`, `CommentInline.from_`)
+carry an explicit `Field(alias=...)`.
 Every field is optional because Bitbucket's `fields=` query parameter can
 omit anything from any response.
 
@@ -129,7 +129,9 @@ endpoint it calls.
 
 ## Release checklist
 
-There is no CI for this repository yet. Before tagging a release:
+CI ([`ci.yml`](../.github/workflows/ci.yml)) enforces lint, format, spelling,
+and pre-commit hooks on every push and PR, but not `pytest` or `pyright`.
+Before tagging a release, run the full gate locally:
 
 1. `make check` — must exit 0.
 2. `make test` — must exit 0, coverage gate (90%) must pass.

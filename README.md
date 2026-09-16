@@ -1,5 +1,7 @@
 # Bitbucket Unofficial SDK
 
+[![CI](https://github.com/gajaguar/bitbucket-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/gajaguar/bitbucket-sdk/actions/workflows/ci.yml)
+[![Python 3.14+](https://img.shields.io/badge/python-3.14%2B-blue.svg)](pyproject.toml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Topics](https://img.shields.io/badge/topics-python%20%7C%20sdk%20%7C%20api--client%20%7C%20bitbucket%20%7C%20httpx-informational)](https://github.com/gajaguar/bitbucket-sdk)
 
@@ -15,6 +17,34 @@ model with attribute access and real Python types — not a raw `dict`.
 
 See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for how the client is
 layered.
+
+## Table of contents
+
+- [Installation](#installation)
+- [Requirements](#requirements)
+- [Usage](#usage)
+- [Platform notes](#platform-notes)
+- [Origin](#origin)
+- [Open items](#open-items)
+
+## Installation
+
+Not published to PyPI. Add it as a `uv` git dependency pinned to a tag:
+
+```bash
+uv add "bitbucket-unofficial-sdk @ git+https://github.com/gajaguar/bitbucket-sdk@v0.1.0"
+```
+
+or add the source directly in `pyproject.toml`:
+
+```toml
+[project]
+dependencies = ["bitbucket-unofficial-sdk"]
+
+[tool.uv.sources.bitbucket-unofficial-sdk]
+git = "https://github.com/gajaguar/bitbucket-sdk"
+tag = "v0.1.0"
+```
 
 ## Requirements
 
@@ -116,14 +146,6 @@ isn't obvious from the code. `pylint-plugin`'s `app-no-docstrings` (W9001)
 checker fails `make check`/`make pylint` if any function, method, or class
 has one.
 
-#### Custom pylint checkers (`pylint-plugin`)
-
-A standalone pylint plugin encoding personal code-review preferences beyond
-ruff's rule set, installed as a `uv` git dependency pinned in
-`pyproject.toml`'s `[tool.uv.sources]` — see
-[the plugin's README](https://github.com/gajaguar/pylint-plugin) for the full
-checker list.
-
 ### Project layout
 
 ```text
@@ -141,12 +163,14 @@ checker list.
 
 ## Platform notes
 
-- **No CI pipeline.** `make check && make test` is the gate; run it before
-  every commit and always before tagging a release.
+- **CI enforces lint, formatting, and spelling, not tests.**
+  [`ci.yml`](.github/workflows/ci.yml) runs `make makefile-lint`,
+  `make md-lint`, `make spell`, and the pre-commit hooks (ruff, ruff-format,
+  mypy, pylint) on every push and pull request. It does not run `pytest` or
+  `pyright`. `make check && make test` remains the full local gate; run it
+  before every commit and always before tagging a release.
 - **`requires-python = ">=3.14"`** excludes most current Python installations
-  (3.11–3.13); this is a deliberate, revisitable floor, matching
-  [`clockify-sdk`](https://github.com/gajaguar/clockify-sdk) and
-  [`pylint-plugin`](https://github.com/gajaguar/pylint-plugin).
+  (3.11–3.13); this is a deliberate, revisitable floor.
 - `mise.toml` forces `uv` onto the mise-provided interpreter
   (`python-preference = "only-system"`, `python-downloads = "never"` in
   `pyproject.toml`'s `[tool.uv]`), so `.python-version` is intentionally
@@ -154,13 +178,11 @@ checker list.
 
 ## Origin
 
-Extracted from [`agent-kit`](https://github.com/gajaguar/agent-kit)'s
-`vcs_providers/bitbucket/` module, which had grown the whole project's
-maintenance surface. `agent-kit` keeps the provider-neutral pull-request seam
-(models, protocol, registry) and review-workflow logic (comment filtering and
-threading, reviewer-queue aggregation); this SDK carries only the Bitbucket
-wire client. `agent-kit` consumes it as a pinned `uv` git dependency, the same
-mechanism it already uses for `pylint-plugin`.
+Extracted from a larger internal toolkit's Bitbucket provider module, which
+had grown the whole project's maintenance surface. That toolkit keeps the
+provider-neutral pull-request seam (models, protocol, registry) and
+review-workflow logic (comment filtering and threading, reviewer-queue
+aggregation); this SDK carries only the Bitbucket wire client.
 
 ## Open items
 
@@ -169,4 +191,7 @@ mechanism it already uses for `pylint-plugin`.
   endpoint matrix.
 - `RepositoryClient.default_reviewers` is read-only; adding/removing a
   default reviewer is deferred.
-- No GitHub Actions CI yet.
+- [`python.yml`](.github/workflows/python.yml) targets a `python` branch
+  that doesn't exist and never runs; inherited from the template repo this
+  project was extracted from, it needs retargeting to `main` or removal.
+- CI does not run `pytest` or `pyright` — see [Platform notes](#platform-notes).
