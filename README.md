@@ -10,10 +10,12 @@
 > own risk against the
 > [Bitbucket Cloud REST API](https://developer.atlassian.com/cloud/bitbucket/rest/intro/).
 
-Typed, synchronous Python SDK for the Bitbucket Cloud REST API's pull-request
-surface: repositories, pull requests, comments, statuses, and default
-reviewers. Every response is a validated, frozen [pydantic](https://docs.pydantic.dev/)
-model with attribute access and real Python types — not a raw `dict`.
+Typed, synchronous Python SDK for the Bitbucket Cloud REST API: repository
+core (CRUD, forks, hooks, permissions), refs (branches/tags), source, commits,
+downloads, and the full pull-request surface (comments, statuses, tasks,
+merging, default reviewers). Every response is a validated, frozen
+[pydantic](https://docs.pydantic.dev/) model with attribute access and real
+Python types — not a raw `dict`.
 
 See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for how the client is
 layered.
@@ -32,7 +34,7 @@ layered.
 Not published to PyPI. Add it as a `uv` git dependency pinned to a tag:
 
 ```bash
-uv add "bitbucket-unofficial-sdk @ git+https://github.com/gajaguar/bitbucket-sdk@v0.2.0"
+uv add "bitbucket-unofficial-sdk @ git+https://github.com/gajaguar/bitbucket-sdk@v0.3.0"
 ```
 
 or add the source directly in `pyproject.toml`:
@@ -43,7 +45,7 @@ dependencies = ["bitbucket-unofficial-sdk"]
 
 [tool.uv.sources.bitbucket-unofficial-sdk]
 git = "https://github.com/gajaguar/bitbucket-sdk"
-tag = "v0.2.0"
+tag = "v0.3.0"
 ```
 
 ## Requirements
@@ -121,6 +123,26 @@ print(status.task_status)
 
 `merge()` returns the task immediately without waiting; poll it yourself with
 `merge_task_status(pull_request_id, task_id)` if you need finer control.
+
+Create a repository, push a branch, and read a file from it:
+
+```python
+from bitbucket import BranchCreate
+from bitbucket import RefTargetSpec
+from bitbucket import RepositoryCreate
+
+with BitbucketClient() as client:
+    workspace = client.default_workspace()
+
+    repository = workspace.repositories.create("new-repo", RepositoryCreate(is_private=True))
+    main = next(iter(workspace.repository("new-repo").refs.branches.list()))
+
+    workspace.repository("new-repo").refs.branches.create(
+        BranchCreate(name="feature", target=RefTargetSpec(hash=main.target.hash)),
+    )
+
+    readme = workspace.repository("new-repo").source.read(main.target.hash, "README.md")
+```
 
 ### Command convention: `check` vs `fix`
 
@@ -202,10 +224,14 @@ aggregation); this SDK carries only the Bitbucket wire client.
 
 ## Open items
 
-- Repository create/update/delete, branch restrictions, and webhooks are not
-  yet modeled — see [`docs/coverage.md`](docs/coverage.md) for the full
-  endpoint matrix and [`docs/ROADMAP.md`](docs/ROADMAP.md) for the phased
-  plan to full API parity.
+- Branch restrictions, branching model, projects, workspaces, and pipelines
+  are not yet modeled — see [`docs/coverage.md`](docs/coverage.md) for the
+  full endpoint matrix and [`docs/ROADMAP.md`](docs/ROADMAP.md) for the
+  phased plan to full API parity.
+- A handful of `Commits` operations from the original Phase 2 estimate
+  (a "file-conflicts" endpoint and up to 2 others) couldn't be confidently
+  mapped to a real spec path without re-checking the live spec — see the
+  note in `docs/coverage.md`'s `Commits` section.
 - [`python.yml`](.github/workflows/python.yml) targets a `python` branch
   that doesn't exist and never runs; inherited from the template repo this
   project was extracted from, it needs retargeting to `main` or removal.

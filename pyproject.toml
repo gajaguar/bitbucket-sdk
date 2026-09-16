@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "bitbucket-unofficial-sdk"
-version = "0.2.0"
+version = "0.3.0"
 description = "Unofficial, typed Python SDK for the Bitbucket Cloud REST API."
 readme = "README.md"
 license = "MIT"
