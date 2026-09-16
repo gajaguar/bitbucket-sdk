@@ -4,7 +4,11 @@ from typing import Final
 
 import bitbucket
 
-EXPECTED_EXPORTS: Final = ["__version__"]
+EXPECTED_EXPORTS: Final = (  # ruff: ignore[split-static-string]
+    "AuthenticationError BitbucketAPIError BitbucketError ConfigurationError ConflictError ErrorBody "
+    "ForbiddenError MissingCredentialsError NotFoundError RateLimitError ServerError TransportError "
+    "ValidationError __version__"
+).split()
 
 
 def test_version_is_exported() -> None:
