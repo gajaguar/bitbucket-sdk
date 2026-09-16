@@ -132,7 +132,7 @@ def _error_class(status_code: int) -> type[BitbucketAPIError]:
 
 def _decode_body(text: str) -> ErrorBody:
     # Bitbucket's error envelope is {"type": "error", "error": {"message", "detail"}},
-    # nested under an "error" key rather than clockify's flat {"code", "message"}.
+    # nested under an "error" key rather than a flat {"code", "message"} shape.
     try:
         payload: object = loads(text)
     except ValueError, TypeError:
