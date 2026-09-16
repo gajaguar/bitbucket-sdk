@@ -5,10 +5,16 @@ from typing import Final
 import bitbucket
 
 EXPECTED_EXPORTS: Final = (  # ruff: ignore[split-static-string]
-    "NO_RETRY AccountId AuthenticationError BitbucketAPIError BitbucketError ClientOptions CommentId CommitHash "
-    "ConfigurationError ConflictError CqsKind ErrorBody ForbiddenError MissingCredentialsError NotFoundError "
-    "PullRequestId RateLimitError RepositorySlug RetryPolicy ServerError TransportError Uuid ValidationError "
-    "WorkspaceSlug __version__"
+    "NO_RETRY Account AccountId AccountLinks AuthenticationError AuthorRef BitbucketAPIError BitbucketError "
+    "Branch BranchSpec ClientOptions Comment CommentContentCreate CommentCreate CommentId CommentInline "
+    "CommentInlineCreate CommentParentRef CommentResolution CommentUpdate Commit CommitHash CommitRef "
+    "ConfigurationError ConflictError CqsKind DefaultReviewer EndpointSpec ErrorBody ForbiddenError "
+    "ForkPolicy Link Links Markup MergeStrategy MissingCredentialsError NotFoundError Participant "
+    "ParticipantRole ParticipantState Project PullRequest PullRequestComment PullRequestCreate "
+    "PullRequestEndpoint PullRequestId PullRequestRendered PullRequestState PullRequestStatus "
+    "PullRequestStatusCreate PullRequestStatusState PullRequestUpdate RateLimitError RenderedField Repository "
+    "RepositorySlug RepositorySpec RetryPolicy ReviewerSpec Scm ServerError TransportError UserType Uuid "
+    "ValidationError WorkspaceSlug __version__"
 ).split()
 
 
