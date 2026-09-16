@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING
 
 from bitbucket.resources.commit_statuses import CommitStatusesResource
 from bitbucket.resources.default_reviewers import DefaultReviewersResource
+from bitbucket.resources.hooks import HooksResource
+from bitbucket.resources.permissions import RepositoryPermissionsResource
 from bitbucket.resources.pull_requests import PullRequestsResource
 
 if TYPE_CHECKING:
@@ -15,6 +17,9 @@ if TYPE_CHECKING:
 class RepositoryClient:
     def __init__(self, transport: Transport, workspace: WorkspaceSlug, slug: RepositorySlug) -> None:
         self.slug = slug
+        base_path = f"/repositories/{workspace}/{slug}"
         self.pull_requests = PullRequestsResource(transport, workspace, slug)
         self.default_reviewers = DefaultReviewersResource(transport, workspace, slug)
         self.commit_statuses = CommitStatusesResource(transport, workspace, slug)
+        self.hooks = HooksResource(transport, base_path)
+        self.permissions = RepositoryPermissionsResource(transport, base_path)

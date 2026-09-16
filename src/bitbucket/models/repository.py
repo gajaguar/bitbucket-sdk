@@ -52,3 +52,42 @@ class Repository(BitbucketModel):
     created_on: BitbucketInstant | None = None
     updated_on: BitbucketInstant | None = None
     links: Links | None = None
+
+
+class ProjectSpec(BitbucketModel):
+    key: str
+
+
+class RepositoryCreate(BitbucketModel):
+    # The slug itself is not a body field — POST .../repositories/{workspace}/{repo_slug}
+    # takes it in the path (see the note in docs/coverage.md).
+    scm: Scm = Scm.GIT
+    description: str | None = None
+    is_private: bool | None = None
+    project: ProjectSpec | None = None
+    fork_policy: ForkPolicy | None = None
+    language: str | None = None
+    has_issues: bool | None = None
+    has_wiki: bool | None = None
+
+
+class RepositoryUpdate(BitbucketModel):
+    description: str | None = None
+    is_private: bool | None = None
+    project: ProjectSpec | None = None
+    fork_policy: ForkPolicy | None = None
+    language: str | None = None
+    has_issues: bool | None = None
+    has_wiki: bool | None = None
+
+
+class WorkspaceSpec(BitbucketModel):
+    slug: str
+
+
+class ForkCreate(BitbucketModel):
+    # A fork's own repo_slug is chosen with `name`; an absent `workspace`
+    # forks into the caller's own workspace.
+    name: str | None = None
+    workspace: WorkspaceSpec | None = None
+    is_private: bool | None = None
