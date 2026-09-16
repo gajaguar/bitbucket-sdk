@@ -10,6 +10,7 @@ from bitbucket.errors import ErrorBody
 from bitbucket.errors import ForbiddenError
 from bitbucket.errors import MissingCredentialsError
 from bitbucket.errors import NotFoundError
+from bitbucket.errors import PollTimeoutError
 from bitbucket.errors import RateLimitError
 from bitbucket.errors import ServerError
 from bitbucket.errors import TransportError
@@ -19,10 +20,14 @@ from bitbucket.ids import CommentId
 from bitbucket.ids import CommitHash
 from bitbucket.ids import PullRequestId
 from bitbucket.ids import RepositorySlug
+from bitbucket.ids import TaskId
 from bitbucket.ids import Uuid
 from bitbucket.ids import WorkspaceSlug
 from bitbucket.models import Account
 from bitbucket.models import AccountLinks
+from bitbucket.models import Activity
+from bitbucket.models import ActivityApproval
+from bitbucket.models import ActivityUpdate
 from bitbucket.models import AuthorRef
 from bitbucket.models import Branch
 from bitbucket.models import BranchSpec
@@ -36,13 +41,22 @@ from bitbucket.models import CommentResolution
 from bitbucket.models import CommentUpdate
 from bitbucket.models import Commit
 from bitbucket.models import CommitRef
+from bitbucket.models import CommitStatusCreate
+from bitbucket.models import CommitStatusUpdate
 from bitbucket.models import DefaultReviewer
+from bitbucket.models import DiffStat
+from bitbucket.models import DiffStatEndpoint
 from bitbucket.models import EndpointSpec
+from bitbucket.models import FileConflict
 from bitbucket.models import ForkPolicy
 from bitbucket.models import Link
 from bitbucket.models import Links
 from bitbucket.models import Markup
+from bitbucket.models import MergeParameters
 from bitbucket.models import MergeStrategy
+from bitbucket.models import MergeTask
+from bitbucket.models import MergeTaskState
+from bitbucket.models import MergeTaskStatus
 from bitbucket.models import Participant
 from bitbucket.models import ParticipantRole
 from bitbucket.models import ParticipantState
@@ -62,6 +76,11 @@ from bitbucket.models import Repository
 from bitbucket.models import RepositorySpec
 from bitbucket.models import ReviewerSpec
 from bitbucket.models import Scm
+from bitbucket.models import Task
+from bitbucket.models import TaskContentCreate
+from bitbucket.models import TaskCreate
+from bitbucket.models import TaskState
+from bitbucket.models import TaskUpdate
 from bitbucket.models import UserType
 from bitbucket.repository import RepositoryClient
 from bitbucket.retry import NO_RETRY
@@ -74,6 +93,9 @@ __all__ = [
     "Account",
     "AccountId",
     "AccountLinks",
+    "Activity",
+    "ActivityApproval",
+    "ActivityUpdate",
     "AuthenticationError",
     "AuthorRef",
     "BitbucketAPIError",
@@ -94,23 +116,33 @@ __all__ = [
     "Commit",
     "CommitHash",
     "CommitRef",
+    "CommitStatusCreate",
+    "CommitStatusUpdate",
     "ConfigurationError",
     "ConflictError",
     "CqsKind",
     "DefaultReviewer",
+    "DiffStat",
+    "DiffStatEndpoint",
     "EndpointSpec",
     "ErrorBody",
+    "FileConflict",
     "ForbiddenError",
     "ForkPolicy",
     "Link",
     "Links",
     "Markup",
+    "MergeParameters",
     "MergeStrategy",
+    "MergeTask",
+    "MergeTaskState",
+    "MergeTaskStatus",
     "MissingCredentialsError",
     "NotFoundError",
     "Participant",
     "ParticipantRole",
     "ParticipantState",
+    "PollTimeoutError",
     "Project",
     "PullRequest",
     "PullRequestComment",
@@ -133,6 +165,12 @@ __all__ = [
     "ReviewerSpec",
     "Scm",
     "ServerError",
+    "Task",
+    "TaskContentCreate",
+    "TaskCreate",
+    "TaskId",
+    "TaskState",
+    "TaskUpdate",
     "TransportError",
     "UserType",
     "Uuid",

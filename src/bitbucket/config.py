@@ -6,6 +6,7 @@ from os import environ
 from typing import TYPE_CHECKING
 from typing import Final
 
+from bitbucket._version import __version__
 from bitbucket.errors import ConfigurationError
 from bitbucket.errors import MissingCredentialsError
 from bitbucket.retry import RetryPolicy
@@ -28,7 +29,7 @@ class ClientConfig:
     base_url: str
     timeout: float = 30.0
     retry: RetryPolicy = field(default_factory=RetryPolicy)
-    user_agent: str = "bitbucket-unofficial-sdk/0.2"
+    user_agent: str = f"bitbucket-unofficial-sdk/{__version__}"
     event_hooks: dict[str, list[Callable[..., Any]]] | None = None
 
 

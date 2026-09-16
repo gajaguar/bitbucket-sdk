@@ -26,3 +26,21 @@ class PullRequestStatusCreate(BitbucketModel):
     name: str | None = None
     url: str | None = None
     description: str | None = None
+
+
+class CommitStatusCreate(BitbucketModel):
+    # Same wire shape as PullRequestStatusCreate — Bitbucket's build-status
+    # object is shared between the PR-scoped and commit-scoped endpoints —
+    # kept as a separate type so PR and commit statuses can diverge later.
+    key: str
+    state: PullRequestStatusState
+    url: str
+    name: str | None = None
+    description: str | None = None
+
+
+class CommitStatusUpdate(BitbucketModel):
+    state: PullRequestStatusState | None = None
+    url: str | None = None
+    name: str | None = None
+    description: str | None = None
