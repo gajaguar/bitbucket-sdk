@@ -99,8 +99,9 @@ def test_error_body_defaults_are_none() -> None:
 
 def test_bitbucket_api_error_uses_default_body_when_none_given() -> None:
     # Arrange
+    status_code = 500
     # Act
-    error = BitbucketAPIError(500)
+    error = BitbucketAPIError(status_code)
     # Assert
     assert error.status_code == 500
     assert error.message is None
