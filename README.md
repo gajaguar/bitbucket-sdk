@@ -32,7 +32,7 @@ layered.
 Not published to PyPI. Add it as a `uv` git dependency pinned to a tag:
 
 ```bash
-uv add "bitbucket-unofficial-sdk @ git+https://github.com/gajaguar/bitbucket-sdk@v0.1.0"
+uv add "bitbucket-unofficial-sdk @ git+https://github.com/gajaguar/bitbucket-sdk@v0.2.0"
 ```
 
 or add the source directly in `pyproject.toml`:
@@ -43,7 +43,7 @@ dependencies = ["bitbucket-unofficial-sdk"]
 
 [tool.uv.sources.bitbucket-unofficial-sdk]
 git = "https://github.com/gajaguar/bitbucket-sdk"
-tag = "v0.1.0"
+tag = "v0.2.0"
 ```
 
 ## Requirements
@@ -105,6 +105,22 @@ with BitbucketClient() as client:
 Every `list()` method returns a lazy iterator that follows Bitbucket's `next`
 cursor; iterate it directly, wrap in `list(...)`, or call `list_page(cursor=...)`
 to manage pagination yourself.
+
+Merge a pull request and wait for the result — `POST .../merge` returns
+`202 Accepted` with an async task to poll, not the merged PR directly:
+
+```python
+from bitbucket import MergeParameters
+
+status = repository.pull_requests.merge_and_wait(
+    open_prs[0].id,
+    MergeParameters(merge_strategy="squash"),
+)
+print(status.task_status)
+```
+
+`merge()` returns the task immediately without waiting; poll it yourself with
+`merge_task_status(pull_request_id, task_id)` if you need finer control.
 
 ### Command convention: `check` vs `fix`
 
@@ -188,9 +204,8 @@ aggregation); this SDK carries only the Bitbucket wire client.
 
 - Repository create/update/delete, branch restrictions, and webhooks are not
   yet modeled — see [`docs/coverage.md`](docs/coverage.md) for the full
-  endpoint matrix.
-- `RepositoryClient.default_reviewers` is read-only; adding/removing a
-  default reviewer is deferred.
+  endpoint matrix and [`docs/ROADMAP.md`](docs/ROADMAP.md) for the phased
+  plan to full API parity.
 - [`python.yml`](.github/workflows/python.yml) targets a `python` branch
   that doesn't exist and never runs; inherited from the template repo this
   project was extracted from, it needs retargeting to `main` or removal.
