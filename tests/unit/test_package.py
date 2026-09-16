@@ -4,6 +4,8 @@ from typing import Final
 
 import bitbucket
 
+# Kept as one string rather than a list literal so it does not duplicate the __all__
+# block in bitbucket/__init__.py (pylint duplicate-code).
 EXPECTED_EXPORTS: Final = (  # ruff: ignore[split-static-string]
     "NO_RETRY Account AccountId AccountLinks AuthenticationError AuthorRef BitbucketAPIError BitbucketClient "
     "BitbucketError Branch BranchSpec ClientOptions Comment CommentContentCreate CommentCreate CommentId "
@@ -23,7 +25,7 @@ def test_version_is_exported() -> None:
     # Act
     version = bitbucket.__version__
     # Assert
-    assert version == "0.0.0"
+    assert version == "0.1.0"
 
 
 def test_public_import_surface() -> None:
