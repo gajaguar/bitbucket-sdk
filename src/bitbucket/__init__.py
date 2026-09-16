@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from bitbucket._version import __version__
+from bitbucket.config import ClientOptions
 from bitbucket.errors import AuthenticationError
 from bitbucket.errors import BitbucketAPIError
 from bitbucket.errors import BitbucketError
@@ -31,6 +32,7 @@ __all__ = [
     "AuthenticationError",
     "BitbucketAPIError",
     "BitbucketError",
+    "ClientOptions",
     "CommentId",
     "CommitHash",
     "ConfigurationError",
