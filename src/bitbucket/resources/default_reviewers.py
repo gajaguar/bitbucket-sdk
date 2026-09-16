@@ -19,12 +19,14 @@ if TYPE_CHECKING:
 
 
 class DefaultReviewersResource:
-    # Read-only, repo-level, with no {id} item path (reviewers are added/removed by
-    # PUT/DELETE .../default-reviewers/{account_id}, not modeled here yet) —
-    # hand-written per the over-abstraction guard in docs/TECH_SPEC.md.
+    # {id} item path uses {target_username}, not {account_id} — see the note in
+    # docs/coverage.md — and has no create/update body, so it doesn't fit
+    # NestedResource's {path}/{id} shape — hand-written per the
+    # over-abstraction guard in docs/TECH_SPEC.md.
     def __init__(self, transport: Transport, workspace: WorkspaceSlug, repository: RepositorySlug) -> None:
         self._transport = transport
-        self._path = f"/repositories/{workspace}/{repository}/default-reviewers"
+        self._base_path = f"/repositories/{workspace}/{repository}"
+        self._path = f"{self._base_path}/default-reviewers"
 
     # GET {path} (auto-paginating)
     def list(self) -> Iterator[DefaultReviewer]:
@@ -36,4 +38,31 @@ class DefaultReviewersResource:
             data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
             data = self._transport.request("GET", self._path, kind=CqsKind.QUERY, params={"pagelen": pagelen})
+        return page_from_payload(cast("dict[str, Any]", data), DefaultReviewer)
+
+    # GET {path}/{target_username}
+    def get(self, target_username: str) -> DefaultReviewer:
+        data = self._transport.request("GET", f"{self._path}/{target_username}", kind=CqsKind.QUERY)
+        return DefaultReviewer.model_validate(data)
+
+    # PUT {path}/{target_username}
+    def add(self, target_username: str) -> DefaultReviewer:
+        data = self._transport.request("PUT", f"{self._path}/{target_username}", kind=CqsKind.IDEMPOTENT_COMMAND)
+        return DefaultReviewer.model_validate(data)
+
+    # DELETE {path}/{target_username}
+    def remove(self, target_username: str) -> None:
+        self._transport.request("DELETE", f"{self._path}/{target_username}", kind=CqsKind.IDEMPOTENT_COMMAND)
+
+    # GET .../effective-default-reviewers (auto-paginating)
+    def effective(self) -> Iterator[DefaultReviewer]:
+        return paginate(lambda cursor: self.effective_page(cursor=cursor))
+
+    # GET .../effective-default-reviewers
+    def effective_page(self, *, cursor: str | None = None, pagelen: int = 100) -> Page[DefaultReviewer]:
+        if cursor:
+            data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)
+        else:
+            path = f"{self._base_path}/effective-default-reviewers"
+            data = self._transport.request("GET", path, kind=CqsKind.QUERY, params={"pagelen": pagelen})
         return page_from_payload(cast("dict[str, Any]", data), DefaultReviewer)

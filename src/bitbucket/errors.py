@@ -39,6 +39,10 @@ class MissingCredentialsError(ConfigurationError):
     pass
 
 
+class PollTimeoutError(BitbucketError):
+    pass
+
+
 class TransportError(BitbucketError):
     def __init__(
         self,

@@ -82,6 +82,35 @@ class Transport:
             raise error_for_response(response)
         return response.text
 
+    def request_bytes(
+        self,
+        method: str,
+        path: str,
+        *,
+        kind: CqsKind,
+        params: Mapping[str, str | float | bool | list[str] | None] | None = None,
+    ) -> bytes:
+        response = self._send(method, path, kind=kind, params=params, json=None)
+        if not response.is_success:
+            raise error_for_response(response)
+        return response.content
+
+    def request_multipart(
+        self,
+        method: str,
+        path: str,
+        *,
+        kind: CqsKind,
+        files: Mapping[str, tuple[str, bytes, str] | bytes],
+        data: Mapping[str, str] | None = None,
+    ) -> JSONValue:
+        response = self._send_multipart(method, path, kind=kind, files=files, data=data)
+        if response.status_code == _NO_CONTENT:
+            return None
+        if not response.is_success:
+            raise error_for_response(response)
+        return self._decode_json(response)
+
     def _send(
         self,
         method: str,
@@ -102,11 +131,37 @@ class Transport:
             )
         except httpx.TransportError as error:
             raise TransportError(str(error)) from error
+        self._log(method, path, response)
+        return response
+
+    def _send_multipart(
+        self,
+        method: str,
+        path: str,
+        *,
+        kind: CqsKind,
+        files: Mapping[str, tuple[str, bytes, str] | bytes],
+        data: Mapping[str, str] | None,
+    ) -> httpx.Response:
+        try:
+            response = self._client.request(
+                method,
+                path,
+                files=files,
+                data=data,
+                extensions={"bitbucket_cqs": kind},
+            )
+        except httpx.TransportError as error:
+            raise TransportError(str(error)) from error
+        self._log(method, path, response)
+        return response
+
+    @staticmethod
+    def _log(method: str, path: str, response: httpx.Response) -> None:
         # Only primitives are logged; headers and the config object are never logged so the
         # basic-auth credentials cannot leak into a caller's log sink.
         elapsed_ms = _elapsed_ms(response)
         LOGGER.debug("%s %s -> %s (%.1fms)", method, path, response.status_code, elapsed_ms)
-        return response
 
     @staticmethod
     def _decode_json(response: httpx.Response) -> JSONValue:

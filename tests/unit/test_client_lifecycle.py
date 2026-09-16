@@ -6,6 +6,7 @@ import pytest
 import respx
 from httpx import Response
 
+from bitbucket._version import __version__
 from bitbucket.client import BitbucketClient
 from bitbucket.config import ClientOptions
 from bitbucket.errors import ConfigurationError
@@ -65,7 +66,7 @@ def test_client_sends_the_default_user_agent(client: BitbucketClient) -> None:
     # Act
     client.user.me()
     # Assert
-    assert route.calls[0].request.headers["User-Agent"] == "bitbucket-unofficial-sdk/0.2"
+    assert route.calls[0].request.headers["User-Agent"] == f"bitbucket-unofficial-sdk/{__version__}"
 
 
 @respx.mock

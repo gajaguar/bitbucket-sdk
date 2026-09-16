@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from bitbucket.resources.commit_statuses import CommitStatusesResource
 from bitbucket.resources.default_reviewers import DefaultReviewersResource
 from bitbucket.resources.pull_requests import PullRequestsResource
 
@@ -16,3 +17,4 @@ class RepositoryClient:
         self.slug = slug
         self.pull_requests = PullRequestsResource(transport, workspace, slug)
         self.default_reviewers = DefaultReviewersResource(transport, workspace, slug)
+        self.commit_statuses = CommitStatusesResource(transport, workspace, slug)

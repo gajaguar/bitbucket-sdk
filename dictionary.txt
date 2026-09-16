@@ -29,3 +29,6 @@ delenv
 inprogress
 unvalidated
 unparseable
+unapprove
+unresolve
+unrequest
