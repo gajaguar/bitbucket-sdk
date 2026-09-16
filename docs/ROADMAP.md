@@ -5,7 +5,7 @@ This SDK targets **Bitbucket Cloud REST API `2.0`**, checked against
 `x-revision: 167b2dc51ec8` (2026-09-16). Regenerate the numbers below against
 a newer revision whenever [`coverage.md`](coverage.md) is re-verified.
 
-**Where we are today:** 45 / 294 operations (15%) — see the coverage summary
+**Where we are today:** 97 / 294 operations (33%) — see the coverage summary
 table in [`coverage.md`](coverage.md) for the full breakdown by resource
 group. This document lays out the path from there to full parity, in phases
 tied to version milestones, plus one auth-capability phase (Phase 0) that
@@ -114,29 +114,45 @@ task-status URL to poll, not the merged PR directly — this needs a small
 async-task-polling helper (poll `GET .../merge/task-status/{task_id}` until
 terminal), the first pattern of its kind in the SDK.
 
-## Phase 2 — repository core (`0.3.0`)
+## Phase 2 — repository core (`0.3.0`) — shipped (52 of 55 operations)
 
 25 `Repositories` operations, plus the directly-related content endpoints
-(55 new operations — `Commit statuses` below is already `done`, see Phase 1):
+(`Commit statuses` below was already `done`, see Phase 1):
 
 - Repository CRUD: `POST`/`PUT`/`DELETE /repositories/{workspace}/{repo_slug}`
   (create takes the slug in the path — see the note in `coverage.md`), forks,
-  hooks, watchers, permissions-config (groups/users), override-settings.
-- `Refs` (9): branches and tags, full CRUD.
-- `Source` (4): `GET`/`POST .../src`, `GET .../src/{commit}/{path}`,
-  `GET .../filehistory/{commit}/{path}`.
-- `Commits` (17): commit list/get, commit comments, commit approve, diff,
-  diffstat, patch, merge-base, file-conflicts.
-- `Commit statuses` (4) — already delivered as part of Phase 1's spillover;
-  no remaining work here beyond `coverage.md` bookkeeping.
-- `Downloads` (4): repository downloads CRUD.
+  hooks, watchers, permissions-config (groups/users), override-settings. All
+  23 operations shipped.
+- `Refs` (9): branches and tags — create/get/list/delete (no `update`;
+  Bitbucket has no PUT-by-name endpoint for either). All 9 shipped.
+- `Source` (4): `GET`/`POST .../src`, `GET .../src/{commit}/{path}`
+  (exposed as two SDK methods — `list_path`/`read` — since the endpoint is
+  polymorphic between a directory listing and raw file content),
+  `GET .../filehistory/{commit}/{path}`. All 4 shipped.
+- `Commits` (17, 14 shipped): commit list/get, commit comments, commit
+  approve, diff, diffstat, patch, merge-base all shipped; a "file-conflicts"
+  endpoint from this phase's original estimate could not be confidently
+  mapped to a real, documented Bitbucket Cloud path without re-checking the
+  live spec (see `coverage.md`'s note on this group) and is left `planned`,
+  along with up to 2 further unverified operations against the original
+  17-op estimate.
+- `Commit statuses` (4) — delivered as part of Phase 1's spillover; no
+  remaining work here beyond `coverage.md` bookkeeping.
+- `Downloads` (4): repository downloads CRUD. All 4 shipped.
 
 **Architecture note:** `POST .../src` is a multipart file upload, and
-`diff`/`patch`/`filehistory` return plain text, not JSON. Only
-`Transport.request_text` exists today (used by PR diff); this phase needs a
-`Transport` method for multipart bodies alongside it.
+`diff`/`patch`/`filehistory` return plain text, not JSON — `Transport` grew
+`request_multipart` and `request_bytes` seams alongside the existing
+`request_text` to cover both.
+
+**Follow-up:** re-verify the `Commits` group's exact operation list against
+the live spec (`x-revision` in `coverage.md`) and close the remaining
+`planned` rows there before treating Phase 2 as fully closed.
 
 ## Phase 3 — governance (`0.4.0`)
+
+Also closes Phase 2's 3 `planned` `Commits` rows (see that phase's
+follow-up note) once the live spec confirms their exact shape.
 
 Workspace- and project-level administration surface:
 
@@ -178,15 +194,15 @@ in the machine-readable spec — see the footnote in `coverage.md`.
 
 ## Milestone summary
 
-| Phase | Version | Adds                   | Cumulative coverage |
-| ----- | ------- | ---------------------- | ------------------: |
-| —     | 0.1.0   | (shipped)              |             17 (6%) |
-| 0     | 0.1.1   | +0 (OAuth bearer auth) |             17 (6%) |
-| 1     | 0.2.0   | +28 (shipped)          |            45 (15%) |
-| 2     | 0.3.0   | +55                    |           100 (34%) |
-| 3     | 0.4.0   | +46                    |           146 (50%) |
-| 4     | 0.5.0   | +93                    |           239 (81%) |
-| 5     | 1.0.0   | +55                    |          294 (100%) |
+| Phase | Version | Adds                     |  Cumulative coverage |
+| ----- | ------- | ------------------------ | -------------------: |
+| —     | 0.1.0   | (shipped)                |              17 (6%) |
+| 0     | 0.1.1   | +0 (OAuth bearer auth)   |              17 (6%) |
+| 1     | 0.2.0   | +28 (shipped)            |             45 (15%) |
+| 2     | 0.3.0   | +52 (shipped, 3 planned) |             97 (33%) |
+| 3     | 0.4.0   | +49 (46 + the 3 above)   |            146 (50%) |
+| 4     | 0.5.0   | +93                      |            239 (81%) |
+| 5     | 1.0.0   | +55                      |           294 (100%) |
 
 Phase 0 is listed first because it unblocks delegated-access consumers
 independently of endpoint coverage, not because later phases depend on it —

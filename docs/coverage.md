@@ -31,27 +31,27 @@ once, under its first tag, to sum to 294 without double-counting).
 | ------------------- | ---------: | -----: | ------: |
 | Pipelines           |         68 |      0 |      0% |
 | Pullrequests        |         37 |     37 |    100% |
-| Repositories        |         25 |      2 |      8% |
+| Repositories        |         25 |     23 |     92% |
 | Snippets            |         24 |      0 |      0% |
-| Commits             |         17 |      0 |      0% |
+| Commits             |         17 |     14 |     82% |
 | Deployments         |         16 |      0 |      0% |
 | Workspaces          |         16 |      1 |      6% |
 | Projects            |         16 |      0 |      0% |
 | properties          |         12 |      0 |      0% |
 | Reports             |          9 |      0 |      0% |
-| Refs                |          9 |      0 |      0% |
+| Refs                |          9 |      9 |    100% |
 | Branching model     |          7 |      0 |      0% |
 | Branch restrictions |          5 |      0 |      0% |
 | SSH                 |          5 |      0 |      0% |
 | Commit statuses     |          4 |      4 |    100% |
-| Downloads           |          4 |      0 |      0% |
-| Source              |          4 |      0 |      0% |
+| Downloads           |          4 |      4 |    100% |
+| Source              |          4 |      4 |    100% |
 | Users               |          4 |      1 |     25% |
 | GPG                 |          4 |      0 |      0% |
 | Addon               |          3 |      0 |      0% |
 | Search              |          3 |      0 |      0% |
 | Webhooks            |          2 |      0 |      0% |
-| **Total**           |    **294** | **45** | **15%** |
+| **Total**           |    **294** | **97** | **33%** |
 
 The spec also declares `Issue tracker` and `Wiki` tags with zero operations
 attached to any path — Bitbucket's issue-tracker and wiki REST endpoints are
@@ -68,16 +68,36 @@ to close this gap.
 
 ## Repositories
 
-| Endpoint                                       | SDK method                              | Status  |
-| ---------------------------------------------- | --------------------------------------- | ------- |
-| `GET /repositories/{workspace}`                | `ws.repositories.list(q=..., sort=...)` | done    |
-| `GET /repositories/{workspace}/{repo_slug}`    | `ws.repositories.get(slug)`             | done    |
-| `POST /repositories/{workspace}/{repo_slug}`   | —                                       | planned |
-| `PUT /repositories/{workspace}/{repo_slug}`    | —                                       | planned |
-| `DELETE /repositories/{workspace}/{repo_slug}` | —                                       | planned |
+| Endpoint                                                                    | SDK method                                                   | Status |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------ | ------ |
+| `GET /repositories/{workspace}`                                             | `ws.repositories.list(q=..., sort=...)`                      | done   |
+| `GET /repositories/{workspace}/{repo_slug}`                                 | `ws.repositories.get(slug)`                                  | done   |
+| `POST /repositories/{workspace}/{repo_slug}`                                | `ws.repositories.create(slug, payload)`                      | done   |
+| `PUT /repositories/{workspace}/{repo_slug}`                                 | `ws.repositories.update(slug, payload)`                      | done   |
+| `DELETE /repositories/{workspace}/{repo_slug}`                              | `ws.repositories.delete(slug)`                               | done   |
+| `POST .../repositories/{workspace}/{repo_slug}/forks`                       | `ws.repositories.create_fork(slug, payload)`                 | done   |
+| `GET .../repositories/{workspace}/{repo_slug}/forks`                        | `ws.repositories.forks(slug)`                                | done   |
+| `GET .../repositories/{workspace}/{repo_slug}/watchers`                     | `ws.repositories.watchers(slug)`                             | done   |
+| `GET .../hooks`                                                             | `repo.hooks.list()`                                          | done   |
+| `POST .../hooks`                                                            | `repo.hooks.create(payload)`                                 | done   |
+| `GET .../hooks/{uid}`                                                       | `repo.hooks.get(uid)`                                        | done   |
+| `PUT .../hooks/{uid}`                                                       | `repo.hooks.update(uid, payload)`                            | done   |
+| `DELETE .../hooks/{uid}`                                                    | `repo.hooks.delete(uid)`                                     | done   |
+| `GET .../permissions-config/groups`                                         | `repo.permissions.groups.list()`                             | done   |
+| `GET .../permissions-config/groups/{group_slug}`                            | `repo.permissions.groups.get(group_slug)`                    | done   |
+| `PUT .../permissions-config/groups/{group_slug}`                            | `repo.permissions.groups.update(group_slug, payload)`        | done   |
+| `DELETE .../permissions-config/groups/{group_slug}`                         | `repo.permissions.groups.delete(group_slug)`                 | done   |
+| `GET .../permissions-config/users`                                          | `repo.permissions.users.list()`                              | done   |
+| `GET .../permissions-config/users/{account_id}`                             | `repo.permissions.users.get(account_id)`                     | done   |
+| `PUT .../permissions-config/users/{account_id}`                             | `repo.permissions.users.update(account_id, payload)`         | done   |
+| `DELETE .../permissions-config/users/{account_id}`                          | `repo.permissions.users.delete(account_id)`                  | done   |
+| `GET .../permissions-config/override-settings`                              | `repo.permissions.override_settings()`                       | done   |
+| `PUT .../permissions-config/override-settings`                              | `repo.permissions.update_override_settings(payload)`         | done   |
 
 Note: repository creation is `POST /repositories/{workspace}/{repo_slug}` —
-the slug is part of the path, not a body-only field.
+the slug is part of the path, not a body-only field. Paths omitting the
+`/repositories/{workspace}/{repo_slug}` prefix above are abbreviated the
+same way the Pull requests section abbreviates `.../pullrequests`.
 
 ## Pull requests
 
@@ -145,3 +165,70 @@ the slug is part of the path, not a body-only field.
 | `GET .../effective-default-reviewers`             | `repo.default_reviewers.effective()`                | done   |
 
 Note: the endpoint uses `{target_username}`, not `{account_id}`.
+
+## Refs
+
+| Endpoint                             | SDK method                           | Status |
+| ------------------------------------ | ------------------------------------ | ------ |
+| `GET .../refs`                       | `repo.refs.list()`                   | done   |
+| `GET .../refs/branches`              | `repo.refs.branches.list()`          | done   |
+| `POST .../refs/branches`             | `repo.refs.branches.create(payload)` | done   |
+| `GET .../refs/branches/{name}`       | `repo.refs.branches.get(name)`       | done   |
+| `DELETE .../refs/branches/{name}`    | `repo.refs.branches.delete(name)`    | done   |
+| `GET .../refs/tags`                  | `repo.refs.tags.list()`              | done   |
+| `POST .../refs/tags`                 | `repo.refs.tags.create(payload)`     | done   |
+| `GET .../refs/tags/{name}`           | `repo.refs.tags.get(name)`           | done   |
+| `DELETE .../refs/tags/{name}`        | `repo.refs.tags.delete(name)`        | done   |
+
+Note: no `update` for branches or tags — Bitbucket has no PUT-by-name
+endpoint for either.
+
+## Source
+
+| Endpoint                                     | SDK method                                                    | Status |
+| -------------------------------------------- | ------------------------------------------------------------- | ------ |
+| `GET .../src`                                | `repo.source.list()`                                          | done   |
+| `POST .../src`                               | `repo.source.create_commit(files, ...)`                       | done   |
+| `GET .../src/{commit}/{path}`                | `repo.source.list_path(commit, path)` / `.read(commit, path)` | done   |
+| `GET .../filehistory/{commit}/{path}`        | `repo.source.file_history(commit, path)`                      | done   |
+
+Note: `GET .../src/{commit}/{path}` is polymorphic — a directory or a file,
+depending on `path` — so the SDK exposes it as two methods rather than
+guessing from the response.
+
+## Commits
+
+| Endpoint                                                            | SDK method                                                  | Status  |
+| ------------------------------------------------------------------- | ----------------------------------------------------------- | ------- |
+| `GET .../commits`                                                   | `repo.commits.list(include=..., exclude=...)`               | done    |
+| `GET .../commits/{revision}`                                        | `repo.commits.list_from(revision)`                          | done    |
+| `GET .../commit/{commit}`                                           | `repo.commits.get(commit)`                                  | done    |
+| `POST .../commit/{commit}/approve`                                  | `repo.commits.approve(commit)`                              | done    |
+| `DELETE .../commit/{commit}/approve`                                | `repo.commits.unapprove(commit)`                            | done    |
+| `GET .../commit/{commit}/comments`                                  | `repo.commits.comments(commit).list()`                      | done    |
+| `POST .../commit/{commit}/comments`                                 | `repo.commits.comments(commit).create(payload)`             | done    |
+| `GET .../commit/{commit}/comments/{comment_id}`                     | `repo.commits.comments(commit).get(comment_id)`             | done    |
+| `PUT .../commit/{commit}/comments/{comment_id}`                     | `repo.commits.comments(commit).update(comment_id, payload)` | done    |
+| `DELETE .../commit/{commit}/comments/{comment_id}`                  | `repo.commits.comments(commit).delete(comment_id)`          | done    |
+| `GET .../diff/{spec}`                                               | `repo.commits.diff(spec)`                                   | done    |
+| `GET .../diffstat/{spec}`                                           | `repo.commits.diffstat(spec)`                               | done    |
+| `GET .../patch/{spec}`                                              | `repo.commits.patch(spec)`                                  | done    |
+| `GET .../merge-base/{spec}`                                         | `repo.commits.merge_base(spec)`                             | done    |
+| commit merge-conflict detection                                     | —                                                           | planned |
+| (unverified — 2 further operations per the original 17-op estimate) | —                                                           | planned |
+
+Note: this group's original 17-operation estimate in `ROADMAP.md` included a
+"file-conflicts" endpoint this pass could not confidently map to a real,
+documented Bitbucket Cloud path without re-checking the live spec (see
+`ROADMAP.md`'s note on regenerating these numbers) — left `planned` rather
+than guessed at. 14 of the group's operations are implemented and verified
+against the endpoint shapes documented in Bitbucket's public API reference.
+
+## Downloads
+
+| Endpoint                                 | SDK method                               | Status |
+| ---------------------------------------- | ---------------------------------------- | ------ |
+| `GET .../downloads`                      | `repo.downloads.list()`                  | done   |
+| `POST .../downloads`                     | `repo.downloads.upload(name, content)`   | done   |
+| `GET .../downloads/{filename}`           | `repo.downloads.get(filename)`           | done   |
+| `DELETE .../downloads/{filename}`        | `repo.downloads.delete(filename)`        | done   |
