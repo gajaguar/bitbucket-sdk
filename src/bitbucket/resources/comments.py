@@ -22,3 +22,12 @@ class CommentsResource(NestedResource[PullRequestComment, CommentCreate, Comment
     # DELETE {path}/{id}/resolve
     def unresolve(self, comment_id: object) -> None:
         self._transport.request("DELETE", f"{self._item_path(comment_id)}/resolve", kind=CqsKind.IDEMPOTENT_COMMAND)
+
+
+class CommitCommentsResource(NestedResource[PullRequestComment, CommentCreate, CommentUpdate], DeletableResourceMixin):
+    # Commit comments share pull-request comments' exact wire shape, but have
+    # no resolve/unresolve endpoint — a separate class rather than a
+    # CommentsResource subclass, so `.resolve()` isn't offered where
+    # Bitbucket doesn't support it.
+    _path = "/comments"
+    _read_model = PullRequestComment
