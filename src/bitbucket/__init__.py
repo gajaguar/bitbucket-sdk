@@ -1,6 +1,5 @@
-from __future__ import annotations
-
 from bitbucket._version import __version__
+from bitbucket.client import BitbucketClient
 from bitbucket.config import ClientOptions
 from bitbucket.errors import AuthenticationError
 from bitbucket.errors import BitbucketAPIError
@@ -64,9 +63,11 @@ from bitbucket.models import RepositorySpec
 from bitbucket.models import ReviewerSpec
 from bitbucket.models import Scm
 from bitbucket.models import UserType
+from bitbucket.repository import RepositoryClient
 from bitbucket.retry import NO_RETRY
 from bitbucket.retry import CqsKind
 from bitbucket.retry import RetryPolicy
+from bitbucket.workspace import WorkspaceClient
 
 __all__ = [
     "NO_RETRY",
@@ -76,6 +77,7 @@ __all__ = [
     "AuthenticationError",
     "AuthorRef",
     "BitbucketAPIError",
+    "BitbucketClient",
     "BitbucketError",
     "Branch",
     "BranchSpec",
@@ -124,6 +126,7 @@ __all__ = [
     "RateLimitError",
     "RenderedField",
     "Repository",
+    "RepositoryClient",
     "RepositorySlug",
     "RepositorySpec",
     "RetryPolicy",
@@ -134,6 +137,7 @@ __all__ = [
     "UserType",
     "Uuid",
     "ValidationError",
+    "WorkspaceClient",
     "WorkspaceSlug",
     "__version__",
 ]
