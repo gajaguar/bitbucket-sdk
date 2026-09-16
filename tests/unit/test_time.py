@@ -29,18 +29,20 @@ def test_parse_instant_treats_naive_value_as_utc() -> None:
 
 def test_parse_instant_rejects_non_string() -> None:
     # Arrange
+    invalid_value = 123
     # Act
     # Assert
     with pytest.raises(ValidationError):
-        parse_instant(123)  # type: ignore[arg-type]
+        parse_instant(invalid_value)  # type: ignore[arg-type]
 
 
 def test_parse_instant_rejects_malformed_string() -> None:
     # Arrange
+    invalid_value = "not-a-date"
     # Act
     # Assert
     with pytest.raises(ValidationError):
-        parse_instant("not-a-date")
+        parse_instant(invalid_value)
 
 
 def test_format_instant_round_trips_through_parse() -> None:
@@ -63,7 +65,8 @@ def test_format_instant_naive_datetime_is_treated_as_utc() -> None:
 
 def test_format_instant_rejects_non_datetime() -> None:
     # Arrange
+    invalid_value = "2024-01-01"
     # Act
     # Assert
     with pytest.raises(ValidationError):
-        format_instant("2024-01-01")  # type: ignore[arg-type]
+        format_instant(invalid_value)  # type: ignore[arg-type]
