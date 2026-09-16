@@ -49,6 +49,7 @@ from bitbucket.models import DiffStat
 from bitbucket.models import DiffStatEndpoint
 from bitbucket.models import EndpointSpec
 from bitbucket.models import FileConflict
+from bitbucket.models import FileHistoryEntry
 from bitbucket.models import ForkCreate
 from bitbucket.models import ForkPolicy
 from bitbucket.models import GroupPermission
@@ -96,6 +97,7 @@ from bitbucket.models import TaskContentCreate
 from bitbucket.models import TaskCreate
 from bitbucket.models import TaskState
 from bitbucket.models import TaskUpdate
+from bitbucket.models import TreeEntry
 from bitbucket.models import UserPermission
 from bitbucket.models import UserPermissionUpdate
 from bitbucket.models import UserType
@@ -149,6 +151,7 @@ __all__ = [
     "EndpointSpec",
     "ErrorBody",
     "FileConflict",
+    "FileHistoryEntry",
     "ForbiddenError",
     "ForkCreate",
     "ForkPolicy",
@@ -208,6 +211,7 @@ __all__ = [
     "TaskState",
     "TaskUpdate",
     "TransportError",
+    "TreeEntry",
     "UserPermission",
     "UserPermissionUpdate",
     "UserType",

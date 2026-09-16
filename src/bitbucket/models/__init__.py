@@ -69,6 +69,8 @@ from bitbucket.models.repository import RepositoryCreate
 from bitbucket.models.repository import RepositoryUpdate
 from bitbucket.models.repository import Scm
 from bitbucket.models.repository import WorkspaceSpec
+from bitbucket.models.source import FileHistoryEntry
+from bitbucket.models.source import TreeEntry
 from bitbucket.models.status import CommitStatusCreate
 from bitbucket.models.status import CommitStatusUpdate
 from bitbucket.models.status import PullRequestStatus
@@ -110,6 +112,7 @@ __all__ = [
     "DiffStatEndpoint",
     "EndpointSpec",
     "FileConflict",
+    "FileHistoryEntry",
     "ForkCreate",
     "ForkPolicy",
     "GroupPermission",
@@ -157,6 +160,7 @@ __all__ = [
     "TaskCreate",
     "TaskState",
     "TaskUpdate",
+    "TreeEntry",
     "UserPermission",
     "UserPermissionUpdate",
     "UserType",
