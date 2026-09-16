@@ -16,6 +16,11 @@ from bitbucket.models.pull_request import BranchSpec
 from bitbucket.models.pull_request import EndpointSpec
 from bitbucket.models.pull_request import PullRequestCreate
 from bitbucket.models.pull_request import PullRequestUpdate
+from bitbucket.models.status import CommitStatusCreate
+from bitbucket.models.status import CommitStatusUpdate
+from bitbucket.models.task import TaskContentCreate
+from bitbucket.models.task import TaskCreate
+from bitbucket.models.task import TaskUpdate
 from tests.conftest import BASE_URL
 
 if TYPE_CHECKING:
@@ -28,6 +33,14 @@ def _pull_requests(client: BitbucketClient):
 
 def _comments(client: BitbucketClient):
     return _pull_requests(client).comments(5)
+
+
+def _tasks(client: BitbucketClient):
+    return _pull_requests(client).tasks(5)
+
+
+def _repository(client: BitbucketClient):
+    return client.workspace("ws").repository("repo")
 
 
 @respx.mock
@@ -258,3 +271,304 @@ def test_pull_request_update_puts_only_the_changed_title(client: BitbucketClient
     # Assert
     assert result.title == "Renamed"
     assert route.calls[0].request.content == b'{"title":"Renamed"}'
+
+
+@respx.mock
+def test_pull_request_commits_returns_commit_hashes(client: BitbucketClient) -> None:
+    # Arrange
+    respx.get(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/commits").mock(
+        return_value=Response(200, json={"values": [{"hash": "abc123"}], "next": None}),
+    )
+    # Act
+    commits = list(_pull_requests(client).commits(5))
+    # Assert
+    assert [commit.hash for commit in commits] == ["abc123"]
+
+
+@respx.mock
+def test_pull_request_conflicts_returns_conflicting_files(client: BitbucketClient) -> None:
+    # Arrange
+    respx.get(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/conflicts").mock(
+        return_value=Response(200, json={"values": [{"path": "a.py"}], "next": None}),
+    )
+    # Act
+    conflicts = list(_pull_requests(client).conflicts(5))
+    # Assert
+    assert [conflict.path for conflict in conflicts] == ["a.py"]
+
+
+@respx.mock
+def test_pull_request_diffstat_returns_line_counts(client: BitbucketClient) -> None:
+    # Arrange
+    respx.get(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/diffstat").mock(
+        return_value=Response(200, json={"values": [{"lines_added": 3, "lines_removed": 1}], "next": None}),
+    )
+    # Act
+    stats = list(_pull_requests(client).diffstat(5))
+    # Assert
+    assert [stat.lines_added for stat in stats] == [3]
+
+
+@respx.mock
+def test_pull_request_mbox_format_export_returns_raw_text(client: BitbucketClient) -> None:
+    # Arrange
+    respx.get(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/patch").mock(
+        return_value=Response(200, text="From abc123"),
+    )
+    # Act
+    result = _pull_requests(client).patch(5)
+    # Assert
+    assert result == "From abc123"
+
+
+@respx.mock
+def test_pull_request_activity_returns_activity_feed(client: BitbucketClient) -> None:
+    # Arrange
+    respx.get(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/activity").mock(
+        return_value=Response(200, json={"values": [{"update": {"state": "OPEN"}}], "next": None}),
+    )
+    # Act
+    activity = list(_pull_requests(client).activity(5))
+    # Assert
+    assert [entry.update.state for entry in activity] == ["OPEN"]
+
+
+@respx.mock
+def test_repository_pull_request_activity_returns_repo_wide_feed(client: BitbucketClient) -> None:
+    # Arrange
+    respx.get(f"{BASE_URL}/repositories/ws/repo/pullrequests/activity").mock(
+        return_value=Response(200, json={"values": [{"update": {"state": "MERGED"}}], "next": None}),
+    )
+    # Act
+    activity = list(client.workspace("ws").repositories.pull_request_activity("repo"))
+    # Assert
+    assert [entry.update.state for entry in activity] == ["MERGED"]
+
+
+@respx.mock
+def test_repository_commit_pull_requests_returns_prs_containing_commit(client: BitbucketClient) -> None:
+    # Arrange
+    respx.get(f"{BASE_URL}/repositories/ws/repo/commit/abc123/pullrequests").mock(
+        return_value=Response(200, json={"values": [{"id": 9}], "next": None}),
+    )
+    # Act
+    pull_requests = list(client.workspace("ws").repositories.commit_pull_requests("repo", "abc123"))
+    # Assert
+    assert [pr.id for pr in pull_requests] == [9]
+
+
+@respx.mock
+def test_pull_request_task_create_posts_content_payload(client: BitbucketClient) -> None:
+    # Arrange
+    route = respx.post(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/tasks").mock(
+        return_value=Response(200, json={"id": 1}),
+    )
+    payload = TaskCreate(content=TaskContentCreate(raw="fix this"))
+    # Act
+    result = _tasks(client).create(payload)
+    # Assert
+    assert result.id == 1
+    assert route.calls[0].request.content == b'{"content":{"raw":"fix this"}}'
+
+
+@respx.mock
+def test_pull_request_task_list_returns_tasks(client: BitbucketClient) -> None:
+    # Arrange
+    respx.get(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/tasks").mock(
+        return_value=Response(200, json={"values": [{"id": 1, "state": "UNRESOLVED"}], "next": None}),
+    )
+    # Act
+    tasks = list(_tasks(client).list())
+    # Assert
+    assert [task.state for task in tasks] == ["UNRESOLVED"]
+
+
+@respx.mock
+def test_pull_request_task_update_puts_resolved_state(client: BitbucketClient) -> None:
+    # Arrange
+    route = respx.put(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/tasks/1").mock(
+        return_value=Response(200, json={"id": 1, "state": "RESOLVED"}),
+    )
+    # Act
+    result = _tasks(client).update(1, TaskUpdate(state="RESOLVED"))
+    # Assert
+    assert result.state == "RESOLVED"
+    assert route.calls[0].request.content == b'{"state":"RESOLVED"}'
+
+
+@respx.mock
+def test_pull_request_task_delete_returns_none(client: BitbucketClient) -> None:
+    # Arrange
+    route = respx.delete(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/tasks/1").mock(
+        return_value=Response(204),
+    )
+    # Act
+    result = _tasks(client).delete(1)
+    # Assert
+    assert result is None
+    assert route.called
+
+
+@respx.mock
+def test_pull_request_comment_resolve_returns_resolved_comment(client: BitbucketClient) -> None:
+    # Arrange
+    route = respx.post(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/comments/9/resolve").mock(
+        return_value=Response(200, json={"id": 9, "pending": False}),
+    )
+    # Act
+    result = _comments(client).resolve(9)
+    # Assert
+    assert result.id == 9
+    assert route.calls[0].request.content == b""
+
+
+@respx.mock
+def test_pull_request_comment_unresolve_returns_none(client: BitbucketClient) -> None:
+    # Arrange
+    route = respx.delete(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/comments/9/resolve").mock(
+        return_value=Response(204),
+    )
+    # Act
+    result = _comments(client).unresolve(9)
+    # Assert
+    assert result is None
+    assert route.called
+
+
+@respx.mock
+def test_pull_request_properties_get_returns_stored_value(client: BitbucketClient) -> None:
+    # Arrange
+    respx.get(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/properties/my-app/state").mock(
+        return_value=Response(200, json={"stage": "review"}),
+    )
+    # Act
+    value = _pull_requests(client).properties(5).get("my-app", "state")
+    # Assert
+    assert value == {"stage": "review"}
+
+
+@respx.mock
+def test_pull_request_properties_put_sends_value_as_body(client: BitbucketClient) -> None:
+    # Arrange
+    route = respx.put(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/properties/my-app/state").mock(
+        return_value=Response(200, json={"stage": "done"}),
+    )
+    # Act
+    result = _pull_requests(client).properties(5).put("my-app", "state", {"stage": "done"})
+    # Assert
+    assert result == {"stage": "done"}
+    assert route.calls[0].request.content == b'{"stage":"done"}'
+
+
+@respx.mock
+def test_pull_request_properties_delete_returns_none(client: BitbucketClient) -> None:
+    # Arrange
+    route = respx.delete(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/properties/my-app/state").mock(
+        return_value=Response(204),
+    )
+    # Act
+    result = _pull_requests(client).properties(5).delete("my-app", "state")
+    # Assert
+    assert result is None
+    assert route.called
+
+
+@respx.mock
+def test_default_reviewer_get_returns_reviewer(client: BitbucketClient) -> None:
+    # Arrange
+    respx.get(f"{BASE_URL}/repositories/ws/repo/default-reviewers/alice").mock(
+        return_value=Response(200, json={"uuid": "{x}"}),
+    )
+    # Act
+    reviewer = _repository(client).default_reviewers.get("alice")
+    # Assert
+    assert reviewer.uuid == "{x}"
+
+
+@respx.mock
+def test_default_reviewer_add_puts_target_username(client: BitbucketClient) -> None:
+    # Arrange
+    route = respx.put(f"{BASE_URL}/repositories/ws/repo/default-reviewers/alice").mock(
+        return_value=Response(200, json={"uuid": "{x}"}),
+    )
+    # Act
+    reviewer = _repository(client).default_reviewers.add("alice")
+    # Assert
+    assert reviewer.uuid == "{x}"
+    assert route.called
+
+
+@respx.mock
+def test_default_reviewer_remove_returns_none(client: BitbucketClient) -> None:
+    # Arrange
+    route = respx.delete(f"{BASE_URL}/repositories/ws/repo/default-reviewers/alice").mock(
+        return_value=Response(204),
+    )
+    # Act
+    result = _repository(client).default_reviewers.remove("alice")
+    # Assert
+    assert result is None
+    assert route.called
+
+
+@respx.mock
+def test_default_reviewer_effective_returns_repo_and_project_reviewers(client: BitbucketClient) -> None:
+    # Arrange
+    respx.get(f"{BASE_URL}/repositories/ws/repo/effective-default-reviewers").mock(
+        return_value=Response(200, json={"values": [{"uuid": "{x}", "reviewer_type": "project"}], "next": None}),
+    )
+    # Act
+    reviewers = list(_repository(client).default_reviewers.effective())
+    # Assert
+    assert [reviewer.reviewer_type for reviewer in reviewers] == ["project"]
+
+
+@respx.mock
+def test_commit_status_list_returns_build_statuses(client: BitbucketClient) -> None:
+    # Arrange
+    respx.get(f"{BASE_URL}/repositories/ws/repo/commit/abc123/statuses").mock(
+        return_value=Response(200, json={"values": [{"key": "build"}], "next": None}),
+    )
+    # Act
+    statuses = list(_repository(client).commit_statuses.list("abc123"))
+    # Assert
+    assert [status.key for status in statuses] == ["build"]
+
+
+@respx.mock
+def test_commit_status_create_posts_build_status(client: BitbucketClient) -> None:
+    # Arrange
+    route = respx.post(f"{BASE_URL}/repositories/ws/repo/commit/abc123/statuses/build").mock(
+        return_value=Response(200, json={"key": "build", "state": "INPROGRESS"}),
+    )
+    payload = CommitStatusCreate(key="build", state="INPROGRESS", url="https://ci.example.com/1")
+    # Act
+    result = _repository(client).commit_statuses.create("abc123", payload)
+    # Assert
+    assert result.state == "INPROGRESS"
+    assert route.calls[0].request.content == (b'{"key":"build","state":"INPROGRESS","url":"https://ci.example.com/1"}')
+
+
+@respx.mock
+def test_commit_status_get_returns_build_status(client: BitbucketClient) -> None:
+    # Arrange
+    respx.get(f"{BASE_URL}/repositories/ws/repo/commit/abc123/statuses/build/build").mock(
+        return_value=Response(200, json={"key": "build", "state": "SUCCESSFUL"}),
+    )
+    # Act
+    result = _repository(client).commit_statuses.get("abc123", "build")
+    # Assert
+    assert result.state == "SUCCESSFUL"
+
+
+@respx.mock
+def test_commit_status_update_puts_new_state(client: BitbucketClient) -> None:
+    # Arrange
+    route = respx.put(f"{BASE_URL}/repositories/ws/repo/commit/abc123/statuses/build/build").mock(
+        return_value=Response(200, json={"key": "build", "state": "SUCCESSFUL"}),
+    )
+    # Act
+    result = _repository(client).commit_statuses.update("abc123", "build", CommitStatusUpdate(state="SUCCESSFUL"))
+    # Assert
+    assert result.state == "SUCCESSFUL"
+    assert route.calls[0].request.content == b'{"state":"SUCCESSFUL"}'
