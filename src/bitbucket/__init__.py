@@ -47,6 +47,7 @@ from bitbucket.models import CommitStatusUpdate
 from bitbucket.models import DefaultReviewer
 from bitbucket.models import DiffStat
 from bitbucket.models import DiffStatEndpoint
+from bitbucket.models import Download
 from bitbucket.models import EndpointSpec
 from bitbucket.models import FileConflict
 from bitbucket.models import FileHistoryEntry
@@ -148,6 +149,7 @@ __all__ = [
     "DefaultReviewer",
     "DiffStat",
     "DiffStatEndpoint",
+    "Download",
     "EndpointSpec",
     "ErrorBody",
     "FileConflict",

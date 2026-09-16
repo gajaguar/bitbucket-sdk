@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from bitbucket.resources.commit_statuses import CommitStatusesResource
 from bitbucket.resources.commits import CommitsResource
 from bitbucket.resources.default_reviewers import DefaultReviewersResource
+from bitbucket.resources.downloads import DownloadsResource
 from bitbucket.resources.hooks import HooksResource
 from bitbucket.resources.permissions import RepositoryPermissionsResource
 from bitbucket.resources.pull_requests import PullRequestsResource
@@ -31,3 +32,4 @@ class RepositoryClient:  # pylint: disable=too-many-instance-attributes
         self.refs = RefsResource(transport, base_path)
         self.source = SourceResource(transport, base_path)
         self.commits = CommitsResource(transport, base_path)
+        self.downloads = DownloadsResource(transport, base_path)

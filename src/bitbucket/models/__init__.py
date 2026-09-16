@@ -27,6 +27,7 @@ from bitbucket.models.commit import CommitRef
 from bitbucket.models.conflict import FileConflict
 from bitbucket.models.diffstat import DiffStat
 from bitbucket.models.diffstat import DiffStatEndpoint
+from bitbucket.models.download import Download
 from bitbucket.models.hook import Webhook
 from bitbucket.models.hook import WebhookCreate
 from bitbucket.models.hook import WebhookUpdate
@@ -110,6 +111,7 @@ __all__ = [
     "DefaultReviewer",
     "DiffStat",
     "DiffStatEndpoint",
+    "Download",
     "EndpointSpec",
     "FileConflict",
     "FileHistoryEntry",
