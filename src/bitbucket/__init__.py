@@ -14,20 +14,34 @@ from bitbucket.errors import RateLimitError
 from bitbucket.errors import ServerError
 from bitbucket.errors import TransportError
 from bitbucket.errors import ValidationError
+from bitbucket.ids import AccountId
+from bitbucket.ids import CommentId
+from bitbucket.ids import CommitHash
+from bitbucket.ids import PullRequestId
+from bitbucket.ids import RepositorySlug
+from bitbucket.ids import Uuid
+from bitbucket.ids import WorkspaceSlug
 
 __all__ = [
+    "AccountId",
     "AuthenticationError",
     "BitbucketAPIError",
     "BitbucketError",
+    "CommentId",
+    "CommitHash",
     "ConfigurationError",
     "ConflictError",
     "ErrorBody",
     "ForbiddenError",
     "MissingCredentialsError",
     "NotFoundError",
+    "PullRequestId",
     "RateLimitError",
+    "RepositorySlug",
     "ServerError",
     "TransportError",
+    "Uuid",
     "ValidationError",
+    "WorkspaceSlug",
     "__version__",
 ]
