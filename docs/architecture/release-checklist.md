@@ -18,7 +18,11 @@ release:
    the patch.
 2. `make check` and `make test` — both must exit 0, and the 90% coverage gate
    must pass.
-3. `make build` — must produce a valid sdist and wheel.
+3. `make build` — must produce a valid sdist and wheel, and
+   `uvx twine check dist/*` must accept the README.
 4. Confirm [endpoint coverage](../api/endpoint-coverage.md) reflects the
    endpoints actually shipped in this version.
-5. Tag `vX.Y.Z` and publish the GitHub release.
+5. Publish a GitHub Release from tag `vX.Y.Z`, then approve the `pypi`
+   environment so [`publish.yml`](../../.github/workflows/publish.yml)
+   uploads it — see
+   [PyPI Trusted Publishing](../release/pypi-trusted-publishing.md).
