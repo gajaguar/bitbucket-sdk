@@ -16,10 +16,10 @@ a newer revision whenever [endpoint coverage](endpoint-coverage.md) is re-verifi
 **Where we are today:** 97 / 294 operations (33%) — see the coverage summary
 table in [endpoint coverage](endpoint-coverage.md) for the full breakdown by resource
 group. This document lays out the path from there to full parity, in phases
-tied to version milestones, plus one auth-capability phase (Phase 0) that
-doesn't move the coverage number but unblocks consumers — such as an MCP
-server — that need to act on behalf of other Bitbucket users via OAuth 2.0
-rather than a single operator credential.
+tied to version milestones, plus two cross-cutting phases (0a and 0b) that
+don't move the coverage number. Phase 0b unblocks consumers — such as an MCP
+server — that need to act on behalf of other Bitbucket users with a bearer
+token rather than a single operator credential.
 
 ## Non-goals (carried from the tech spec)
 
@@ -43,7 +43,7 @@ every operation added in any phase needs:
    `{base_path}{_path}[/{id}]` shape, and `resources.base.page_from_payload`
    for anything paginated but irregular.
 3. A `# METHOD /path` comment above the method (this repo has no
-   docstring-based reference; see `app-no-docstrings`).
+   docstring-based reference; see `gajaguar-no-docstrings`).
 4. A declared `CqsKind` (query / idempotent command / non-idempotent command).
 5. A `endpoint-coverage.md` row moved from `planned` to `done`.
 6. An async mirror of the method in `src/bitbucket/aio/resources/` (same
@@ -158,52 +158,62 @@ terminal), the first pattern of its kind in the SDK.
 the live spec (`x-revision` in `endpoint-coverage.md`) and close the remaining
 `planned` rows there before treating Phase 2 as fully closed.
 
-## Phase 0b — OAuth 2.0 bearer auth (`0.6.0`)
+## Phase 0b — bearer token auth (`0.6.0`)
 
 Cross-cutting infrastructure, not an endpoint group — this phase adds no
 `endpoint-coverage.md` rows and does not move the coverage percentage. It
-exists to unblock any consumer that must act on behalf of *another* Bitbucket user
-rather than its own operator credential — concretely, an MCP server
-exposing Bitbucket tools to per-user connections. Scoped strictly to the
-SDK's side of that split (see the "OAuth Auth Playbook" artifact's §06,
-"Where the SDK's job ends"): the SDK becomes able to *use* a bearer token,
-not to *obtain* one.
+lets a consumer authenticate with a bearer token instead of the operator's
+email and API token. Bitbucket Cloud accepts `Authorization: Bearer` for
+repository, project and workspace access tokens, and for an OAuth 2.0 access
+token; the SDK does not care which one it receives.
+
+The SDK's side of the split is to *use* a bearer token, not to *obtain* or
+renew it — see
+[why the SDK does not acquire credentials](../sdk/credential-sources.md). A
+consumer that acts for other Bitbucket users, such as an MCP server, builds
+one client per user, or passes a provider that looks the token up for that
+user.
 
 In scope:
 
 - `BearerAuth` (`src/bitbucket/_auth.py`): an `httpx.Auth` sibling to the
   existing `BasicAuth`, attaching `Authorization: Bearer <token>`. The
   seam is already named in `_auth.py`'s own comment.
-- A generic refresh mechanism: `auth_flow` yields a request, inspects a
-  `401` response, calls a refresh callback, and re-yields — the same
-  generator shape `BasicAuth.auth_flow` already returns via
-  `httpx.BasicAuth`.
-- A `TokenProvider` protocol/callable: "give me a token," with the SDK
-  holding no opinion on where it came from. *Partly shipped:* the
-  `ApiTokenProvider` callable (`src/bitbucket/config.py`) is accepted by
-  `BitbucketClient(api_token=...)` and invoked on every request by
-  `BasicAuth`. A bearer-token provider is still pending.
+- A bearer-token provider, `AccessTokenProvider`, with the same rules as
+  `ApiTokenProvider` (`src/bitbucket/config.py`): called on every request,
+  never cached, an empty value raises `MissingCredentialsError`. Renewing an
+  expiring token is the provider's job; the SDK has no refresh callback.
 - `ClientConfig`/`resolve_credentials` (`src/bitbucket/config.py`) widened
-  to accept a `TokenProvider` as an alternative to the existing
-  email/API-token pair, without making either required unconditionally.
-  *Pending:* today the provider only replaces the API token, and the email
-  is still required.
+  so a bearer token is an alternative to the email/API-token pair, without
+  making either required unconditionally. Today the email is required
+  whatever the token is.
 - Restate the no-credentials-in-logs guarantee in `_transport.py`'s
   `_send` explicitly for the `Authorization: Bearer` header — today's
   comment only names Basic Auth.
+- Async parity: the same classes and tests apply to `AsyncBitbucketClient`,
+  per the lock-step rule in
+  [async-client](../architecture/async-client.md).
 
-Out of scope, and deliberately left to whatever delegates to the SDK (an
-MCP server, a web app's OAuth callback handler, ...):
+Out of scope, and left to the application that calls the SDK (a
+command-line tool, an MCP server, a web app's OAuth callback handler, ...):
 
-- The authorization-code flow itself — building the `/authorize` URL,
+- The OAuth authorization-code flow — building the `/authorize` URL,
   hosting the redirect/callback, exchanging the code at the token URL,
   holding `client_id`/`client_secret`.
-- Per-user token storage and lookup — which stored token belongs to which
-  connected user.
+- Refreshing an expired access token. It needs the `refresh_token` and the
+  client secret, so it belongs inside the provider the application passes.
+- Per-user token storage and lookup, including any keyring or file store.
 - Scope selection and consent-screen concerns.
 
-This mirrors the SDK's existing non-goals (no persistence, no policy
-beyond mapping the API) rather than expanding them.
+The interactive login is a job for a separate command-line tool, structured
+the way `clockify-cli` is: credential stores, a resolver, and a factory that
+hands the SDK a token or a provider. Such a tool is not part of this
+roadmap.
+
+The open decisions for this phase (how the configuration models the two
+credential kinds, which one wins when both are supplied, the new environment
+variable) are settled before the code lands, following the
+[credential contract](../sdk/credential-contract.md).
 
 ## Phase 3 — governance (`0.7.0`)
 
@@ -255,7 +265,7 @@ in the machine-readable spec — see the footnote in `endpoint-coverage.md`.
 | —     | 0.1.0   | (shipped)                |              17 (6%) |
 | 1, 2  | 0.4.0   | +80 (shipped, 3 planned) |             97 (33%) |
 | 0a    | 0.5.0   | +0 (async client)        |             97 (33%) |
-| 0b    | 0.6.0   | +0 (OAuth bearer auth)   |             97 (33%) |
+| 0b    | 0.6.0   | +0 (bearer token auth)   |             97 (33%) |
 | 3     | 0.7.0   | +49 (46 + the 3 above)   |            146 (50%) |
 | 4     | 0.8.0   | +93                      |            239 (81%) |
 | 5     | 1.0.0   | +55                      |           294 (100%) |
