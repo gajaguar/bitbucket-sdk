@@ -1,0 +1,43 @@
+name: Bug report
+description: Report something the SDK does wrong.
+title: "bug: "
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: A minimal snippet that shows the problem. Remove the token and any private workspace or repository names.
+      render: python
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: SDK version
+      placeholder: "0.5.0"
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: "3.14.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: client
+    attributes:
+      label: Client
+      options:
+        - BitbucketClient (sync)
+        - AsyncBitbucketClient (async)
+        - Both
+    validations:
+      required: true
