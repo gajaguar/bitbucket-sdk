@@ -1,8 +1,9 @@
 # Bitbucket Unofficial SDK
 
+[![PyPI](https://img.shields.io/pypi/v/bitbucket-unofficial-sdk.svg)](https://pypi.org/project/bitbucket-unofficial-sdk/)
 [![CI](https://github.com/gajaguar/bitbucket-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/gajaguar/bitbucket-sdk/actions/workflows/ci.yml)
-[![Python 3.14+](https://img.shields.io/badge/python-3.14%2B-blue.svg)](pyproject.toml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python 3.14+](https://img.shields.io/badge/python-3.14%2B-blue.svg)](https://github.com/gajaguar/bitbucket-sdk/blob/main/pyproject.toml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/gajaguar/bitbucket-sdk/blob/main/LICENSE)
 [![Topics](https://img.shields.io/badge/topics-python%20%7C%20sdk%20%7C%20api--client%20%7C%20bitbucket%20%7C%20httpx-informational)](https://github.com/gajaguar/bitbucket-sdk)
 
 > **Unofficial.** This project is not affiliated with, endorsed by, or
@@ -17,7 +18,7 @@ merging, default reviewers). Every response is a validated, frozen
 [pydantic](https://docs.pydantic.dev/) model with attribute access and real
 Python types — not a raw `dict`.
 
-See [`docs/architecture/`](docs/architecture/index.md) for how the client is
+See [`docs/architecture/`][architecture] for how the client is
 layered.
 
 ## Table of contents
@@ -34,21 +35,17 @@ layered.
 
 ## Installation
 
-Not published to PyPI. Add it as a `uv` git dependency pinned to a tag:
+Install it from [PyPI](https://pypi.org/project/bitbucket-unofficial-sdk/):
 
 ```bash
-uv add "bitbucket-unofficial-sdk @ git+https://github.com/gajaguar/bitbucket-sdk@v0.4.0"
+uv add bitbucket-unofficial-sdk
 ```
 
-or add the source directly in `pyproject.toml`:
+or with `pip install bitbucket-unofficial-sdk`. To try an unreleased commit,
+install it from git instead:
 
-```toml
-[project]
-dependencies = ["bitbucket-unofficial-sdk"]
-
-[tool.uv.sources.bitbucket-unofficial-sdk]
-git = "https://github.com/gajaguar/bitbucket-sdk"
-tag = "v0.4.0"
+```bash
+uv add "bitbucket-unofficial-sdk @ git+https://github.com/gajaguar/bitbucket-sdk"
 ```
 
 ## Requirements
@@ -119,12 +116,12 @@ rotate it before then.
 The SDK only reads the sources listed above. It has no OS keyring or keychain
 integration, no password-manager support, no OAuth flow, and no interactive
 prompts — that is an application-level concern for whatever consumes this SDK.
-Bearer (OAuth 2.0) support is planned; see [`docs/api/roadmap.md`](docs/api/roadmap.md).
+Bearer (OAuth 2.0) support is planned; see [`docs/api/roadmap.md`][api-roadmap].
 
 The full contract is in
-[`docs/sdk/credential-contract.md`](docs/sdk/credential-contract.md), and the
+[`docs/sdk/credential-contract.md`][sdk-credential-contract], and the
 values that belong to Bitbucket are in
-[`docs/sdk/credentials.md`](docs/sdk/credentials.md).
+[`docs/sdk/credentials.md`][sdk-credentials].
 
 ### Recipes
 
@@ -227,7 +224,7 @@ excluded from `repr(ClientConfig)`.
 
 ## Platform notes
 
-- **CI runs the full gate.** [`python.yml`](.github/workflows/python.yml)
+- **CI runs the full gate.** [`python.yml`][python-yml]
   runs `make check` and `make test` on every push to `main` and every pull
   request.
 - **`requires-python = ">=3.14"`** excludes most current Python installations
@@ -249,8 +246,8 @@ aggregation); this SDK carries only the Bitbucket wire client.
 
 - Branch restrictions, branching model, projects, workspaces, and pipelines
   are not yet modeled — see
-  [`docs/api/endpoint-coverage.md`](docs/api/endpoint-coverage.md) for the
-  full endpoint matrix and [`docs/api/roadmap.md`](docs/api/roadmap.md) for
+  [`docs/api/endpoint-coverage.md`][api-endpoint-coverage] for the
+  full endpoint matrix and [`docs/api/roadmap.md`][api-roadmap] for
   the phased plan to full API parity.
 - A handful of `Commits` operations from the original Phase 2 estimate
   (a "file-conflicts" endpoint and up to 2 others) couldn't be confidently
@@ -259,4 +256,12 @@ aggregation); this SDK carries only the Bitbucket wire client.
 
 ## Contributing
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md).
+See [`CONTRIBUTING.md`][contributing].
+
+[architecture]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/architecture/index.md
+[api-roadmap]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/api/roadmap.md
+[sdk-credential-contract]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/sdk/credential-contract.md
+[sdk-credentials]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/sdk/credentials.md
+[python-yml]: https://github.com/gajaguar/bitbucket-sdk/blob/main/.github/workflows/python.yml
+[api-endpoint-coverage]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/api/endpoint-coverage.md
+[contributing]: https://github.com/gajaguar/bitbucket-sdk/blob/main/CONTRIBUTING.md
