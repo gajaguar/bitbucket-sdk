@@ -2,13 +2,13 @@
 
 How this SDK reads, protects and tests the credentials its callers give it.
 
-* [Bitbucket credential](credentials.md) - the names the SDK uses for the
-  email and the API token, and where the token is created.
-* [Credential contract](credential-contract.md) - the sources the SDK reads
-  a credential from, their order, and how the credential stays out of logs
-  and output.
-* [Why the SDK does not acquire credentials](credential-sources.md) - the
-  decision to read credentials, not to obtain or store them, with the
-  alternatives it rejected.
-* [Credential tests](credential-tests.md) - the tests every SDK carries to
-  prove the contract.
+* [Bitbucket credential](credentials.md) - The names the SDK uses for the
+  Bitbucket email and API token, and where the token is created.
+* [Credential contract](credential-contract.md) - The SDK reads a credential
+  from a provider, an argument or an environment variable, in that order, and
+  keeps it out of logs and output.
+* [Why the SDK does not acquire credentials](credential-sources.md) - The SDK
+  reads credentials from an argument, a provider or the environment, and
+  leaves obtaining and storing them to the application.
+* [Credential tests](credential-tests.md) - Every SDK carries a fixed set of
+  tests for how it resolves, sends and hides a credential.

@@ -26,6 +26,8 @@ layered.
 
 ## Table of contents
 
+- [About](#about)
+- [Key features](#key-features)
 - [Installation](#installation)
 - [Requirements](#requirements)
 - [Usage](#usage)
@@ -33,8 +35,25 @@ layered.
 - [Security](#security)
 - [Platform notes](#platform-notes)
 - [Origin](#origin)
-- [Open items](#open-items)
 - [Contributing](#contributing)
+- [Open items](#open-items)
+- [License](#license)
+
+## About
+
+Bitbucket Cloud's REST API returns loosely shaped JSON and paginates by
+following `next` URLs. This SDK wraps it so a caller works with typed
+objects instead: one client per workspace or repository, lazy pagination,
+and a single credential contract shared by the sync and async clients.
+
+## Key features
+
+- Sync (`BitbucketClient`) and async (`AsyncBitbucketClient`) clients with
+  the same endpoints.
+- Validated, frozen pydantic models for every response.
+- Lazy pagination through `Page` and `paginate()`.
+- Retry and error mapping built into the transport.
+- Credentials read from arguments or environment and kept out of logs.
 
 ## Installation
 
@@ -280,6 +299,10 @@ provider-neutral pull-request seam (models, protocol, registry) and
 review-workflow logic (comment filtering and threading, reviewer-queue
 aggregation); this SDK carries only the Bitbucket wire client.
 
+## Contributing
+
+See [`CONTRIBUTING.md`][contributing].
+
 ## Open items
 
 - Branch restrictions, branching model, projects, workspaces, and pipelines
@@ -292,9 +315,9 @@ aggregation); this SDK carries only the Bitbucket wire client.
   mapped to a real spec path without re-checking the live spec — see the
   note in `docs/api/endpoint-coverage.md`'s `Commits` section.
 
-## Contributing
+## License
 
-See [`CONTRIBUTING.md`][contributing].
+MIT — see [`LICENSE`][license].
 
 [architecture]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/architecture/index.md
 [api-roadmap]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/api/roadmap.md
@@ -304,3 +327,4 @@ See [`CONTRIBUTING.md`][contributing].
 [python-yml]: https://github.com/gajaguar/bitbucket-sdk/blob/main/.github/workflows/python.yml
 [api-endpoint-coverage]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/api/endpoint-coverage.md
 [contributing]: https://github.com/gajaguar/bitbucket-sdk/blob/main/CONTRIBUTING.md
+[license]: https://github.com/gajaguar/bitbucket-sdk/blob/main/LICENSE

@@ -4,7 +4,6 @@ title: Why the SDK does not acquire credentials
 description: The SDK reads credentials from an argument, a provider or the environment, and leaves obtaining and storing them to the application.
 tags: [sdk, auth]
 status: stable
-generated: { by: claude-code/claude-sonnet-5-5, at: 2026-09-29T00:00:00Z }
 sources:
   - id: python-gitlab-config
     resource: https://python-gitlab.readthedocs.io/en/stable/cli-usage.html

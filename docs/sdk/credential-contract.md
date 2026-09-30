@@ -4,7 +4,6 @@ title: Credential contract
 description: The SDK reads a credential from a provider, an argument or an environment variable, in that order, and keeps it out of logs and output.
 tags: [sdk, auth]
 status: stable
-generated: { by: claude-code/claude-sonnet-5-5, at: 2026-09-29T00:00:00Z }
 sources:
   - id: openai-python-client
     resource: https://www.mintlify.com/openai/openai-python/concepts/client
