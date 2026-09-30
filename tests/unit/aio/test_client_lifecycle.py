@@ -10,6 +10,7 @@ from httpx import Response
 
 from bitbucket.aio.client import AsyncBitbucketClient
 from bitbucket.config import ClientOptions
+from bitbucket.errors import AuthenticationError
 from bitbucket.errors import ConfigurationError
 from bitbucket.errors import MissingCredentialsError
 from bitbucket.retry import NO_RETRY
@@ -65,10 +66,40 @@ def test_async_client_without_credentials_raises_missing_credentials_error(
     monkeypatch.delenv("ATLASSIAN_USER_EMAIL", raising=False)
     monkeypatch.delenv("ATLASSIAN_API_TOKEN", raising=False)
     monkeypatch.delenv("ATLASSIAN_API_KEY", raising=False)
+    monkeypatch.delenv("BITBUCKET_ACCESS_TOKEN", raising=False)
     # Act
     # Assert
     with pytest.raises(MissingCredentialsError, match="ATLASSIAN_USER_EMAIL"):
         AsyncBitbucketClient()
+
+
+@respx.mock
+async def test_async_client_sends_a_bearer_token() -> None:
+    # Arrange
+    route = respx.get(f"{BASE_URL}/user").mock(return_value=Response(200, json={}))
+    # Act
+    async with AsyncBitbucketClient(
+        access_token="access-token",  # ruff: ignore[hardcoded-password-func-arg]
+        options=ClientOptions(retry=NO_RETRY),
+    ) as client:
+        await client.user.me()
+    # Assert
+    assert route.calls[0].request.headers["Authorization"] == "Bearer access-token"
+
+
+@respx.mock
+async def test_async_client_does_not_retry_a_bearer_authentication_failure() -> None:
+    # Arrange
+    route = respx.get(f"{BASE_URL}/user").mock(return_value=Response(401, json={"type": "error"}))
+    # Act
+    # Assert
+    with pytest.raises(AuthenticationError):
+        async with AsyncBitbucketClient(
+            access_token="access-token",  # ruff: ignore[hardcoded-password-func-arg]
+            options=ClientOptions(retry=NO_RETRY),
+        ) as client:
+            await client.user.me()
+    assert route.call_count == 1
 
 
 @respx.mock
@@ -218,6 +249,23 @@ async def test_async_context_manager_exit_stops_requests_from_being_sent() -> No
     with pytest.raises(RuntimeError, match="has been closed"):
         await entered.user.me()
     assert not route.called
+
+
+@respx.mock
+async def test_async_debug_log_never_contains_the_bearer_token(caplog: pytest.LogCaptureFixture) -> None:
+    # Arrange
+    secret = "bearer-secret"  # ruff: ignore[hardcoded-password-string]
+    respx.get(f"{BASE_URL}/user").mock(return_value=Response(200, json={}))
+    # Act
+    with caplog.at_level(DEBUG, logger="bitbucket"):
+        async with AsyncBitbucketClient(
+            access_token=secret,
+            options=ClientOptions(retry=NO_RETRY),
+        ) as client:
+            await client.user.me()
+    # Assert
+    assert caplog.records
+    assert secret not in caplog.text
 
 
 @respx.mock

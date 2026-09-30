@@ -9,6 +9,7 @@ from httpx import Response
 from bitbucket._version import __version__
 from bitbucket.client import BitbucketClient
 from bitbucket.config import ClientOptions
+from bitbucket.errors import AuthenticationError
 from bitbucket.errors import ConfigurationError
 from bitbucket.errors import MissingCredentialsError
 from bitbucket.retry import NO_RETRY
@@ -54,10 +55,42 @@ def test_client_without_credentials_raises_missing_credentials_error(monkeypatch
     monkeypatch.delenv("ATLASSIAN_USER_EMAIL", raising=False)
     monkeypatch.delenv("ATLASSIAN_API_TOKEN", raising=False)
     monkeypatch.delenv("ATLASSIAN_API_KEY", raising=False)
+    monkeypatch.delenv("BITBUCKET_ACCESS_TOKEN", raising=False)
     # Act
     # Assert
     with pytest.raises(MissingCredentialsError, match="ATLASSIAN_USER_EMAIL"):
         BitbucketClient()
+
+
+@respx.mock
+def test_client_sends_a_bearer_token() -> None:
+    # Arrange
+    route = respx.get(f"{BASE_URL}/user").mock(return_value=Response(200, json={}))
+    # Act
+    with BitbucketClient(
+        access_token="access-token",  # ruff: ignore[hardcoded-password-func-arg]
+        options=ClientOptions(retry=NO_RETRY),
+    ) as client:
+        client.user.me()
+    # Assert
+    assert route.calls[0].request.headers["Authorization"] == "Bearer access-token"
+
+
+@respx.mock
+def test_client_does_not_retry_a_bearer_authentication_failure() -> None:
+    # Arrange
+    route = respx.get(f"{BASE_URL}/user").mock(return_value=Response(401, json={"type": "error"}))
+    # Act
+    # Assert
+    with (
+        BitbucketClient(
+            access_token="access-token",  # ruff: ignore[hardcoded-password-func-arg]
+            options=ClientOptions(retry=NO_RETRY),
+        ) as client,
+        pytest.raises(AuthenticationError),
+    ):
+        client.user.me()
+    assert route.call_count == 1
 
 
 @respx.mock

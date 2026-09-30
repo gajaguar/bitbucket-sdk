@@ -16,13 +16,12 @@ from bitbucket.errors import TransportError
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from bitbucket._auth import BasicAuth
     from bitbucket.config import ClientConfig
     from bitbucket.retry import CqsKind
 
 
 class AsyncTransport:
-    def __init__(self, config: ClientConfig, auth: BasicAuth) -> None:
+    def __init__(self, config: ClientConfig, auth: httpx.Auth) -> None:
         self._config = config
         self._client = httpx.AsyncClient(
             base_url=config.base_url,

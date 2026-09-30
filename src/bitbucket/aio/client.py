@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from typing import Self
 
-from bitbucket._auth import BasicAuth
+from bitbucket._auth import auth_for
 from bitbucket.aio._transport import AsyncTransport
 from bitbucket.aio.resources.user import AsyncUserResource
 from bitbucket.aio.workspace import AsyncWorkspaceClient
@@ -12,6 +12,7 @@ from bitbucket.config import resolve_workspace
 from bitbucket.ids import WorkspaceSlug
 
 if TYPE_CHECKING:
+    from bitbucket.config import AccessTokenProvider
     from bitbucket.config import ApiTokenProvider
     from bitbucket.config import ClientOptions
 
@@ -22,10 +23,11 @@ class AsyncBitbucketClient:
         email: str | None = None,
         api_token: str | ApiTokenProvider | None = None,
         *,
+        access_token: str | AccessTokenProvider | None = None,
         options: ClientOptions | None = None,
     ) -> None:
-        self._config = _build_config(email, api_token, options)
-        self._transport = AsyncTransport(self._config, BasicAuth(self._config.email, self._config.api_token))
+        self._config = _build_config(email, api_token, access_token, options)
+        self._transport = AsyncTransport(self._config, auth_for(self._config.credentials))
         self.user = AsyncUserResource(self._transport)
 
     async def __aenter__(self) -> Self:

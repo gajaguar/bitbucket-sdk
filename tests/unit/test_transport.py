@@ -6,13 +6,15 @@ from typing import TYPE_CHECKING
 import respx
 from httpx import Response
 
+from bitbucket._auth import auth_for  # ruff: ignore[import-private-name]
+from bitbucket._transport import Transport  # ruff: ignore[import-private-name]
+from bitbucket.config import BearerCredentials
+from bitbucket.config import ClientConfig
 from bitbucket.retry import CqsKind
 from tests.conftest import BASE_URL
 
 if TYPE_CHECKING:
     import pytest
-
-    from bitbucket._transport import Transport
 
 
 @respx.mock
@@ -72,3 +74,24 @@ def test_debug_log_never_contains_the_api_token(transport: Transport, caplog: py
     assert caplog.records
     assert "tok" not in caplog.text
     assert "a@b.com" not in caplog.text
+
+
+@respx.mock
+def test_debug_log_never_contains_the_bearer_token(caplog: pytest.LogCaptureFixture) -> None:
+    # Arrange
+    secret = "bearer-secret"  # ruff: ignore[hardcoded-password-string]
+    config = ClientConfig(
+        credentials=BearerCredentials(access_token=secret),
+        base_url=BASE_URL,
+    )
+    transport = Transport(config, auth_for(config.credentials))
+    respx.get(f"{BASE_URL}/user").mock(return_value=Response(200, json={}))
+    # Act
+    try:
+        with caplog.at_level(DEBUG, logger="bitbucket"):
+            transport.request("GET", "/user", kind=CqsKind.QUERY)
+    finally:
+        transport.close()
+    # Assert
+    assert caplog.records
+    assert secret not in caplog.text

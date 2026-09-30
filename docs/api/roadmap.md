@@ -158,9 +158,9 @@ terminal), the first pattern of its kind in the SDK.
 the live spec (`x-revision` in `endpoint-coverage.md`) and close the remaining
 `planned` rows there before treating Phase 2 as fully closed.
 
-## Phase 0b — bearer token auth (`0.6.0`)
+## Phase 0b — bearer token auth (`0.6.0`) — shipped
 
-Cross-cutting infrastructure, not an endpoint group — this phase adds no
+Cross-cutting infrastructure, not an endpoint group — this shipped phase adds no
 `endpoint-coverage.md` rows and does not move the coverage percentage. It
 lets a consumer authenticate with a bearer token instead of the operator's
 email and API token. Bitbucket Cloud accepts `Authorization: Bearer` for
@@ -183,13 +183,11 @@ In scope:
   `ApiTokenProvider` (`src/bitbucket/config.py`): called on every request,
   never cached, an empty value raises `MissingCredentialsError`. Renewing an
   expiring token is the provider's job; the SDK has no refresh callback.
-- `ClientConfig`/`resolve_credentials` (`src/bitbucket/config.py`) widened
+- `ClientConfig`/`resolve_credentials` (`src/bitbucket/config.py`) are widened
   so a bearer token is an alternative to the email/API-token pair, without
-  making either required unconditionally. Today the email is required
-  whatever the token is.
-- Restate the no-credentials-in-logs guarantee in `_transport.py`'s
-  `_send` explicitly for the `Authorization: Bearer` header — today's
-  comment only names Basic Auth.
+  making either required unconditionally.
+- The no-credentials-in-logs guarantee in `_transport.py`'s logging comment
+  covers both the `Authorization: Basic` and `Authorization: Bearer` headers.
 - Async parity: the same classes and tests apply to `AsyncBitbucketClient`,
   per the lock-step rule in
   [async-client](../architecture/async-client.md).
@@ -210,9 +208,9 @@ the way `clockify-cli` is: credential stores, a resolver, and a factory that
 hands the SDK a token or a provider. Such a tool is not part of this
 roadmap.
 
-The open decisions for this phase (how the configuration models the two
+The decisions for this phase (how the configuration models the two
 credential kinds, which one wins when both are supplied, the new environment
-variable) are settled before the code lands, following the
+variable) were settled before the code landed, following the
 [credential contract](../sdk/credential-contract.md).
 
 ## Phase 3 — governance (`0.7.0`)
@@ -260,15 +258,15 @@ in the machine-readable spec — see the footnote in `endpoint-coverage.md`.
 
 ## Milestone summary
 
-| Phase | Version | Adds                     |  Cumulative coverage |
-| ----- | ------- | ------------------------ | -------------------: |
-| —     | 0.1.0   | (shipped)                |              17 (6%) |
-| 1, 2  | 0.4.0   | +80 (shipped, 3 planned) |             97 (33%) |
-| 0a    | 0.5.0   | +0 (async client)        |             97 (33%) |
-| 0b    | 0.6.0   | +0 (bearer token auth)   |             97 (33%) |
-| 3     | 0.7.0   | +49 (46 + the 3 above)   |            146 (50%) |
-| 4     | 0.8.0   | +93                      |            239 (81%) |
-| 5     | 1.0.0   | +55                      |           294 (100%) |
+| Phase | Version | Adds                            | Cumulative coverage |
+| ----- | ------- | ------------------------------- | ------------------- |
+| —     | 0.1.0   | (shipped)                       | 17 (6%)             |
+| 1, 2  | 0.4.0   | +80 (shipped, 3 planned)        | 97 (33%)            |
+| 0a    | 0.5.0   | +0 (async client)               | 97 (33%)            |
+| 0b    | 0.6.0   | +0 (bearer token auth, shipped) | 97 (33%)            |
+| 3     | 0.7.0   | +49 (46 + the 3 above)          | 146 (50%)           |
+| 4     | 0.8.0   | +93                             | 239 (81%)           |
+| 5     | 1.0.0   | +55                             | 294 (100%)          |
 
 Phases 1 and 2 were planned as `0.2.0` and `0.3.0` but never tagged; they
 shipped together in `0.4.0` with the credential contract. `0.4.1` changed
