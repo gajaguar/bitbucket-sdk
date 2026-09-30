@@ -11,12 +11,15 @@
 > own risk against the
 > [Bitbucket Cloud REST API](https://developer.atlassian.com/cloud/bitbucket/rest/intro/).
 
-Typed, synchronous Python SDK for the Bitbucket Cloud REST API: repository
+Typed Python SDK for the Bitbucket Cloud REST API: repository
 core (CRUD, forks, hooks, permissions), refs (branches/tags), source, commits,
 downloads, and the full pull-request surface (comments, statuses, tasks,
-merging, default reviewers). Every response is a validated, frozen
-[pydantic](https://docs.pydantic.dev/) model with attribute access and real
-Python types — not a raw `dict`.
+merging, default reviewers). Ships in two flavours — a sync client
+(`BitbucketClient`) backed by `httpx.Client` and an async client
+(`AsyncBitbucketClient`) backed by `httpx.AsyncClient` — with the same
+features and credential contract in both. Every response is a validated,
+frozen [pydantic](https://docs.pydantic.dev/) model with attribute access
+and real Python types — not a raw `dict`.
 
 See [`docs/architecture/`][architecture] for how the client is
 layered.
@@ -198,10 +201,44 @@ with BitbucketClient() as client:
 ├── mise.toml            # pinned toolchain versions
 ├── docs/                # OKF notes: architecture, endpoint coverage, SDK
 ├── src/bitbucket/       # SDK package (client, models/, resources/)
+│   └── aio/             # async mirror: AsyncBitbucketClient + Async resources
 └── tests/
     ├── unit/            # respx-backed, offline, deterministic
+    │   └── aio/         # async mirror tests
     └── live/            # marker-gated (`-m live`), hits a real workspace
 ```
+
+### Async client
+
+`AsyncBitbucketClient` mirrors the sync client one-for-one — same
+`email`/`api_token`/`options`, same `workspace()`, `default_workspace()`,
+`.user`, same resource tree (`.pull_requests`, `.refs`, `.source`,
+`.commits`, ...), and the same `merge_and_wait` polling helper. Single-shot
+methods are `async def`; auto-paginating methods return `AsyncIterator`.
+
+```python
+from bitbucket import AsyncBitbucketClient
+from bitbucket import MergeParameters
+
+async with AsyncBitbucketClient() as client:
+    repository = client.default_workspace().repository("my-repo")
+
+    async for pull_request in repository.pull_requests.list(state="OPEN"):
+        print(pull_request.id, pull_request.title)
+
+    diff = await repository.pull_requests.diff(pull_request.id)
+
+    status = await repository.pull_requests.merge_and_wait(
+        pull_request.id,
+        MergeParameters(merge_strategy="squash"),
+    )
+    print(status.task_status)
+```
+
+`BasicAuth` and the credential-resolution rules (provider, env vars,
+deprecated `ATLASSIAN_API_KEY`) are shared between the sync and async
+clients, so the credential tests in [`docs/sdk/credential-tests.md`][sdk-credential-tests]
+apply to both.
 
 ## Configuration
 
@@ -261,6 +298,7 @@ See [`CONTRIBUTING.md`][contributing].
 [architecture]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/architecture/index.md
 [api-roadmap]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/api/roadmap.md
 [sdk-credential-contract]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/sdk/credential-contract.md
+[sdk-credential-tests]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/sdk/credential-tests.md
 [sdk-credentials]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/sdk/credentials.md
 [python-yml]: https://github.com/gajaguar/bitbucket-sdk/blob/main/.github/workflows/python.yml
 [api-endpoint-coverage]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/api/endpoint-coverage.md

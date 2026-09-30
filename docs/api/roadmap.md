@@ -29,8 +29,6 @@ phases below change these:
 - No local caching, no ORM, no persistence.
 - No business logic layered on top of Bitbucket semantics — the SDK maps the
   API; aggregation is the caller's concern.
-- No async client. Sync-only (`httpx.Client`) remains correct for the target
-  use (scripts, jobs, CI integrations).
 
 ## Cross-cutting work every phase inherits
 
@@ -48,53 +46,51 @@ every operation added in any phase needs:
    docstring-based reference; see `app-no-docstrings`).
 4. A declared `CqsKind` (query / idempotent command / non-idempotent command).
 5. A `endpoint-coverage.md` row moved from `planned` to `done`.
+6. An async mirror of the method in `src/bitbucket/aio/resources/` (same
+   name with an `Async` prefix; auto-paginating methods return
+   `AsyncIterator` via `apaginate`) and a matching test in
+   `tests/unit/aio/`. The async mirror is in lock-step with the sync
+   resource tree — see [async-client](../architecture/async-client.md) for
+   the rule and the [layering](../architecture/layering.md) note for the
+   shape.
 
-## Phase 0 — OAuth 2.0 bearer auth (`0.5.0`)
+## Phase 0a — async client (`0.5.0`)
 
 Cross-cutting infrastructure, not an endpoint group — this phase adds no
 `endpoint-coverage.md` rows and does not move the coverage percentage. It
-exists to unblock any consumer that must act on behalf of *another* Bitbucket user
-rather than its own operator credential — concretely, an MCP server
-exposing Bitbucket tools to per-user connections. Scoped strictly to the
-SDK's side of that split (see the "OAuth Auth Playbook" artifact's §06,
-"Where the SDK's job ends"): the SDK becomes able to *use* a bearer token,
-not to *obtain* one.
+adds a second transport flavour, `AsyncBitbucketClient` (an
+`httpx.AsyncClient`-based mirror of `BitbucketClient`), so consumers can
+embed the SDK in an asyncio application without spinning a thread per
+request.
 
 In scope:
 
-- `BearerAuth` (`src/bitbucket/_auth.py`): an `httpx.Auth` sibling to the
-  existing `BasicAuth`, attaching `Authorization: Bearer <token>`. The
-  seam is already named in `_auth.py`'s own comment.
-- A generic refresh mechanism: `auth_flow` yields a request, inspects a
-  `401` response, calls a refresh callback, and re-yields — the same
-  generator shape `BasicAuth.auth_flow` already returns via
-  `httpx.BasicAuth`.
-- A `TokenProvider` protocol/callable: "give me a token," with the SDK
-  holding no opinion on where it came from. *Partly shipped:* the
-  `ApiTokenProvider` callable (`src/bitbucket/config.py`) is accepted by
-  `BitbucketClient(api_token=...)` and invoked on every request by
-  `BasicAuth`. A bearer-token provider is still pending.
-- `ClientConfig`/`resolve_credentials` (`src/bitbucket/config.py`) widened
-  to accept a `TokenProvider` as an alternative to the existing
-  email/API-token pair, without making either required unconditionally.
-  *Pending:* today the provider only replaces the API token, and the email
-  is still required.
-- Restate the no-credentials-in-logs guarantee in `_transport.py`'s
-  `_send` explicitly for the `Authorization: Bearer` header — today's
-  comment only names Basic Auth.
+- A new `bitbucket.aio` subpackage: `AsyncBitbucketClient`,
+  `AsyncWorkspaceClient`, `AsyncRepositoryClient`, and one async resource
+  per sync resource under `bitbucket/aio/resources/`. Single-shot methods
+  are `async def`; auto-paginating methods return `AsyncIterator`.
+- Reused as-is: `models/`, `errors.py`, `retry.py`, `config.py`,
+  `_auth.BasicAuth` (its `auth_flow` already drives
+  `httpx.Auth.async_auth_flow`, so the credential contract applies
+  unchanged to the async client), and `resources.base.page_from_payload`.
+- New I/O-layer modules: `aio/_transport.AsyncTransport`,
+  `aio/_retry_transport.AsyncRetryTransport`,
+  `_pagination.apaginate`, and `_polling.apoll_until_terminal`.
+- Tests in `tests/unit/aio/` mirroring the sync suites — including the
+  credential tests from [`docs/sdk/credential-tests.md`][sdk-credential-tests]
+  for both clients.
 
-Out of scope, and deliberately left to whatever delegates to the SDK (an
-MCP server, a web app's OAuth callback handler, ...):
+Out of scope:
 
-- The authorization-code flow itself — building the `/authorize` URL,
-  hosting the redirect/callback, exchanging the code at the token URL,
-  holding `client_id`/`client_secret`.
-- Per-user token storage and lookup — which stored token belongs to which
-  connected user.
-- Scope selection and consent-screen concerns.
+- New endpoint coverage — the async mirror maps the surface that already
+  exists; it does not add new endpoints.
+- A second credential contract. The async client honours the same rules
+  (`ATLASSIAN_USER_EMAIL` + `ATLASSIAN_API_TOKEN`, the `ApiTokenProvider`
+  callable, the no-credentials-in-logs guarantee).
 
-This mirrors the SDK's existing non-goals (no persistence, no policy
-beyond mapping the API) rather than expanding them.
+The full rationale, including the rule that every new endpoint ships in
+both clients, is in
+[`docs/architecture/async-client.md`](../architecture/async-client.md).
 
 ## Phase 1 — complete the pull-request surface — shipped in `0.4.0`
 
@@ -162,7 +158,54 @@ terminal), the first pattern of its kind in the SDK.
 the live spec (`x-revision` in `endpoint-coverage.md`) and close the remaining
 `planned` rows there before treating Phase 2 as fully closed.
 
-## Phase 3 — governance (`0.6.0`)
+## Phase 0b — OAuth 2.0 bearer auth (`0.6.0`)
+
+Cross-cutting infrastructure, not an endpoint group — this phase adds no
+`endpoint-coverage.md` rows and does not move the coverage percentage. It
+exists to unblock any consumer that must act on behalf of *another* Bitbucket user
+rather than its own operator credential — concretely, an MCP server
+exposing Bitbucket tools to per-user connections. Scoped strictly to the
+SDK's side of that split (see the "OAuth Auth Playbook" artifact's §06,
+"Where the SDK's job ends"): the SDK becomes able to *use* a bearer token,
+not to *obtain* one.
+
+In scope:
+
+- `BearerAuth` (`src/bitbucket/_auth.py`): an `httpx.Auth` sibling to the
+  existing `BasicAuth`, attaching `Authorization: Bearer <token>`. The
+  seam is already named in `_auth.py`'s own comment.
+- A generic refresh mechanism: `auth_flow` yields a request, inspects a
+  `401` response, calls a refresh callback, and re-yields — the same
+  generator shape `BasicAuth.auth_flow` already returns via
+  `httpx.BasicAuth`.
+- A `TokenProvider` protocol/callable: "give me a token," with the SDK
+  holding no opinion on where it came from. *Partly shipped:* the
+  `ApiTokenProvider` callable (`src/bitbucket/config.py`) is accepted by
+  `BitbucketClient(api_token=...)` and invoked on every request by
+  `BasicAuth`. A bearer-token provider is still pending.
+- `ClientConfig`/`resolve_credentials` (`src/bitbucket/config.py`) widened
+  to accept a `TokenProvider` as an alternative to the existing
+  email/API-token pair, without making either required unconditionally.
+  *Pending:* today the provider only replaces the API token, and the email
+  is still required.
+- Restate the no-credentials-in-logs guarantee in `_transport.py`'s
+  `_send` explicitly for the `Authorization: Bearer` header — today's
+  comment only names Basic Auth.
+
+Out of scope, and deliberately left to whatever delegates to the SDK (an
+MCP server, a web app's OAuth callback handler, ...):
+
+- The authorization-code flow itself — building the `/authorize` URL,
+  hosting the redirect/callback, exchanging the code at the token URL,
+  holding `client_id`/`client_secret`.
+- Per-user token storage and lookup — which stored token belongs to which
+  connected user.
+- Scope selection and consent-screen concerns.
+
+This mirrors the SDK's existing non-goals (no persistence, no policy
+beyond mapping the API) rather than expanding them.
+
+## Phase 3 — governance (`0.7.0`)
 
 Also closes Phase 2's 3 `planned` `Commits` rows (see that phase's
 follow-up note) once the live spec confirms their exact shape.
@@ -178,7 +221,7 @@ Workspace- and project-level administration surface:
 No new architectural seams — all fit `NestedResource` or hand-written methods
 following the existing pattern.
 
-## Phase 4 — CI/CD (`0.7.0`)
+## Phase 4 — CI/CD (`0.8.0`)
 
 - `Pipelines` (68): pipeline trigger/list/get/stop, steps, logs, test reports,
   pipelines-config (caches, runners, variables, schedules, SSH key pair,
@@ -211,9 +254,10 @@ in the machine-readable spec — see the footnote in `endpoint-coverage.md`.
 | ----- | ------- | ------------------------ | -------------------: |
 | —     | 0.1.0   | (shipped)                |              17 (6%) |
 | 1, 2  | 0.4.0   | +80 (shipped, 3 planned) |             97 (33%) |
-| 0     | 0.5.0   | +0 (OAuth bearer auth)   |             97 (33%) |
-| 3     | 0.6.0   | +49 (46 + the 3 above)   |            146 (50%) |
-| 4     | 0.7.0   | +93                      |            239 (81%) |
+| 0a    | 0.5.0   | +0 (async client)        |             97 (33%) |
+| 0b    | 0.6.0   | +0 (OAuth bearer auth)   |             97 (33%) |
+| 3     | 0.7.0   | +49 (46 + the 3 above)   |            146 (50%) |
+| 4     | 0.8.0   | +93                      |            239 (81%) |
 | 5     | 1.0.0   | +55                      |           294 (100%) |
 
 Phases 1 and 2 were planned as `0.2.0` and `0.3.0` but never tagged; they
@@ -221,6 +265,7 @@ shipped together in `0.4.0` with the credential contract. `0.4.1` changed
 tooling and distribution only. Each remaining phase adds features without
 breaking the API, so it bumps the minor version.
 
-Phase 0 is listed first because it unblocks delegated-access consumers
-independently of endpoint coverage, not because later phases depend on it —
-Phases 1–5 proceed the same whether or not Phase 0 has landed.
+Phases 0a and 0b are listed first because they unblock their respective
+consumers (async callers in Phase 0a; delegated-access consumers in Phase 0b)
+independently of endpoint coverage, not because later phases depend on
+either — Phases 3–5 proceed the same whether or not they have landed.

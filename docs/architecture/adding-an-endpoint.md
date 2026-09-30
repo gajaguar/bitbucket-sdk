@@ -21,6 +21,13 @@ status: stable
    read or risks duplicating a write.
 4. Add a unit test in `tests/unit/` asserting the exact HTTP method, path,
    query parameters, and body the method produces (respx).
-5. Update [endpoint coverage](../api/endpoint-coverage.md): flip the
+5. Mirror the method in the async resource at
+   `src/bitbucket/aio/resources/` (same name with an `Async` prefix, same
+   path comment, same CQS kind; auto-paginating methods return
+   `AsyncIterator` via `apaginate`). Add a matching unit test in
+   `tests/unit/aio/`. The async mirror must stay in lock-step — every new
+   endpoint ships in both clients; see
+   [`async-client.md`](async-client.md).
+6. Update [endpoint coverage](../api/endpoint-coverage.md): flip the
    endpoint's status to `done` and link the method.
-6. Run `make check && make test` before committing.
+7. Run `make check && make test` before committing.

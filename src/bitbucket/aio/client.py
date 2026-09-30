@@ -1,0 +1,44 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+from typing import Self
+
+from bitbucket._auth import BasicAuth
+from bitbucket.aio._transport import AsyncTransport
+from bitbucket.aio.resources.user import AsyncUserResource
+from bitbucket.aio.workspace import AsyncWorkspaceClient
+from bitbucket.client import _build_config
+from bitbucket.config import resolve_workspace
+from bitbucket.ids import WorkspaceSlug
+
+if TYPE_CHECKING:
+    from bitbucket.config import ApiTokenProvider
+    from bitbucket.config import ClientOptions
+
+
+class AsyncBitbucketClient:
+    def __init__(
+        self,
+        email: str | None = None,
+        api_token: str | ApiTokenProvider | None = None,
+        *,
+        options: ClientOptions | None = None,
+    ) -> None:
+        self._config = _build_config(email, api_token, options)
+        self._transport = AsyncTransport(self._config, BasicAuth(self._config.email, self._config.api_token))
+        self.user = AsyncUserResource(self._transport)
+
+    async def __aenter__(self) -> Self:
+        return self
+
+    async def __aexit__(self, *exc: object) -> None:
+        await self.aclose()
+
+    async def aclose(self) -> None:
+        await self._transport.aclose()
+
+    def default_workspace(self) -> AsyncWorkspaceClient:
+        return self.workspace(resolve_workspace(None))
+
+    def workspace(self, slug: WorkspaceSlug | str) -> AsyncWorkspaceClient:
+        return AsyncWorkspaceClient(self._transport, WorkspaceSlug(str(slug)))
