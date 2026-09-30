@@ -36,7 +36,7 @@ layered.
 Not published to PyPI. Add it as a `uv` git dependency pinned to a tag:
 
 ```bash
-uv add "bitbucket-unofficial-sdk @ git+https://github.com/gajaguar/bitbucket-sdk@v0.3.0"
+uv add "bitbucket-unofficial-sdk @ git+https://github.com/gajaguar/bitbucket-sdk@v0.4.0"
 ```
 
 or add the source directly in `pyproject.toml`:
@@ -47,7 +47,7 @@ dependencies = ["bitbucket-unofficial-sdk"]
 
 [tool.uv.sources.bitbucket-unofficial-sdk]
 git = "https://github.com/gajaguar/bitbucket-sdk"
-tag = "v0.3.0"
+tag = "v0.4.0"
 ```
 
 ## Requirements
