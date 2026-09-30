@@ -2,6 +2,8 @@
 
 ## 2026-09-30
 
+* **Added**: `api/recipes.md` and `architecture/project-layout.md`, moved out
+  of the README's Usage section.
 * **Restructure**: Moved `architecture/release-checklist.md` to
   `release/release-checklist.md`; aligned the `architecture/`, `api/` and
   `sdk/` index entries with each note's `description`, and gave every note
