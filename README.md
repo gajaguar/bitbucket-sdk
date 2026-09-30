@@ -119,7 +119,8 @@ rotate it before then.
 The SDK only reads the sources listed above. It has no OS keyring or keychain
 integration, no password-manager support, no OAuth flow, and no interactive
 prompts — that is an application-level concern for whatever consumes this SDK.
-Bearer (OAuth 2.0) support is planned; see [`docs/api/roadmap.md`][api-roadmap].
+Bearer-token support is planned, for access tokens and for an OAuth access token
+that your application obtains; see [`docs/api/roadmap.md`][api-roadmap].
 
 The full contract is in
 [`docs/sdk/credential-contract.md`][sdk-credential-contract], and the

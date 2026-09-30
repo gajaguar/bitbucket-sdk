@@ -2,6 +2,13 @@
 
 ## 2026-09-30
 
+* **Updated**: `docs/api/roadmap.md` — Phase 0b is now "bearer token auth":
+  drops the refresh-on-401 mechanism and the reference to an artifact
+  outside the repository, states that the authorization-code flow, token
+  renewal and storage belong to the application, and fixes the
+  `gajaguar-no-docstrings` name.
+* **Updated**: `README.md` and `docs/sdk/credentials.md` — describe planned
+  bearer support without calling it OAuth.
 * **Added**: `release/` with the PyPI Trusted Publishing decision.
 * **Restructure**: Split `ARCHITECTURE.md` into atomic notes under
   `architecture/`.

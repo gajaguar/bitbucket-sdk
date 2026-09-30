@@ -28,6 +28,10 @@ holds the values that belong to Bitbucket Cloud.
   tokens → Create API token with scopes. Choose Bitbucket and the scopes the
   code needs. Atlassian shows the token once and it expires on the date chosen
   at creation.
+* **Bearer tokens:** planned, not shipped. Repository, project and workspace
+  access tokens, and an OAuth access token, all travel as
+  `Authorization: Bearer`. The application creates or obtains the token; the
+  SDK only sends it. See the [roadmap](../api/roadmap.md).
 * **App passwords:** removed by Atlassian on 2026-07-28. They no longer work.
 * **Errors:** `MissingCredentialsError` when no source has a value,
   `AuthenticationError` for a `401` and `ForbiddenError` for a `403`.
