@@ -27,13 +27,17 @@
   `release-checklist.md`.
 * **Restructure**: Moved `coverage.md` and `ROADMAP.md` to
   `api/endpoint-coverage.md` and `api/roadmap.md`, with frontmatter.
-* **Added**: `conventions/`, `toolchain/` and `python/` notes, and this
+* **Added**: `conventions/commits-check.md`,
+  `toolchain/layering-rule.md`, `toolchain/rejected-install-backends.md`,
+  `python/interpreter-source.md` and `python/pyproject-defaults.md`, and this
   bundle's `index.md`.
 
 ## 2026-09-29
 
-* **Added**: `sdk/` — the credential contract, the decision not to acquire
-  credentials, the credential tests and the Bitbucket credential note.
+* **Added**: `sdk/credential-contract.md`, `sdk/credential-sources.md`,
+  `sdk/credential-tests.md` and `sdk/credentials.md` — the credential
+  contract, the decision not to acquire credentials, the credential tests
+  and the Bitbucket credential note.
 * **Updated**: `README.md` and `sdk/credentials.md` describe planned bearer
   support without calling it OAuth.
 
