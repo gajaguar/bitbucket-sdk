@@ -1,5 +1,5 @@
 ---
-type: concept
+type: reference
 title: Request lifecycle
 description: The auth, retry, error-mapping, and validation pipeline every request goes through.
 tags: [architecture]

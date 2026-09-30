@@ -2,53 +2,41 @@
 
 ## 2026-09-30
 
-* **Updated**: `docs/api/roadmap.md` — Phase 0b is now "bearer token auth":
-  drops the refresh-on-401 mechanism and the reference to an artifact
-  outside the repository, states that the authorization-code flow, token
-  renewal and storage belong to the application, and fixes the
-  `gajaguar-no-docstrings` name.
-* **Updated**: `README.md` and `docs/sdk/credentials.md` — describe planned
-  bearer support without calling it OAuth.
-* **Added**: `release/` with the PyPI Trusted Publishing decision.
+* **Restructure**: Moved `architecture/release-checklist.md` to
+  `release/release-checklist.md`; aligned the `architecture/`, `api/` and
+  `sdk/` index entries with each note's `description`, and gave every note
+  a type from the vocabulary.
+* **Updated**: `api/roadmap.md` — Phase 0b is "bearer token auth"; drops the
+  refresh-on-401 mechanism and the reference to an artifact outside the
+  repository, and states that the authorization-code flow, token renewal and
+  storage belong to the application.
+* **Updated**: `api/roadmap.md` — phases renumbered after the 0.4.x
+  releases; Phase 0a is the async client.
+* **Updated**: `architecture/adding-an-endpoint.md` lists the async mirror
+  as a required step; `architecture/layering.md` gained the async-mirror
+  paragraph.
+* **Added**: `architecture/async-client.md` — the `bitbucket.aio` mirror,
+  what is shared and the rule that every new endpoint ships in both
+  clients.
+* **Added**: `release/` with `pypi-trusted-publishing.md`.
 * **Restructure**: Split `ARCHITECTURE.md` into atomic notes under
-  `architecture/`.
+  `architecture/`: `layering.md`, `request-lifecycle.md`, `pagination.md`,
+  `modeling.md`, `endpoint-comments.md`, `adding-an-endpoint.md` and
+  `release-checklist.md`.
 * **Restructure**: Moved `coverage.md` and `ROADMAP.md` to
   `api/endpoint-coverage.md` and `api/roadmap.md`, with frontmatter.
-* **Added**: `conventions/`, `toolchain/`, and `python/` notes, and this
+* **Added**: `conventions/`, `toolchain/` and `python/` notes, and this
   bundle's `index.md`.
-* **Added**: SDK credential notes and the Bitbucket credential note.
-* **Added**: `architecture/async-client.md` — decision note for the
-  `bitbucket.aio` mirror (`AsyncBitbucketClient`), recording what is
-  shared vs. mirrored and the rule that every new endpoint ships in both
-  clients (closes #10).
-* **Restructure**: Pulled shared response helpers
-  (`_resolved_params`, `_log`, `_decode_json`, 204 → `None` and
-  non-success → `error_for_response` status handling) out of
-  `_transport.Transport` so the sync and async transports use the same
-  pure code; the sync `Transport.request` now delegates to the same
-  `_json_or_error` helper that `AsyncTransport.request` uses.
-* **Added**: `bitbucket.aio` subpackage — `AsyncBitbucketClient`,
-  `AsyncWorkspaceClient`, `AsyncRepositoryClient`, `AsyncTransport`,
-  `AsyncRetryTransport`, and one async resource per sync resource under
-  `bitbucket/aio/resources/`; `apaginate` and `apoll_until_terminal`
-  join `_pagination.py` and `_polling.py` as the async-side siblings of
-  `paginate` and `poll_until_terminal`. Reused unchanged: `models/`,
-  `errors.py`, `retry.py`, `config.py`, `_auth.BasicAuth`,
-  `resources.base.page_from_payload`.
-* **Added**: `tests/unit/aio/` — async test mirrors of every sync suite
-  (credential tests for both clients, transport, retry, pagination,
-  polling, and one resource suite per sync resource), wired through the
-  anyio pytest plugin (`anyio_mode = "auto"`).
-* **Updated**: `docs/architecture/adding-an-endpoint.md` now lists the
-  async mirror as a required step (mirror under
-  `bitbucket/aio/resources/`, add a test in `tests/unit/aio/`).
-* **Updated**: `docs/architecture/layering.md` gained the async-mirror
-  paragraph.
-* **Updated**: `docs/api/roadmap.md` — Phase 0a is the async client
-  in `0.5.0`; OAuth is Phase 0b in `0.6.0`; governance is `0.7.0`;
-  CI/CD is `0.8.0`; 1.0.0 is unchanged. The "No async client"
-  non-goal is removed.
-* **Updated**: `README.md` — tagline drops "synchronous"; new "Async
-  client" section under Usage.
-* **Updated**: version → `0.5.0` in `pyproject.toml` and
-  `src/bitbucket/_version.py`. Not tagged and not published to PyPI yet.
+
+## 2026-09-29
+
+* **Added**: `sdk/` — the credential contract, the decision not to acquire
+  credentials, the credential tests and the Bitbucket credential note.
+* **Updated**: `README.md` and `sdk/credentials.md` describe planned bearer
+  support without calling it OAuth.
+
+## 2026-09-16
+
+* **Added**: `README.md` installation steps and project overview.
+* **Added**: the architecture guide, the endpoint coverage matrix and the
+  usage recipes.

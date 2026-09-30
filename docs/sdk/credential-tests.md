@@ -4,7 +4,6 @@ title: Credential tests
 description: Every SDK carries a fixed set of tests for how it resolves, sends and hides a credential.
 tags: [sdk, auth, testing]
 status: stable
-generated: { by: claude-code/claude-sonnet-5-5, at: 2026-09-29T00:00:00Z }
 ---
 
 # Credential tests

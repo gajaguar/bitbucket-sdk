@@ -79,5 +79,5 @@ repository — see
   [`docs/api/endpoint-coverage.md`](docs/api/endpoint-coverage.md) in sync
   with the resources that ship.
 - The agent MUST bump the version per
-  [`docs/architecture/release-checklist.md`](docs/architecture/release-checklist.md)
+  [`docs/release/release-checklist.md`](docs/release/release-checklist.md)
   before tagging a release.

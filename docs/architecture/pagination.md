@@ -1,5 +1,5 @@
 ---
-type: concept
+type: reference
 title: Pagination
 description: How Page and paginate() follow Bitbucket next URLs lazily.
 tags: [architecture]

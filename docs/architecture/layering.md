@@ -1,5 +1,5 @@
 ---
-type: concept
+type: reference
 title: Layering
 description: How BitbucketClient, the workspace and repository clients, resources, and the transport stack on each other.
 tags: [architecture]

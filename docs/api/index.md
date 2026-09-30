@@ -1,5 +1,6 @@
 # API
 
-* [Endpoint coverage](endpoint-coverage.md) - every Bitbucket Cloud REST API
+* [Endpoint coverage](endpoint-coverage.md) - Every Bitbucket Cloud REST API
   endpoint the SDK supports, mapped to its method and status.
-* [Roadmap](roadmap.md) - the phased plan to full API parity.
+* [Roadmap to full API coverage](roadmap.md) - The phased plan from the
+  current endpoint coverage to full Bitbucket Cloud API parity.

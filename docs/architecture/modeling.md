@@ -1,5 +1,5 @@
 ---
-type: concept
+type: reference
 title: Modeling
 description: How read and write payloads map to frozen pydantic models.
 tags: [architecture]

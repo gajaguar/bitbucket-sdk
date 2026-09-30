@@ -1,5 +1,5 @@
 ---
-type: plan
+type: playbook
 title: Roadmap to full API coverage
 description: The phased plan from the current endpoint coverage to full Bitbucket Cloud API parity.
 tags: [api]
@@ -21,7 +21,7 @@ don't move the coverage number. Phase 0b unblocks consumers — such as an MCP
 server — that need to act on behalf of other Bitbucket users with a bearer
 token rather than a single operator credential.
 
-## Non-goals (carried from the tech spec)
+## Non-goals
 
 Per the original technical specification (§1.2, not published), none of the
 phases below change these:

@@ -1,18 +1,17 @@
 # Architecture
 
-* [Layering](layering.md) - how the clients, resources, and transport stack
-  on each other.
-* [Async client](async-client.md) - the `bitbucket.aio` mirror, what is
-  shared, and the rule that every endpoint ships in both clients.
-* [Request lifecycle](request-lifecycle.md) - the auth, retry,
-  error-mapping, and validation pipeline.
-* [Pagination](pagination.md) - how `Page` and `paginate()` follow `next`
-  URLs.
-* [Modeling](modeling.md) - read and write payloads as frozen pydantic
+* [Layering](layering.md) - How BitbucketClient, the workspace and repository
+  clients, resources, and the transport stack on each other.
+* [Async client](async-client.md) - Why the SDK now ships an
+  `AsyncBitbucketClient` mirror under `bitbucket.aio`, what is shared with the
+  sync client, and the rule that every new endpoint ships in both.
+* [Request lifecycle](request-lifecycle.md) - The auth, retry, error-mapping,
+  and validation pipeline every request goes through.
+* [Pagination](pagination.md) - How Page and paginate() follow Bitbucket next
+  URLs lazily.
+* [Modeling](modeling.md) - How read and write payloads map to frozen pydantic
   models.
-* [Endpoint comments](endpoint-comments.md) - the `# METHOD /path` comment
-  every resource method carries.
-* [Adding an endpoint](adding-an-endpoint.md) - the steps to add a new
-  Bitbucket endpoint.
-* [Release checklist](release-checklist.md) - what to verify before tagging
-  a release.
+* [Endpoint comments](endpoint-comments.md) - Every resource method names the
+  Bitbucket endpoint it calls in a comment, since docstrings are not allowed.
+* [Adding an endpoint](adding-an-endpoint.md) - The steps to add a new
+  Bitbucket endpoint to the SDK.
