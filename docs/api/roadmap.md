@@ -1,12 +1,20 @@
+---
+type: plan
+title: Roadmap to full API coverage
+description: The phased plan from the current endpoint coverage to full Bitbucket Cloud API parity.
+tags: [api]
+status: stable
+---
+
 # Roadmap to full API coverage
 
 This SDK targets **Bitbucket Cloud REST API `2.0`**, checked against
 `https://dac-static.atlassian.com/cloud/bitbucket/swagger.v3.json`,
 `x-revision: 167b2dc51ec8` (2026-09-16). Regenerate the numbers below against
-a newer revision whenever [`coverage.md`](coverage.md) is re-verified.
+a newer revision whenever [endpoint coverage](endpoint-coverage.md) is re-verified.
 
 **Where we are today:** 97 / 294 operations (33%) — see the coverage summary
-table in [`coverage.md`](coverage.md) for the full breakdown by resource
+table in [endpoint coverage](endpoint-coverage.md) for the full breakdown by resource
 group. This document lays out the path from there to full parity, in phases
 tied to version milestones, plus one auth-capability phase (Phase 0) that
 doesn't move the coverage number but unblocks consumers — such as an MCP
@@ -26,7 +34,7 @@ change these:
 
 ## Cross-cutting work every phase inherits
 
-Per [`ARCHITECTURE.md`](ARCHITECTURE.md)'s "Adding a new endpoint" checklist,
+Per the [adding an endpoint](../architecture/adding-an-endpoint.md) checklist,
 every operation added in any phase needs:
 
 1. Read/write pydantic models in `src/bitbucket/models/` (write models
@@ -39,13 +47,13 @@ every operation added in any phase needs:
 3. A `# METHOD /path` comment above the method (this repo has no
    docstring-based reference; see `app-no-docstrings`).
 4. A declared `CqsKind` (query / idempotent command / non-idempotent command).
-5. A `coverage.md` row moved from `planned` to `done`.
+5. A `endpoint-coverage.md` row moved from `planned` to `done`.
 
 ## Phase 0 — OAuth 2.0 bearer auth (`0.1.1`)
 
 Cross-cutting infrastructure, not an endpoint group — this phase adds no
-`coverage.md` rows and does not move the coverage percentage. It exists to
-unblock any consumer that must act on behalf of *another* Bitbucket user
+`endpoint-coverage.md` rows and does not move the coverage percentage. It
+exists to unblock any consumer that must act on behalf of *another* Bitbucket user
 rather than its own operator credential — concretely, an MCP server
 exposing Bitbucket tools to per-user connections. Scoped strictly to the
 SDK's side of that split (see the "OAuth Auth Playbook" artifact's §06,
@@ -92,7 +100,7 @@ beyond mapping the API) rather than expanding them.
 
 The surface the SDK already claims to cover. Closed every remaining `planned`
 row under Pull requests / Pull request comments / Pull request statuses /
-Default reviewers in `coverage.md` (28 operations, including the `Commit
+Default reviewers in `endpoint-coverage.md` (28 operations, including the `Commit
 statuses` spillover called out below — 24 in the `Pullrequests` tag group
 plus 4 in the separate `Commit statuses` tag group):
 
@@ -125,9 +133,9 @@ terminal), the first pattern of its kind in the SDK.
 (`Commit statuses` below was already `done`, see Phase 1):
 
 - Repository CRUD: `POST`/`PUT`/`DELETE /repositories/{workspace}/{repo_slug}`
-  (create takes the slug in the path — see the note in `coverage.md`), forks,
-  hooks, watchers, permissions-config (groups/users), override-settings. All
-  23 operations shipped.
+  (create takes the slug in the path — see the note in
+  `endpoint-coverage.md`), forks, hooks, watchers, permissions-config
+  (groups/users), override-settings. All 23 operations shipped.
 - `Refs` (9): branches and tags — create/get/list/delete (no `update`;
   Bitbucket has no PUT-by-name endpoint for either). All 9 shipped.
 - `Source` (4): `GET`/`POST .../src`, `GET .../src/{commit}/{path}`
@@ -138,11 +146,11 @@ terminal), the first pattern of its kind in the SDK.
   approve, diff, diffstat, patch, merge-base all shipped; a "file-conflicts"
   endpoint from this phase's original estimate could not be confidently
   mapped to a real, documented Bitbucket Cloud path without re-checking the
-  live spec (see `coverage.md`'s note on this group) and is left `planned`,
+  live spec (see `endpoint-coverage.md`'s note on this group) and is left `planned`,
   along with up to 2 further unverified operations against the original
   17-op estimate.
 - `Commit statuses` (4) — delivered as part of Phase 1's spillover; no
-  remaining work here beyond `coverage.md` bookkeeping.
+  remaining work here beyond `endpoint-coverage.md` bookkeeping.
 - `Downloads` (4): repository downloads CRUD. All 4 shipped.
 
 **Architecture note:** `POST .../src` is a multipart file upload, and
@@ -151,7 +159,7 @@ terminal), the first pattern of its kind in the SDK.
 `request_text` to cover both.
 
 **Follow-up:** re-verify the `Commits` group's exact operation list against
-the live spec (`x-revision` in `coverage.md`) and close the remaining
+the live spec (`x-revision` in `endpoint-coverage.md`) and close the remaining
 `planned` rows there before treating Phase 2 as fully closed.
 
 ## Phase 3 — governance (`0.4.0`)
@@ -195,7 +203,7 @@ existing `NestedResource` pattern.
 At the end of Phase 5 the SDK covers all 294 operations in the checked spec
 revision. `Issue tracker` and `Wiki` (declared as spec tags but carrying no
 operations in this revision) are out of scope until Atlassian publishes them
-in the machine-readable spec — see the footnote in `coverage.md`.
+in the machine-readable spec — see the footnote in `endpoint-coverage.md`.
 
 ## Milestone summary
 
