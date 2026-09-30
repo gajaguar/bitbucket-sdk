@@ -2,6 +2,7 @@
 
 ## 2026-09-30
 
+* **Added**: `release/` with the PyPI Trusted Publishing decision.
 * **Restructure**: Split `ARCHITECTURE.md` into atomic notes under
   `architecture/`.
 * **Restructure**: Moved `coverage.md` and `ROADMAP.md` to

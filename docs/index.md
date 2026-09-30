@@ -25,6 +25,11 @@ See [`log.md`](log.md) for the bundle's change history.
   an endpoint is added.
 * [API](api/index.md) - endpoint coverage and the roadmap to full parity.
 
+## Release
+
+* [Release](release/index.md) - how this project ships new versions to
+  PyPI.
+
 ## Python
 
 * [Python](python/index.md) - the interpreter source and the
