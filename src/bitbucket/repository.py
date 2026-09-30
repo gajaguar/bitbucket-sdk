@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 class RepositoryClient:  # pylint: disable=too-many-instance-attributes
     # Grows by one attribute per resource group Roadmap Phase 2 adds; a thin
-    # wiring class, not a design smell — see docs/ARCHITECTURE.md's layering.
+    # wiring class, not a design smell — see docs/architecture/layering.md.
     def __init__(self, transport: Transport, workspace: WorkspaceSlug, slug: RepositorySlug) -> None:
         self.slug = slug
         base_path = f"/repositories/{workspace}/{slug}"

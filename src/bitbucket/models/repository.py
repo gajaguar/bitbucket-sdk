@@ -60,7 +60,7 @@ class ProjectSpec(BitbucketModel):
 
 class RepositoryCreate(BitbucketModel):
     # The slug itself is not a body field — POST .../repositories/{workspace}/{repo_slug}
-    # takes it in the path (see the note in docs/coverage.md).
+    # takes it in the path (see the note in docs/api/endpoint-coverage.md).
     scm: Scm = Scm.GIT
     description: str | None = None
     is_private: bool | None = None
