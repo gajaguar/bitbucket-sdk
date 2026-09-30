@@ -32,8 +32,6 @@ layered.
 - [Requirements](#requirements)
 - [Usage](#usage)
 - [Configuration](#configuration)
-- [Security](#security)
-- [Platform notes](#platform-notes)
 - [Origin](#origin)
 - [Contributing](#contributing)
 - [Open items](#open-items)
@@ -72,23 +70,30 @@ uv add "bitbucket-unofficial-sdk @ git+https://github.com/gajaguar/bitbucket-sdk
 
 ## Requirements
 
-- [mise](https://mise.jdx.dev) — pins the toolchain (`mise.toml`: Python 3.14,
-  uv, node, pnpm, pre-commit, checkmake); run `mise install`, then
-  `make install`
+- Python 3.14 or later. The floor is deliberate and can change.
 - A Bitbucket Cloud API token and the email of its Atlassian account — see
   [Authentication](#authentication)
 
 ## Usage
 
-```bash
-make install   # sync Python deps, install node tooling, install pre-commit hook
-make check     # read-only gate: lint, format-check, mypy, pyright,
-               # md-lint, spell, pylint
-make fix       # apply safe auto-fixes (format, ruff --fix, markdownlint --fix)
-make test      # run the test suite
+List a repository's open pull requests:
+
+```python
+from bitbucket import BitbucketClient
+
+with BitbucketClient() as client:
+    repository = client.default_workspace().repository("my-repo")
+
+    for pull_request in repository.pull_requests.list(state="OPEN"):
+        print(pull_request.id, pull_request.title)
 ```
 
-Run `make help` for the full target list.
+Every `list()` method returns a lazy iterator that follows Bitbucket's `next`
+cursor; iterate it directly, wrap it in `list(...)`, or call
+`list_page(cursor=...)` to manage pagination yourself. More examples — commenting,
+merging and waiting for the result, creating a repository — are in
+[`docs/api/recipes.md`][api-recipes]. The layout of the repository is in
+[`docs/architecture/project-layout.md`][architecture-project-layout].
 
 ### Authentication
 
@@ -141,92 +146,17 @@ prompts — that is an application-level concern for whatever consumes this SDK.
 Bearer-token support is planned, for access tokens and for an OAuth access token
 that your application obtains; see [`docs/api/roadmap.md`][api-roadmap].
 
+#### Protecting the token
+
+A Bitbucket API token grants the access of its scopes to everything your
+account can reach. Never commit one, and rotate it immediately if it is
+exposed. The SDK never logs headers or its configuration, and the token is
+excluded from `repr(ClientConfig)`.
+
 The full contract is in
 [`docs/sdk/credential-contract.md`][sdk-credential-contract], and the
 values that belong to Bitbucket are in
 [`docs/sdk/credentials.md`][sdk-credentials].
-
-### Recipes
-
-List a repository's open pull requests, fetch one's diff, and post a comment:
-
-```python
-from bitbucket import BitbucketClient
-from bitbucket import CommentContentCreate
-from bitbucket import CommentCreate
-
-with BitbucketClient() as client:
-    # workspace() takes an explicit slug; default_workspace() reads
-    # BITBUCKET_WORKSPACE from the environment instead.
-    repository = client.default_workspace().repository("my-repo")
-
-    open_prs = list(repository.pull_requests.list(state="OPEN"))
-    for pull_request in open_prs:
-        print(pull_request.id, pull_request.title)
-
-    diff = repository.pull_requests.diff(open_prs[0].id)
-
-    repository.pull_requests.comments(open_prs[0].id).create(
-        CommentCreate(content=CommentContentCreate(raw="Looks good.")),
-    )
-```
-
-Every `list()` method returns a lazy iterator that follows Bitbucket's `next`
-cursor; iterate it directly, wrap in `list(...)`, or call `list_page(cursor=...)`
-to manage pagination yourself.
-
-Merge a pull request and wait for the result — `POST .../merge` returns
-`202 Accepted` with an async task to poll, not the merged PR directly:
-
-```python
-from bitbucket import MergeParameters
-
-status = repository.pull_requests.merge_and_wait(
-    open_prs[0].id,
-    MergeParameters(merge_strategy="squash"),
-)
-print(status.task_status)
-```
-
-`merge()` returns the task immediately without waiting; poll it yourself with
-`merge_task_status(pull_request_id, task_id)` if you need finer control.
-
-Create a repository, push a branch, and read a file from it:
-
-```python
-from bitbucket import BranchCreate
-from bitbucket import RefTargetSpec
-from bitbucket import RepositoryCreate
-
-with BitbucketClient() as client:
-    workspace = client.default_workspace()
-
-    repository = workspace.repositories.create("new-repo", RepositoryCreate(is_private=True))
-    main = next(iter(workspace.repository("new-repo").refs.branches.list()))
-
-    workspace.repository("new-repo").refs.branches.create(
-        BranchCreate(name="feature", target=RefTargetSpec(hash=main.target.hash)),
-    )
-
-    readme = workspace.repository("new-repo").source.read(main.target.hash, "README.md")
-```
-
-### Project layout
-
-```text
-.
-├── pyproject.toml       # deps, ruff/mypy/pyright/pytest/coverage config
-├── Makefile             # check/fix command surface (root: shared targets)
-├── mk/python.mk         # Python-specific targets, wired into the Makefile
-├── mise.toml            # pinned toolchain versions
-├── docs/                # OKF notes: architecture, endpoint coverage, SDK
-├── src/bitbucket/       # SDK package (client, models/, resources/)
-│   └── aio/             # async mirror: AsyncBitbucketClient + Async resources
-└── tests/
-    ├── unit/            # respx-backed, offline, deterministic
-    │   └── aio/         # async mirror tests
-    └── live/            # marker-gated (`-m live`), hits a real workspace
-```
 
 ### Async client
 
@@ -272,25 +202,6 @@ apply to both.
 The names are exported as `EMAIL_ENV_VAR`, `API_TOKEN_ENV_VAR` and
 `WORKSPACE_ENV_VAR`, so an application does not have to repeat the strings.
 
-## Security
-
-A Bitbucket API token grants the access of its scopes to everything your
-account can reach — never commit one, and rotate it immediately if it is
-exposed. The SDK never logs headers or its configuration, and the token is
-excluded from `repr(ClientConfig)`.
-
-## Platform notes
-
-- **CI runs the full gate.** [`python.yml`][python-yml]
-  runs `make check` and `make test` on every push to `main` and every pull
-  request.
-- **`requires-python = ">=3.14"`** excludes most current Python installations
-  (3.11–3.13); this is a deliberate, revisitable floor.
-- `mise.toml` forces `uv` onto the mise-provided interpreter through its
-  `[env]` (`UV_PYTHON_PREFERENCE=only-system`, `UV_PYTHON_DOWNLOADS=never`),
-  so `.python-version` is intentionally absent — mise is the single source of
-  truth for the pinned Python version.
-
 ## Origin
 
 Extracted from a larger internal toolkit's Bitbucket provider module, which
@@ -320,11 +231,12 @@ See [`CONTRIBUTING.md`][contributing].
 MIT — see [`LICENSE`][license].
 
 [architecture]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/architecture/index.md
+[api-recipes]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/api/recipes.md
+[architecture-project-layout]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/architecture/project-layout.md
 [api-roadmap]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/api/roadmap.md
 [sdk-credential-contract]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/sdk/credential-contract.md
 [sdk-credential-tests]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/sdk/credential-tests.md
 [sdk-credentials]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/sdk/credentials.md
-[python-yml]: https://github.com/gajaguar/bitbucket-sdk/blob/main/.github/workflows/python.yml
 [api-endpoint-coverage]: https://github.com/gajaguar/bitbucket-sdk/blob/main/docs/api/endpoint-coverage.md
 [contributing]: https://github.com/gajaguar/bitbucket-sdk/blob/main/CONTRIBUTING.md
 [license]: https://github.com/gajaguar/bitbucket-sdk/blob/main/LICENSE

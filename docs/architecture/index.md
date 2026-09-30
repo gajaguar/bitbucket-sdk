@@ -15,3 +15,5 @@
   Bitbucket endpoint it calls in a comment, since docstrings are not allowed.
 * [Adding an endpoint](adding-an-endpoint.md) - The steps to add a new
   Bitbucket endpoint to the SDK.
+* [Project layout](project-layout.md) - What each top-level file and directory
+  of the repository holds, and where the sync and async code and tests live.

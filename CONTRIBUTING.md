@@ -14,14 +14,20 @@ documentation fixes, and code are all welcome.
 
 ## Set up
 
-Install the toolchain and dependencies as described in the
-[README](README.md#requirements), then:
+[mise](https://mise.jdx.dev) pins the toolchain in `mise.toml`: Python 3.14,
+uv, node, pnpm, pre-commit and checkmake. Install it, then run:
 
 ```bash
+mise install
 make install
 ```
 
-Run `make help` for the full list of targets.
+`make install` syncs the Python dependencies, installs the node tooling and
+registers the pre-commit hook. Run `make help` for the full list of targets.
+
+`mise.toml` forces `uv` onto the mise-provided interpreter, so
+`.python-version` is intentionally absent; see
+[`docs/python/interpreter-source.md`](docs/python/interpreter-source.md).
 
 ## Before opening a pull request
 
@@ -33,7 +39,9 @@ make test
 ```
 
 `make fix` applies the safe automatic fixes for what `make check` reports.
-CI runs the same targets and blocks the merge when either fails.
+[`python.yml`](.github/workflows/python.yml) runs the same targets on every
+push to `main` and every pull request, and blocks the merge when either
+fails.
 
 To add a Bitbucket endpoint, follow
 [`docs/architecture/adding-an-endpoint.md`](docs/architecture/adding-an-endpoint.md).
