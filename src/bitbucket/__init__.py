@@ -1,4 +1,7 @@
 from bitbucket._version import __version__
+from bitbucket.aio.client import AsyncBitbucketClient
+from bitbucket.aio.repository import AsyncRepositoryClient
+from bitbucket.aio.workspace import AsyncWorkspaceClient
 from bitbucket.client import BitbucketClient
 from bitbucket.config import API_TOKEN_ENV_VAR
 from bitbucket.config import EMAIL_ENV_VAR
@@ -128,6 +131,9 @@ __all__ = [
     "ActivityApproval",
     "ActivityUpdate",
     "ApiTokenProvider",
+    "AsyncBitbucketClient",
+    "AsyncRepositoryClient",
+    "AsyncWorkspaceClient",
     "AuthenticationError",
     "AuthorRef",
     "BitbucketAPIError",

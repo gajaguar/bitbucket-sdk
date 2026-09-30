@@ -38,6 +38,51 @@ def _elapsed_ms(response: httpx.Response) -> float:
         return 0.0
 
 
+def _resolved_params(
+    params: Mapping[str, str | float | bool | list[str] | None] | None,
+) -> Mapping[str, str | float | bool | list[str]] | None:
+    if params is None:
+        return None
+    return {key: value for key, value in params.items() if value is not None} or None
+
+
+def _log(method: str, path: str, response: httpx.Response) -> None:
+    # Only primitives are logged; headers and the config object are never logged so the
+    # basic-auth credentials cannot leak into a caller's log sink.
+    elapsed_ms = _elapsed_ms(response)
+    LOGGER.debug("%s %s -> %s (%.1fms)", method, path, response.status_code, elapsed_ms)
+
+
+def _decode_json(response: httpx.Response) -> JSONValue:
+    if not response.content:
+        return {}
+    try:
+        return cast("JSONValue", response.json())
+    except ValueError as error:
+        message = f"Invalid JSON in response from {response.url}"
+        raise TransportError(message, response=response, cause=error) from error
+
+
+def _json_or_error(response: httpx.Response) -> JSONValue:
+    if response.status_code == _NO_CONTENT:
+        return None
+    if not response.is_success:
+        raise error_for_response(response)
+    return _decode_json(response)
+
+
+def _text_or_error(response: httpx.Response) -> str:
+    if not response.is_success:
+        raise error_for_response(response)
+    return response.text
+
+
+def _bytes_or_error(response: httpx.Response) -> bytes:
+    if not response.is_success:
+        raise error_for_response(response)
+    return response.content
+
+
 class Transport:
     def __init__(self, config: ClientConfig, auth: BasicAuth) -> None:
         self._config = config
@@ -63,11 +108,7 @@ class Transport:
         json: JSONValue = None,
     ) -> JSONValue:
         response = self._send(method, path, kind=kind, params=params, json=json)
-        if response.status_code == _NO_CONTENT:
-            return None
-        if not response.is_success:
-            raise error_for_response(response)
-        return self._decode_json(response)
+        return _json_or_error(response)
 
     def request_text(
         self,
@@ -78,9 +119,7 @@ class Transport:
         params: Mapping[str, str | float | bool | list[str] | None] | None = None,
     ) -> str:
         response = self._send(method, path, kind=kind, params=params, json=None)
-        if not response.is_success:
-            raise error_for_response(response)
-        return response.text
+        return _text_or_error(response)
 
     def request_bytes(
         self,
@@ -91,9 +130,7 @@ class Transport:
         params: Mapping[str, str | float | bool | list[str] | None] | None = None,
     ) -> bytes:
         response = self._send(method, path, kind=kind, params=params, json=None)
-        if not response.is_success:
-            raise error_for_response(response)
-        return response.content
+        return _bytes_or_error(response)
 
     def request_multipart(
         self,
@@ -105,11 +142,7 @@ class Transport:
         data: Mapping[str, str] | None = None,
     ) -> JSONValue:
         response = self._send_multipart(method, path, kind=kind, files=files, data=data)
-        if response.status_code == _NO_CONTENT:
-            return None
-        if not response.is_success:
-            raise error_for_response(response)
-        return self._decode_json(response)
+        return _json_or_error(response)
 
     def _send(
         self,
@@ -120,18 +153,17 @@ class Transport:
         params: Mapping[str, str | float | bool | list[str] | None] | None,
         json: JSONValue,
     ) -> httpx.Response:
-        resolved_params = {key: value for key, value in (params or {}).items() if value is not None} or None
         try:
             response = self._client.request(
                 method,
                 path,
-                params=resolved_params,
+                params=_resolved_params(params),
                 json=json,
                 extensions={"bitbucket_cqs": kind},
             )
         except httpx.TransportError as error:
             raise TransportError(str(error)) from error
-        self._log(method, path, response)
+        _log(method, path, response)
         return response
 
     def _send_multipart(
@@ -153,22 +185,5 @@ class Transport:
             )
         except httpx.TransportError as error:
             raise TransportError(str(error)) from error
-        self._log(method, path, response)
+        _log(method, path, response)
         return response
-
-    @staticmethod
-    def _log(method: str, path: str, response: httpx.Response) -> None:
-        # Only primitives are logged; headers and the config object are never logged so the
-        # basic-auth credentials cannot leak into a caller's log sink.
-        elapsed_ms = _elapsed_ms(response)
-        LOGGER.debug("%s %s -> %s (%.1fms)", method, path, response.status_code, elapsed_ms)
-
-    @staticmethod
-    def _decode_json(response: httpx.Response) -> JSONValue:
-        if not response.content:
-            return {}
-        try:
-            return cast("JSONValue", response.json())
-        except ValueError as error:
-            message = f"Invalid JSON in response from {response.url}"
-            raise TransportError(message, response=response, cause=error) from error

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "bitbucket-unofficial-sdk"
-version = "0.4.1"
+version = "0.5.0"
 description = "Unofficial, typed Python SDK for the Bitbucket Cloud REST API"
 readme = "README.md"
 license = "MIT"
@@ -45,6 +45,7 @@ dev = [
 
 [tool.pytest.ini_options]
 addopts = "--cov=src --cov-report=term-missing --cov-fail-under=90"
+anyio_mode = "auto"
 markers = [
   "live: hits the real Bitbucket API (requires ATLASSIAN_USER_EMAIL, ATLASSIAN_API_TOKEN, BITBUCKET_WORKSPACE)",
 ]

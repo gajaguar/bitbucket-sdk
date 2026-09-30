@@ -19,6 +19,23 @@ if TYPE_CHECKING:
     from bitbucket.config import ApiTokenProvider
 
 
+def _build_config(
+    email: str | None,
+    api_token: str | ApiTokenProvider | None,
+    options: ClientOptions | None,
+) -> ClientConfig:
+    resolved_options = options or ClientOptions()
+    resolved_email, resolved_token = resolve_credentials(email, api_token)
+    return ClientConfig(
+        email=resolved_email,
+        api_token=resolved_token,
+        base_url=resolved_options.base_url or DEFAULT_BASE_URL,
+        timeout=resolved_options.timeout,
+        retry=resolved_options.retry or RetryPolicy(),
+        event_hooks=resolved_options.event_hooks,
+    )
+
+
 class BitbucketClient:
     def __init__(
         self,
@@ -27,17 +44,8 @@ class BitbucketClient:
         *,
         options: ClientOptions | None = None,
     ) -> None:
-        resolved_options = options or ClientOptions()
-        resolved_email, resolved_token = resolve_credentials(email, api_token)
-        self._config = ClientConfig(
-            email=resolved_email,
-            api_token=resolved_token,
-            base_url=resolved_options.base_url or DEFAULT_BASE_URL,
-            timeout=resolved_options.timeout,
-            retry=resolved_options.retry or RetryPolicy(),
-            event_hooks=resolved_options.event_hooks,
-        )
-        self._transport = Transport(self._config, BasicAuth(resolved_email, resolved_token))
+        self._config = _build_config(email, api_token, options)
+        self._transport = Transport(self._config, BasicAuth(self._config.email, self._config.api_token))
         self.user = UserResource(self._transport)
 
     def __enter__(self) -> Self:

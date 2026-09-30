@@ -2,6 +2,8 @@
 
 * [Layering](layering.md) - how the clients, resources, and transport stack
   on each other.
+* [Async client](async-client.md) - the `bitbucket.aio` mirror, what is
+  shared, and the rule that every endpoint ships in both clients.
 * [Request lifecycle](request-lifecycle.md) - the auth, retry,
   error-mapping, and validation pipeline.
 * [Pagination](pagination.md) - how `Page` and `paginate()` follow `next`

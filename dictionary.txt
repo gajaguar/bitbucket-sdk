@@ -1,5 +1,12 @@
+PYEOF
+aclient
+aio
+apaginate
+apoll
+aread
 asciinema
 astroid
+atransport
 attribution
 bitbucket
 capsys
@@ -32,7 +39,6 @@ pnpm
 posonlyargs
 precommit
 pycache
-PYEOF
 pylint
 pypa
 pypi
