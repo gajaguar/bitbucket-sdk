@@ -62,10 +62,15 @@ In scope:
   generator shape `BasicAuth.auth_flow` already returns via
   `httpx.BasicAuth`.
 - A `TokenProvider` protocol/callable: "give me a token," with the SDK
-  holding no opinion on where it came from.
+  holding no opinion on where it came from. *Partly shipped:* the
+  `ApiTokenProvider` callable (`src/bitbucket/config.py`) is accepted by
+  `BitbucketClient(api_token=...)` and invoked on every request by
+  `BasicAuth`. A bearer-token provider is still pending.
 - `ClientConfig`/`resolve_credentials` (`src/bitbucket/config.py`) widened
   to accept a `TokenProvider` as an alternative to the existing
   email/API-token pair, without making either required unconditionally.
+  *Pending:* today the provider only replaces the API token, and the email
+  is still required.
 - Restate the no-credentials-in-logs guarantee in `_transport.py`'s
   `_send` explicitly for the `Authorization: Bearer` header — today's
   comment only names Basic Auth.

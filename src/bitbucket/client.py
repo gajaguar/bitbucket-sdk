@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from typing import Self
 
 from bitbucket._auth import BasicAuth
@@ -14,12 +15,15 @@ from bitbucket.resources.user import UserResource
 from bitbucket.retry import RetryPolicy
 from bitbucket.workspace import WorkspaceClient
 
+if TYPE_CHECKING:
+    from bitbucket.config import ApiTokenProvider
+
 
 class BitbucketClient:
     def __init__(
         self,
         email: str | None = None,
-        api_token: str | None = None,
+        api_token: str | ApiTokenProvider | None = None,
         *,
         options: ClientOptions | None = None,
     ) -> None:
