@@ -1,10 +1,10 @@
 # Bitbucket Unofficial SDK
 
-[![PyPI](https://img.shields.io/pypi/v/bitbucket-unofficial-sdk.svg)](https://pypi.org/project/bitbucket-unofficial-sdk/)
-[![CI](https://github.com/gajaguar/bitbucket-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/gajaguar/bitbucket-sdk/actions/workflows/ci.yml)
-[![Python 3.14+](https://img.shields.io/badge/python-3.14%2B-blue.svg)](https://github.com/gajaguar/bitbucket-sdk/blob/main/pyproject.toml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/gajaguar/bitbucket-sdk/blob/main/LICENSE)
-[![Topics](https://img.shields.io/badge/topics-python%20%7C%20sdk%20%7C%20api--client%20%7C%20bitbucket%20%7C%20httpx-informational)](https://github.com/gajaguar/bitbucket-sdk)
+[![CI](https://img.shields.io/github/actions/workflow/status/gajaguar/bitbucket-sdk/ci.yml?branch=main&label=ci)](https://github.com/gajaguar/bitbucket-sdk/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/bitbucket-unofficial-sdk?label=pypi)](https://pypi.org/project/bitbucket-unofficial-sdk/)
+[![Python 3.14+](https://img.shields.io/badge/python-3.14%2B-blue)](https://github.com/gajaguar/bitbucket-sdk/blob/main/pyproject.toml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://github.com/gajaguar/bitbucket-sdk/blob/main/LICENSE)
+[![Topics](https://img.shields.io/badge/topics-api--client%20%7C%20bitbucket%20%7C%20httpx%20%7C%20pydantic%20%7C%20python%20%7C%20sdk-informational)](https://github.com/gajaguar/bitbucket-sdk)
 
 > **Unofficial.** This project is not affiliated with, endorsed by, or
 > supported by Atlassian. "Bitbucket" is a trademark of Atlassian. Use at your
