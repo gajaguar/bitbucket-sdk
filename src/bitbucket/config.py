@@ -28,7 +28,7 @@ _CREATE_HINT: Final = "Create one under Atlassian account settings > Security > 
 # A caller-supplied callback invoked lazily on every request instead of a fixed string,
 # so a rotating or externally-managed token never has to be baked into the client at
 # construction time. The SDK never calls this itself outside the auth flow.
-type ApiTokenProvider = Callable[[], str]  # pylint: disable=app-module-const-naming
+type ApiTokenProvider = Callable[[], str]  # pylint: disable=gajaguar-module-const-naming
 
 
 @dataclass(frozen=True, slots=True)
