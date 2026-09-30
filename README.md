@@ -17,7 +17,7 @@ merging, default reviewers). Every response is a validated, frozen
 [pydantic](https://docs.pydantic.dev/) model with attribute access and real
 Python types — not a raw `dict`.
 
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for how the client is
+See [`docs/architecture/`](docs/architecture/index.md) for how the client is
 layered.
 
 ## Table of contents
@@ -30,6 +30,7 @@ layered.
 - [Platform notes](#platform-notes)
 - [Origin](#origin)
 - [Open items](#open-items)
+- [Contributing](#contributing)
 
 ## Installation
 
@@ -118,7 +119,7 @@ rotate it before then.
 The SDK only reads the sources listed above. It has no OS keyring or keychain
 integration, no password-manager support, no OAuth flow, and no interactive
 prompts — that is an application-level concern for whatever consumes this SDK.
-Bearer (OAuth 2.0) support is planned; see [`docs/ROADMAP.md`](docs/ROADMAP.md).
+Bearer (OAuth 2.0) support is planned; see [`docs/api/roadmap.md`](docs/api/roadmap.md).
 
 The full contract is in
 [`docs/sdk/credential-contract.md`](docs/sdk/credential-contract.md), and the
@@ -190,46 +191,6 @@ with BitbucketClient() as client:
     readme = workspace.repository("new-repo").source.read(main.target.hash, "README.md")
 ```
 
-### Command convention: `check` vs `fix`
-
-Targets are split by whether they mutate files:
-
-| Prefix / umbrella   | Behavior                                                             | Example targets                                                                               |
-| ------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `check` (read-only) | Reports problems, exits non-zero, never writes. This is the CI gate. | `lint`, `format-check`, `mypy`, `pyright`, `typecheck`, `md-lint`, `spell`, `pylint`, `check` |
-| `fix` (writable)    | Mutates files in place.                                              | `format`, `lint-fix`, `lint-fix-unsafe`, `md-fix`, `fix`, `fix-unsafe`                        |
-
-All targets accept `FILES="..."` to scope to specific paths/globs, e.g.
-`make lint FILES="src/bitbucket/client.py"`.
-
-### Toolchain
-
-- **uv** — dependency management and virtualenvs (`hatchling` build backend)
-- **httpx** — HTTP transport
-- **pydantic** — response/request models (validation, aliasing, `frozen=True`)
-- **ruff** — linting and formatting (`lint.select = ["ALL"]`, curated ignores)
-- **mypy** + **pyright** — static type checking
-- **pytest** + **pytest-cov** + **respx** — testing, coverage, HTTP mocking
-- **markdownlint-cli2** + **cspell** (pnpm, dev-only) — Markdown lint & spell check
-- **checkmake** — lints the `Makefile` itself (`make makefile-lint`)
-- **pylint** + [`pylint-plugin`](https://github.com/gajaguar/pylint-plugin)
-  (uv git dependency) — custom checkers for personal-preference rules ruff
-  doesn't cover (e.g. no docstrings — see below)
-- **pre-commit** — git hook running the generic hygiene hooks
-  (trailing-whitespace, end-of-file-fixer, check-yaml, check-toml,
-  check-merge-conflict, check-added-large-files, mixed-line-ending),
-  markdownlint-cli2, cspell, checkmake, ruff, ruff-format, mypy, and pylint
-  before each commit
-- **mise** — pins the whole toolchain version (Python, uv, node, pnpm,
-  pre-commit, checkmake) in `mise.toml`
-
-#### Docstring policy
-
-This project does not use docstrings — use comments only where the *why*
-isn't obvious from the code. `pylint-plugin`'s `app-no-docstrings` (W9001)
-checker fails `make check`/`make pylint` if any function, method, or class
-has one.
-
 ### Project layout
 
 ```text
@@ -238,7 +199,7 @@ has one.
 ├── Makefile             # check/fix command surface (root: shared targets)
 ├── mk/python.mk         # Python-specific targets, wired into the Makefile
 ├── mise.toml            # pinned toolchain versions
-├── docs/                # ARCHITECTURE, endpoint coverage matrix
+├── docs/                # OKF notes: architecture, endpoint coverage, SDK
 ├── src/bitbucket/       # SDK package (client, models/, resources/)
 └── tests/
     ├── unit/            # respx-backed, offline, deterministic
@@ -266,18 +227,15 @@ excluded from `repr(ClientConfig)`.
 
 ## Platform notes
 
-- **CI enforces lint, formatting, and spelling, not tests.**
-  [`ci.yml`](.github/workflows/ci.yml) runs `make makefile-lint`,
-  `make md-lint`, `make spell`, and the pre-commit hooks (ruff, ruff-format,
-  mypy, pylint) on every push and pull request. It does not run `pytest` or
-  `pyright`. `make check && make test` remains the full local gate; run it
-  before every commit and always before tagging a release.
+- **CI runs the full gate.** [`python.yml`](.github/workflows/python.yml)
+  runs `make check` and `make test` on every push to `main` and every pull
+  request.
 - **`requires-python = ">=3.14"`** excludes most current Python installations
   (3.11–3.13); this is a deliberate, revisitable floor.
-- `mise.toml` forces `uv` onto the mise-provided interpreter
-  (`python-preference = "only-system"`, `python-downloads = "never"` in
-  `pyproject.toml`'s `[tool.uv]`), so `.python-version` is intentionally
-  absent — mise is the single source of truth for the pinned Python version.
+- `mise.toml` forces `uv` onto the mise-provided interpreter through its
+  `[env]` (`UV_PYTHON_PREFERENCE=only-system`, `UV_PYTHON_DOWNLOADS=never`),
+  so `.python-version` is intentionally absent — mise is the single source of
+  truth for the pinned Python version.
 
 ## Origin
 
@@ -290,14 +248,15 @@ aggregation); this SDK carries only the Bitbucket wire client.
 ## Open items
 
 - Branch restrictions, branching model, projects, workspaces, and pipelines
-  are not yet modeled — see [`docs/coverage.md`](docs/coverage.md) for the
-  full endpoint matrix and [`docs/ROADMAP.md`](docs/ROADMAP.md) for the
-  phased plan to full API parity.
+  are not yet modeled — see
+  [`docs/api/endpoint-coverage.md`](docs/api/endpoint-coverage.md) for the
+  full endpoint matrix and [`docs/api/roadmap.md`](docs/api/roadmap.md) for
+  the phased plan to full API parity.
 - A handful of `Commits` operations from the original Phase 2 estimate
   (a "file-conflicts" endpoint and up to 2 others) couldn't be confidently
   mapped to a real spec path without re-checking the live spec — see the
-  note in `docs/coverage.md`'s `Commits` section.
-- [`python.yml`](.github/workflows/python.yml) targets a `python` branch
-  that doesn't exist and never runs; inherited from the template repo this
-  project was extracted from, it needs retargeting to `main` or removal.
-- CI does not run `pytest` or `pyright` — see [Platform notes](#platform-notes).
+  note in `docs/api/endpoint-coverage.md`'s `Commits` section.
+
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md).
