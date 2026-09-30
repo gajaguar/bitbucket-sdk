@@ -1,0 +1,24 @@
+name: Feature request
+description: Propose a new endpoint or a change to the SDK.
+title: "feat: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What you cannot do today, or what is harder than it should be.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: The endpoint or API you would like. Link the Bitbucket Cloud REST documentation when it is an endpoint.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false

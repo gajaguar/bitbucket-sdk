@@ -5,8 +5,10 @@ documentation fixes, and code are all welcome.
 
 ## Ways to contribute
 
-- Report a bug or propose a feature by opening a GitHub issue. For a bug,
-  include the steps to reproduce it and what you expected to happen.
+- Report a bug or propose a feature by opening a GitHub issue and choosing
+  the matching form. For a bug, include the steps to reproduce it, the SDK
+  and Python versions, and what you expected to happen. Remove your token and
+  any private workspace or repository names from what you paste.
 - Fix or extend documentation under `docs/`.
 - Submit a pull request for a bug fix or a new feature. For anything larger
   than a small fix, open an issue first so the approach can be agreed before
@@ -39,9 +41,14 @@ make test
 ```
 
 `make fix` applies the safe automatic fixes for what `make check` reports.
-[`python.yml`](.github/workflows/python.yml) runs the same targets on every
-push to `main` and every pull request, and blocks the merge when either
-fails.
+Two workflows run on every push to `main` and every pull request, and a
+failure in either blocks the merge:
+
+- [`python.yml`](.github/workflows/python.yml) runs `make check` and
+  `make test`.
+- [`ci.yml`](.github/workflows/ci.yml) runs `make makefile-lint`,
+  `make md-lint`, `make spell`, `make commits-check` and
+  `pre-commit run --all-files`.
 
 To add a Bitbucket endpoint, follow
 [`docs/architecture/adding-an-endpoint.md`](docs/architecture/adding-an-endpoint.md).
