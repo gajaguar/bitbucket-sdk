@@ -23,7 +23,7 @@ def _basic_auth_header(email: str, api_token: str) -> str:
 def test_client_prefers_explicit_credentials_over_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     # Arrange
     monkeypatch.setenv("ATLASSIAN_USER_EMAIL", "env@b.com")
-    monkeypatch.setenv("ATLASSIAN_API_KEY", "env-tok")
+    monkeypatch.setenv("ATLASSIAN_API_TOKEN", "env-tok")
     route = respx.get(f"{BASE_URL}/user").mock(return_value=Response(200, json={}))
     # Act
     with BitbucketClient(
@@ -40,7 +40,7 @@ def test_client_prefers_explicit_credentials_over_environment(monkeypatch: pytes
 def test_client_falls_back_to_environment_credentials(monkeypatch: pytest.MonkeyPatch) -> None:
     # Arrange
     monkeypatch.setenv("ATLASSIAN_USER_EMAIL", "env@b.com")
-    monkeypatch.setenv("ATLASSIAN_API_KEY", "env-tok")
+    monkeypatch.setenv("ATLASSIAN_API_TOKEN", "env-tok")
     route = respx.get(f"{BASE_URL}/user").mock(return_value=Response(200, json={}))
     # Act
     with BitbucketClient(options=ClientOptions(retry=NO_RETRY)) as client:
@@ -52,6 +52,7 @@ def test_client_falls_back_to_environment_credentials(monkeypatch: pytest.Monkey
 def test_client_without_credentials_raises_missing_credentials_error(monkeypatch: pytest.MonkeyPatch) -> None:
     # Arrange
     monkeypatch.delenv("ATLASSIAN_USER_EMAIL", raising=False)
+    monkeypatch.delenv("ATLASSIAN_API_TOKEN", raising=False)
     monkeypatch.delenv("ATLASSIAN_API_KEY", raising=False)
     # Act
     # Assert
