@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 class RepositoriesResource:
     # Workspace-scoped, with no per-repo {id} nesting a create/update/delete
     # could hang off in NestedResource's shape: create puts the slug in the
-    # *path*, not the body (see the note in docs/coverage.md) — hand-written
+    # *path*, not the body (see the note in docs/api/endpoint-coverage.md) — hand-written
     # per the over-abstraction guard in docs/TECH_SPEC.md.
     def __init__(self, transport: Transport, workspace: WorkspaceSlug) -> None:
         self._transport = transport

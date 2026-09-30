@@ -1,3 +1,11 @@
+---
+type: reference
+title: Endpoint coverage
+description: Every Bitbucket Cloud REST API endpoint the SDK supports, mapped to its method and status.
+tags: [api]
+status: stable
+---
+
 # Endpoint coverage
 
 Authoritative mapping of every Bitbucket Cloud REST API endpoint this SDK
@@ -57,7 +65,7 @@ The spec also declares `Issue tracker` and `Wiki` tags with zero operations
 attached to any path — Bitbucket's issue-tracker and wiki REST endpoints are
 not in this machine-readable spec even though Atlassian's HTML docs still
 describe them, so the 294 total above is the spec's surface, not necessarily
-the full historical API. See [`ROADMAP.md`](ROADMAP.md) for the phased plan
+the full historical API. See the [roadmap](roadmap.md) for the phased plan
 to close this gap.
 
 ## User
@@ -217,10 +225,10 @@ guessing from the response.
 | commit merge-conflict detection                                     | —                                                           | planned |
 | (unverified — 2 further operations per the original 17-op estimate) | —                                                           | planned |
 
-Note: this group's original 17-operation estimate in `ROADMAP.md` included a
+Note: this group's original 17-operation estimate in `roadmap.md` included a
 "file-conflicts" endpoint this pass could not confidently map to a real,
 documented Bitbucket Cloud path without re-checking the live spec (see
-`ROADMAP.md`'s note on regenerating these numbers) — left `planned` rather
+`roadmap.md`'s note on regenerating these numbers) — left `planned` rather
 than guessed at. 14 of the group's operations are implemented and verified
 against the endpoint shapes documented in Bitbucket's public API reference.
 

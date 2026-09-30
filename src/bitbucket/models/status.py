@@ -5,7 +5,7 @@ from typing import Literal
 from bitbucket._time import BitbucketInstant
 from bitbucket.models.base import BitbucketModel
 
-type PullRequestStatusState = Literal[  # pylint: disable=app-module-const-naming
+type PullRequestStatusState = Literal[  # pylint: disable=gajaguar-module-const-naming
     "FAILED", "INPROGRESS", "STOPPED", "SUCCESSFUL"
 ]
 
