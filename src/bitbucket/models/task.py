@@ -9,7 +9,7 @@ from bitbucket.models.base import BitbucketModel
 from bitbucket.models.link import Links
 from bitbucket.models.pull_request import RenderedField
 
-type TaskState = Literal["RESOLVED", "UNRESOLVED"]  # pylint: disable=app-module-const-naming
+type TaskState = Literal["RESOLVED", "UNRESOLVED"]  # pylint: disable=gajaguar-module-const-naming
 
 
 class Task(BitbucketModel):

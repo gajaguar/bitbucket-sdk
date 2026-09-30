@@ -12,10 +12,10 @@ _LIVE_ENV_VARS: Final = ("ATLASSIAN_USER_EMAIL", "ATLASSIAN_API_TOKEN", "BITBUCK
 
 @pytest.mark.live
 @pytest.mark.skipif(
-    not all(environ.get(name) for name in _LIVE_ENV_VARS),
+    not all(map(environ.get, _LIVE_ENV_VARS)),
     reason="ATLASSIAN_USER_EMAIL / ATLASSIAN_API_TOKEN / BITBUCKET_WORKSPACE not set",
 )
-def test_list_repositories_and_fetch_a_pull_request_smoke() -> None:  # pylint: disable=app-test-partial-assertion
+def test_list_repositories_and_fetch_a_pull_request_smoke() -> None:  # pylint: disable=gajaguar-test-partial-assertion
     # Arrange
     with BitbucketClient() as client:
         workspace = client.default_workspace()
