@@ -1,5 +1,9 @@
 from bitbucket._version import __version__
 from bitbucket.client import BitbucketClient
+from bitbucket.config import API_TOKEN_ENV_VAR
+from bitbucket.config import EMAIL_ENV_VAR
+from bitbucket.config import WORKSPACE_ENV_VAR
+from bitbucket.config import ApiTokenProvider
 from bitbucket.config import ClientOptions
 from bitbucket.errors import AuthenticationError
 from bitbucket.errors import BitbucketAPIError
@@ -113,13 +117,17 @@ from bitbucket.retry import RetryPolicy
 from bitbucket.workspace import WorkspaceClient
 
 __all__ = [
+    "API_TOKEN_ENV_VAR",
+    "EMAIL_ENV_VAR",
     "NO_RETRY",
+    "WORKSPACE_ENV_VAR",
     "Account",
     "AccountId",
     "AccountLinks",
     "Activity",
     "ActivityApproval",
     "ActivityUpdate",
+    "ApiTokenProvider",
     "AuthenticationError",
     "AuthorRef",
     "BitbucketAPIError",

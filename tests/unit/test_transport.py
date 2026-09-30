@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from logging import DEBUG
 from typing import TYPE_CHECKING
 
 import respx
@@ -9,6 +10,8 @@ from bitbucket.retry import CqsKind
 from tests.conftest import BASE_URL
 
 if TYPE_CHECKING:
+    import pytest
+
     from bitbucket._transport import Transport
 
 
@@ -56,3 +59,16 @@ def test_request_multipart_decodes_json_body(transport: Transport) -> None:
     )
     # Assert
     assert result == {"name": "file.zip"}
+
+
+@respx.mock
+def test_debug_log_never_contains_the_api_token(transport: Transport, caplog: pytest.LogCaptureFixture) -> None:
+    # Arrange
+    respx.get(f"{BASE_URL}/user").mock(return_value=Response(200, json={}))
+    # Act
+    with caplog.at_level(DEBUG, logger="bitbucket"):
+        transport.request("GET", "/user", kind=CqsKind.QUERY)
+    # Assert
+    assert caplog.records
+    assert "tok" not in caplog.text
+    assert "a@b.com" not in caplog.text

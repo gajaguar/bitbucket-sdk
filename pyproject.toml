@@ -38,7 +38,7 @@ packages = ["src/bitbucket"]
 testpaths = ["tests"]
 addopts = "--cov=bitbucket --cov-report=term-missing --cov-fail-under=90"
 markers = [
-  "live: hits the real Bitbucket API (requires ATLASSIAN_USER_EMAIL, ATLASSIAN_API_KEY, BITBUCKET_WORKSPACE)",
+  "live: hits the real Bitbucket API (requires ATLASSIAN_USER_EMAIL, ATLASSIAN_API_TOKEN, BITBUCKET_WORKSPACE)",
 ]
 
 [tool.coverage.run]

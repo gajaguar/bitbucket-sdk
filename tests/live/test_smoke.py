@@ -7,13 +7,13 @@ import pytest
 
 from bitbucket import BitbucketClient
 
-_LIVE_ENV_VARS: Final = ("ATLASSIAN_USER_EMAIL", "ATLASSIAN_API_KEY", "BITBUCKET_WORKSPACE")
+_LIVE_ENV_VARS: Final = ("ATLASSIAN_USER_EMAIL", "ATLASSIAN_API_TOKEN", "BITBUCKET_WORKSPACE")
 
 
 @pytest.mark.live
 @pytest.mark.skipif(
     not all(environ.get(name) for name in _LIVE_ENV_VARS),
-    reason="ATLASSIAN_USER_EMAIL / ATLASSIAN_API_KEY / BITBUCKET_WORKSPACE not set",
+    reason="ATLASSIAN_USER_EMAIL / ATLASSIAN_API_TOKEN / BITBUCKET_WORKSPACE not set",
 )
 def test_list_repositories_and_fetch_a_pull_request_smoke() -> None:  # pylint: disable=app-test-partial-assertion
     # Arrange

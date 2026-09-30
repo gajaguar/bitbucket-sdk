@@ -25,6 +25,8 @@ layered.
 - [Installation](#installation)
 - [Requirements](#requirements)
 - [Usage](#usage)
+- [Configuration](#configuration)
+- [Security](#security)
 - [Platform notes](#platform-notes)
 - [Origin](#origin)
 - [Open items](#open-items)
@@ -53,7 +55,8 @@ tag = "v0.3.0"
 - [mise](https://mise.jdx.dev) — pins the toolchain (`mise.toml`: Python 3.14,
   uv, node, pnpm, pre-commit, checkmake); run `mise install`, then
   `make install`
-- A Bitbucket app password/API token — see [Authentication](#authentication)
+- A Bitbucket Cloud API token and the email of its Atlassian account — see
+  [Authentication](#authentication)
 
 ## Usage
 
@@ -72,12 +75,50 @@ Run `make help` for the full target list.
 ```python
 from bitbucket import BitbucketClient
 
-# reads ATLASSIAN_USER_EMAIL and ATLASSIAN_API_KEY from the environment
+# reads ATLASSIAN_USER_EMAIL and ATLASSIAN_API_TOKEN from the environment
 client = BitbucketClient()
 
-# or pass them explicitly
+# or pass them explicitly; an explicit argument takes precedence
 client = BitbucketClient(email="...", api_token="...")
+
+# api_token also accepts a zero-argument callable, invoked lazily on every
+# request instead of once at construction time — useful for a rotating or
+# externally-managed token (e.g. one read from an OS keyring by the calling
+# application).
+client = BitbucketClient(email="...", api_token=lambda: keychain.current_token())
 ```
+
+The credential sources, in order of precedence, are:
+
+1. The `api_token` argument as a provider (a callable).
+2. The `email` and `api_token` arguments as strings.
+3. The `ATLASSIAN_USER_EMAIL` and `ATLASSIAN_API_TOKEN` environment variables.
+
+`ATLASSIAN_API_KEY` is the former name of `ATLASSIAN_API_TOKEN`. It still
+works, with a `DeprecationWarning`, when `ATLASSIAN_API_TOKEN` is not set.
+
+#### Getting a credential
+
+Bitbucket Cloud authenticates with the email of your Atlassian account and an
+API token. Atlassian removed app passwords on 2026-07-28, so they no longer
+work.
+
+1. Open your profile menu and choose **Account settings**.
+2. Open the **Security** tab and choose **Create and manage API tokens**.
+3. Choose **Create API token with scopes**, then set a name and an expiry date.
+4. Choose **Bitbucket** as the app and select the scopes your code needs.
+   Bitbucket rejects a token that has no Bitbucket scopes.
+5. Copy the token. Atlassian shows it only once.
+
+The token is bound to your account and expires on the date you chose, so
+rotate it before then.
+
+#### What the SDK does not do
+
+The SDK only reads the sources listed above. It has no OS keyring or keychain
+integration, no password-manager support, no OAuth flow, and no interactive
+prompts — that is an application-level concern for whatever consumes this SDK.
+Bearer (OAuth 2.0) support is planned; see [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ### Recipes
 
@@ -198,6 +239,25 @@ has one.
     ├── unit/            # respx-backed, offline, deterministic
     └── live/            # marker-gated (`-m live`), hits a real workspace
 ```
+
+## Configuration
+
+| Variable               | Where it's read                       | Default        | Description                                                      |
+| ---------------------- | ------------------------------------- | -------------- | ---------------------------------------------------------------- |
+| `ATLASSIAN_USER_EMAIL` | `BitbucketClient()`                   | none, required | Email of the Atlassian account, used when `email` is not passed. |
+| `ATLASSIAN_API_TOKEN`  | `BitbucketClient()`                   | none, required | API token, used when `api_token` is not passed.                  |
+| `ATLASSIAN_API_KEY`    | `BitbucketClient()`                   | none           | Deprecated name of `ATLASSIAN_API_TOKEN`; emits a warning.       |
+| `BITBUCKET_WORKSPACE`  | `BitbucketClient.default_workspace()` | none           | Workspace slug used by `default_workspace()`.                    |
+
+The names are exported as `EMAIL_ENV_VAR`, `API_TOKEN_ENV_VAR` and
+`WORKSPACE_ENV_VAR`, so an application does not have to repeat the strings.
+
+## Security
+
+A Bitbucket API token grants the access of its scopes to everything your
+account can reach — never commit one, and rotate it immediately if it is
+exposed. The SDK never logs headers or its configuration, and the token is
+excluded from `repr(ClientConfig)`.
 
 ## Platform notes
 
