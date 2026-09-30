@@ -117,16 +117,17 @@ client = BitbucketClient(access_token=lambda: token_store.current_token())
 ```
 
 The SDK accepts either basic credentials (email plus API token) or a bearer
-access token. Within each credential kind, the strongest source wins:
+access token. Within each credential kind, the first source that has a value
+wins:
 
-1. A provider callable (rank 3).
-2. An explicit string argument (rank 2).
-3. An environment variable (rank 1).
+1. A provider callable.
+2. An explicit string argument.
+3. An environment variable.
 
-If both kinds are supplied at the same explicit rank, the SDK raises
-`ConfigurationError` because the request is ambiguous. If both are available
-only through the environment, the bearer token wins. The resolver only reads
-or warns for the kind that wins.
+Between the two kinds, an explicit argument or provider beats the other kind's
+environment variable. If both kinds are explicit, or both are available only
+through the environment, the SDK raises `ConfigurationError` because the
+request is ambiguous. The resolver only reads or warns for the kind that wins.
 
 `ATLASSIAN_API_KEY` is the former name of `ATLASSIAN_API_TOKEN`. It still
 works, with a `DeprecationWarning`, when `ATLASSIAN_API_TOKEN` is not set and

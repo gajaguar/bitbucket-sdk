@@ -75,12 +75,12 @@ def test_resolve_credentials_without_any_source_says_where_to_create_each_creden
         resolve_credentials(None, None, None)
 
 
-def test_resolve_credentials_prefers_bearer_provider_over_explicit_basic() -> None:
+def test_resolve_credentials_rejects_a_bearer_provider_with_explicit_basic() -> None:
     # Arrange
     # Act
-    credentials = resolve_credentials("a@b.com", "api-token", _provider)
     # Assert
-    assert credentials == BearerCredentials(_provider)
+    with pytest.raises(ConfigurationError, match=r"not both"):
+        resolve_credentials("a@b.com", "api-token", _provider)
 
 
 def test_resolve_credentials_prefers_explicit_basic_over_environment_bearer(
@@ -124,24 +124,36 @@ def test_resolve_credentials_rejects_both_explicit_credential_kinds() -> None:
     # Arrange
     # Act
     # Assert
-    with pytest.raises(ConfigurationError, match=r"(?i)both basic and bearer"):
+    with pytest.raises(ConfigurationError, match=r"not both"):
         resolve_credentials("a@b.com", "api-token", "access-token")
 
 
-def test_resolve_credentials_prefers_bearer_when_both_kinds_are_in_environment(
+def test_resolve_credentials_rejects_both_kinds_in_environment(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # Arrange
     monkeypatch.setenv("ATLASSIAN_USER_EMAIL", "env@b.com")
     monkeypatch.setenv("ATLASSIAN_API_TOKEN", "env-api-token")
-    monkeypatch.setenv("ATLASSIAN_API_KEY", "legacy-api-token")
     monkeypatch.setenv(ACCESS_TOKEN_ENV_VAR, "environment-bearer")
+    # Act
+    # Assert
+    with pytest.raises(ConfigurationError, match=r"set only one"):
+        resolve_credentials(None, None, None)
+
+
+def test_resolve_credentials_does_not_warn_about_the_legacy_variable_when_bearer_wins(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Arrange
+    monkeypatch.delenv("ATLASSIAN_USER_EMAIL", raising=False)
+    monkeypatch.delenv("ATLASSIAN_API_TOKEN", raising=False)
+    monkeypatch.setenv("ATLASSIAN_API_KEY", "legacy-api-token")
     # Act
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
-        credentials = resolve_credentials(None, None, None)
+        credentials = resolve_credentials(None, None, "access-token")
     # Assert
-    assert credentials == BearerCredentials("environment-bearer")
+    assert credentials == BearerCredentials("access-token")
     assert not caught
 
 
@@ -210,6 +222,24 @@ def test_resolve_access_token_falls_back_to_environment(monkeypatch: pytest.Monk
     resolved = resolve_access_token(None)
     # Assert
     assert resolved == "environment-token"
+
+
+def test_resolve_access_token_prefers_explicit_argument(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Arrange
+    monkeypatch.setenv(ACCESS_TOKEN_ENV_VAR, "environment-token")
+    # Act
+    resolved = resolve_access_token("explicit-token")
+    # Assert
+    assert resolved == "explicit-token"
+
+
+def test_resolve_access_token_prefers_a_provider_over_the_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Arrange
+    monkeypatch.setenv(ACCESS_TOKEN_ENV_VAR, "environment-token")
+    # Act
+    resolved = resolve_access_token(_provider)
+    # Assert
+    assert resolved is _provider
 
 
 def test_resolve_access_token_returns_a_provider_callable_unchanged() -> None:

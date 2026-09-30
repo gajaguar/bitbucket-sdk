@@ -2,6 +2,13 @@
 
 ## 2026-09-30
 
+* **Added**: `sdk/sdk-differences.md` — the differences from `clockify-sdk`
+  that remain by design.
+* **Updated**: `sdk/credential-contract.md` (new "Choosing between credential
+  kinds" section), `sdk/credential-tests.md` (new "Selection" group),
+  `sdk/credentials.md` and `README.md` for the stricter rule: two credential
+  kinds of the same strength raise `ConfigurationError`.
+
 * **Updated**: `sdk/credentials.md`, `architecture/async-client.md`,
   `architecture/layering.md`, `README.md` and `api/roadmap.md` for shipped
   bearer-token authentication and its sync/async credential contract.

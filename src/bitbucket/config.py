@@ -24,6 +24,9 @@ WORKSPACE_ENV_VAR: Final = "BITBUCKET_WORKSPACE"
 
 DEFAULT_BASE_URL: Final = "https://api.bitbucket.org/2.0"
 
+_NONE: Final = 0
+_ENVIRONMENT: Final = 1
+_EXPLICIT: Final = 2
 _CREATE_HINT: Final = "Create one under Atlassian account settings > Security > API tokens, with Bitbucket scopes."
 _ACCESS_TOKEN_CREATE_HINT: Final = (
     "Create one in repository, project, or workspace settings > Access tokens, "  # ruff: ignore[hardcoded-password-string]
@@ -133,16 +136,19 @@ def resolve_credentials(
         return BasicCredentials(resolve_email(email), resolve_api_token(api_token))
     if bearer_rank > basic_rank:
         return BearerCredentials(resolve_access_token(access_token))
-    if basic_rank == 0:
+    if basic_rank == _NONE:
         message = (
             "No credentials provided. Pass email=... and api_token=..., or access_token=..., "
             f"or set {EMAIL_ENV_VAR}/{API_TOKEN_ENV_VAR} or {ACCESS_TOKEN_ENV_VAR}. "
             f"API token: {_CREATE_HINT} Access token: {_ACCESS_TOKEN_CREATE_HINT}"
         )
         raise MissingCredentialsError(message)
-    if basic_rank == 1:
-        return BearerCredentials(resolve_access_token(access_token))
-    message = "Both basic and bearer credentials were supplied at the same precedence; choose one."
+    # Two kinds at the same level are ambiguous; an explicit one beats the other kind's
+    # environment variable, but nothing else breaks a tie.
+    if basic_rank == _EXPLICIT:
+        message = "Pass either email and api_token or access_token, not both."
+    else:
+        message = f"Both {EMAIL_ENV_VAR}/{API_TOKEN_ENV_VAR} and {ACCESS_TOKEN_ENV_VAR} are set; set only one."
     raise ConfigurationError(message)
 
 
@@ -157,16 +163,15 @@ def resolve_workspace(workspace: str | None) -> str:
 def _basic_rank(email: str | None, api_token: str | ApiTokenProvider | None) -> int:
     email_rank = _source_rank(email, (EMAIL_ENV_VAR,))
     api_token_rank = _source_rank(api_token, (API_TOKEN_ENV_VAR, LEGACY_API_TOKEN_ENV_VAR))
-    if not email_rank or not api_token_rank:
-        return 0
+    if _NONE in {email_rank, api_token_rank}:
+        return _NONE
     return max(email_rank, api_token_rank)
 
 
 def _source_rank(explicit: object, environment_names: tuple[str, ...]) -> int:
-    if callable(explicit):
-        return 3
+    # A provider and a string argument are both explicit: neither outranks the other.
     if explicit:
-        return 2
+        return _EXPLICIT
     if any(environ.get(name) for name in environment_names):
-        return 1
-    return 0
+        return _ENVIRONMENT
+    return _NONE
