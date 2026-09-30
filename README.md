@@ -120,6 +120,11 @@ integration, no password-manager support, no OAuth flow, and no interactive
 prompts — that is an application-level concern for whatever consumes this SDK.
 Bearer (OAuth 2.0) support is planned; see [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
+The full contract is in
+[`docs/sdk/credential-contract.md`](docs/sdk/credential-contract.md), and the
+values that belong to Bitbucket are in
+[`docs/sdk/credentials.md`](docs/sdk/credentials.md).
+
 ### Recipes
 
 List a repository's open pull requests, fetch one's diff, and post a comment:
