@@ -1,9 +1,15 @@
 from __future__ import annotations
 
+import warnings
+
 import pytest
 
+from bitbucket.config import ACCESS_TOKEN_ENV_VAR
+from bitbucket.config import BasicCredentials
+from bitbucket.config import BearerCredentials
 from bitbucket.config import ClientConfig
 from bitbucket.config import ClientOptions
+from bitbucket.config import resolve_access_token
 from bitbucket.config import resolve_api_token
 from bitbucket.config import resolve_credentials
 from bitbucket.config import resolve_email
@@ -12,15 +18,18 @@ from bitbucket.errors import ConfigurationError
 from bitbucket.errors import MissingCredentialsError
 
 
+def _provider() -> str:
+    return "provider-token"
+
+
 def test_resolve_credentials_prefers_explicit_arguments(monkeypatch: pytest.MonkeyPatch) -> None:
     # Arrange
     monkeypatch.setenv("ATLASSIAN_USER_EMAIL", "env@b.com")
     monkeypatch.setenv("ATLASSIAN_API_TOKEN", "env-tok")
     # Act
-    email, token = resolve_credentials("explicit@b.com", "explicit-tok")
+    credentials = resolve_credentials("explicit@b.com", "explicit-tok", None)
     # Assert
-    assert email == "explicit@b.com"
-    assert token == "explicit-tok"  # ruff: ignore[hardcoded-password-string]
+    assert credentials == BasicCredentials("explicit@b.com", "explicit-tok")
 
 
 def test_resolve_credentials_falls_back_to_environment(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -28,10 +37,9 @@ def test_resolve_credentials_falls_back_to_environment(monkeypatch: pytest.Monke
     monkeypatch.setenv("ATLASSIAN_USER_EMAIL", "env@b.com")
     monkeypatch.setenv("ATLASSIAN_API_TOKEN", "env-tok")
     # Act
-    email, token = resolve_credentials(None, None)
+    credentials = resolve_credentials(None, None, None)
     # Assert
-    assert email == "env@b.com"
-    assert token == "env-tok"  # ruff: ignore[hardcoded-password-string]
+    assert credentials == BasicCredentials("env@b.com", "env-tok")
 
 
 def test_resolve_credentials_missing_email_raises(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -41,7 +49,7 @@ def test_resolve_credentials_missing_email_raises(monkeypatch: pytest.MonkeyPatc
     # Act
     # Assert
     with pytest.raises(MissingCredentialsError, match="ATLASSIAN_USER_EMAIL"):
-        resolve_credentials(None, None)
+        resolve_credentials(None, None, None)
 
 
 def test_resolve_credentials_missing_api_token_raises(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -52,7 +60,97 @@ def test_resolve_credentials_missing_api_token_raises(monkeypatch: pytest.Monkey
     # Act
     # Assert
     with pytest.raises(MissingCredentialsError, match="ATLASSIAN_API_TOKEN"):
-        resolve_credentials(None, None)
+        resolve_credentials(None, None, None)
+
+
+def test_resolve_credentials_without_any_source_says_where_to_create_each_credential(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Arrange
+    for name in ("ATLASSIAN_USER_EMAIL", "ATLASSIAN_API_TOKEN", "ATLASSIAN_API_KEY", "BITBUCKET_ACCESS_TOKEN"):
+        monkeypatch.delenv(name, raising=False)
+    # Act
+    # Assert
+    with pytest.raises(MissingCredentialsError, match=r"Security > API tokens.*Access tokens"):
+        resolve_credentials(None, None, None)
+
+
+def test_resolve_credentials_prefers_bearer_provider_over_explicit_basic() -> None:
+    # Arrange
+    # Act
+    credentials = resolve_credentials("a@b.com", "api-token", _provider)
+    # Assert
+    assert credentials == BearerCredentials(_provider)
+
+
+def test_resolve_credentials_prefers_explicit_basic_over_environment_bearer(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Arrange
+    monkeypatch.setenv(ACCESS_TOKEN_ENV_VAR, "environment-bearer")
+    # Act
+    credentials = resolve_credentials("a@b.com", "api-token", None)
+    # Assert
+    assert credentials == BasicCredentials("a@b.com", "api-token")
+
+
+def test_resolve_credentials_prefers_explicit_bearer_over_environment_basic(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Arrange
+    monkeypatch.setenv("ATLASSIAN_USER_EMAIL", "env@b.com")
+    monkeypatch.setenv("ATLASSIAN_API_TOKEN", "env-api-token")
+    # Act
+    credentials = resolve_credentials(None, None, "access-token")
+    # Assert
+    assert credentials == BearerCredentials("access-token")
+
+
+def test_resolve_credentials_ignores_incomplete_explicit_basic_with_environment_bearer(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Arrange
+    monkeypatch.delenv("ATLASSIAN_USER_EMAIL", raising=False)
+    monkeypatch.delenv("ATLASSIAN_API_TOKEN", raising=False)
+    monkeypatch.delenv("ATLASSIAN_API_KEY", raising=False)
+    monkeypatch.setenv(ACCESS_TOKEN_ENV_VAR, "environment-bearer")
+    # Act
+    credentials = resolve_credentials("explicit@b.com", None)
+    # Assert
+    assert credentials == BearerCredentials("environment-bearer")
+
+
+def test_resolve_credentials_rejects_both_explicit_credential_kinds() -> None:
+    # Arrange
+    # Act
+    # Assert
+    with pytest.raises(ConfigurationError, match=r"(?i)both basic and bearer"):
+        resolve_credentials("a@b.com", "api-token", "access-token")
+
+
+def test_resolve_credentials_prefers_bearer_when_both_kinds_are_in_environment(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Arrange
+    monkeypatch.setenv("ATLASSIAN_USER_EMAIL", "env@b.com")
+    monkeypatch.setenv("ATLASSIAN_API_TOKEN", "env-api-token")
+    monkeypatch.setenv("ATLASSIAN_API_KEY", "legacy-api-token")
+    monkeypatch.setenv(ACCESS_TOKEN_ENV_VAR, "environment-bearer")
+    # Act
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        credentials = resolve_credentials(None, None, None)
+    # Assert
+    assert credentials == BearerCredentials("environment-bearer")
+    assert not caught
+
+
+def test_resolve_credentials_accepts_bearer_without_email() -> None:
+    # Arrange
+    # Act
+    credentials = resolve_credentials(None, None, "access-token")
+    # Assert
+    assert credentials == BearerCredentials("access-token")
 
 
 def test_resolve_api_token_error_says_where_to_create_the_token(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -63,10 +161,6 @@ def test_resolve_api_token_error_says_where_to_create_the_token(monkeypatch: pyt
     # Assert
     with pytest.raises(MissingCredentialsError, match="Security > API tokens"):
         resolve_api_token(None)
-
-
-def _provider() -> str:
-    return "provider-tok"
 
 
 def test_resolve_api_token_returns_a_provider_callable_unchanged() -> None:
@@ -109,6 +203,32 @@ def test_resolve_api_token_accepts_the_legacy_variable_with_a_deprecation_warnin
     assert resolved == "legacy-tok"
 
 
+def test_resolve_access_token_falls_back_to_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Arrange
+    monkeypatch.setenv(ACCESS_TOKEN_ENV_VAR, "environment-token")
+    # Act
+    resolved = resolve_access_token(None)
+    # Assert
+    assert resolved == "environment-token"
+
+
+def test_resolve_access_token_returns_a_provider_callable_unchanged() -> None:
+    # Arrange
+    # Act
+    resolved = resolve_access_token(_provider)
+    # Assert
+    assert resolved is _provider
+
+
+def test_resolve_access_token_error_names_the_environment_variable(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Arrange
+    monkeypatch.delenv(ACCESS_TOKEN_ENV_VAR, raising=False)
+    # Act
+    # Assert
+    with pytest.raises(MissingCredentialsError, match=ACCESS_TOKEN_ENV_VAR):
+        resolve_access_token(None)
+
+
 def test_resolve_email_prefers_explicit_argument(monkeypatch: pytest.MonkeyPatch) -> None:
     # Arrange
     monkeypatch.setenv("ATLASSIAN_USER_EMAIL", "env@b.com")
@@ -121,14 +241,30 @@ def test_resolve_email_prefers_explicit_argument(monkeypatch: pytest.MonkeyPatch
 def test_client_config_repr_never_contains_the_api_token() -> None:
     # Arrange
     config = ClientConfig(
-        email="a@b.com",
-        api_token="super-secret-token",  # ruff: ignore[hardcoded-password-func-arg]
+        credentials=BasicCredentials(
+            email="a@b.com",
+            api_token="super-secret-token",  # ruff: ignore[hardcoded-password-func-arg]
+        ),
         base_url="https://api.bitbucket.org/2.0",
     )
     # Act
     rendered = repr(config)
     # Assert
     assert "super-secret-token" not in rendered
+
+
+def test_bearer_credentials_repr_never_contains_the_access_token() -> None:
+    # Arrange
+    config = ClientConfig(
+        credentials=BearerCredentials(
+            access_token="super-secret-access-token",  # ruff: ignore[hardcoded-password-func-arg]
+        ),
+        base_url="https://api.bitbucket.org/2.0",
+    )
+    # Act
+    rendered = repr(config)
+    # Assert
+    assert "super-secret-access-token" not in rendered
 
 
 def test_resolve_workspace_prefers_explicit_argument(monkeypatch: pytest.MonkeyPatch) -> None:

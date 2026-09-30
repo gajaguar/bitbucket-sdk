@@ -13,9 +13,11 @@ def test_async_client_is_exported() -> None:
 def test_credential_surface_is_public() -> None:
     # Arrange
     names = {
+        "ACCESS_TOKEN_ENV_VAR",
         "API_TOKEN_ENV_VAR",
         "EMAIL_ENV_VAR",
         "WORKSPACE_ENV_VAR",
+        "AccessTokenProvider",
         "ApiTokenProvider",
         "AsyncBitbucketClient",
         "ClientOptions",

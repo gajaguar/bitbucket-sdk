@@ -71,7 +71,7 @@ uv add "bitbucket-unofficial-sdk @ git+https://github.com/gajaguar/bitbucket-sdk
 ## Requirements
 
 - Python 3.14 or later. The floor is deliberate and can change.
-- A Bitbucket Cloud API token and the email of its Atlassian account — see
+- Either an Atlassian email and API token, or a Bitbucket access token — see
   [Authentication](#authentication)
 
 ## Usage
@@ -103,55 +103,63 @@ from bitbucket import BitbucketClient
 # reads ATLASSIAN_USER_EMAIL and ATLASSIAN_API_TOKEN from the environment
 client = BitbucketClient()
 
-# or pass them explicitly; an explicit argument takes precedence
+# or pass the email and API token explicitly
 client = BitbucketClient(email="...", api_token="...")
 
-# api_token also accepts a zero-argument callable, invoked lazily on every
-# request instead of once at construction time — useful for a rotating or
-# externally-managed token (e.g. one read from an OS keyring by the calling
-# application).
+# api_token accepts a zero-argument callable, invoked lazily on every request
 client = BitbucketClient(email="...", api_token=lambda: keychain.current_token())
+
+# access_token sends Authorization: Bearer and does not require an email
+client = BitbucketClient(access_token="...")
+
+# access_token also accepts a rotating or externally-managed provider
+client = BitbucketClient(access_token=lambda: token_store.current_token())
 ```
 
-The credential sources, in order of precedence, are:
+The SDK accepts either basic credentials (email plus API token) or a bearer
+access token. Within each credential kind, the strongest source wins:
 
-1. The `api_token` argument as a provider (a callable).
-2. The `email` and `api_token` arguments as strings.
-3. The `ATLASSIAN_USER_EMAIL` and `ATLASSIAN_API_TOKEN` environment variables.
+1. A provider callable (rank 3).
+2. An explicit string argument (rank 2).
+3. An environment variable (rank 1).
+
+If both kinds are supplied at the same explicit rank, the SDK raises
+`ConfigurationError` because the request is ambiguous. If both are available
+only through the environment, the bearer token wins. The resolver only reads
+or warns for the kind that wins.
 
 `ATLASSIAN_API_KEY` is the former name of `ATLASSIAN_API_TOKEN`. It still
-works, with a `DeprecationWarning`, when `ATLASSIAN_API_TOKEN` is not set.
+works, with a `DeprecationWarning`, when `ATLASSIAN_API_TOKEN` is not set and
+basic credentials win.
 
 #### Getting a credential
 
-Bitbucket Cloud authenticates with the email of your Atlassian account and an
-API token. Atlassian removed app passwords on 2026-07-28, so they no longer
-work.
+For an API token, open your profile menu and choose **Account settings**.
+Open the **Security** tab and choose **Create and manage API tokens**. Choose
+**Create API token with scopes**, select **Bitbucket** and the scopes your code
+needs, then copy the token. Atlassian shows it only once. API tokens are bound
+to your account and expire on the date you choose. Atlassian removed app
+passwords on 2026-07-28, so they no longer work.
 
-1. Open your profile menu and choose **Account settings**.
-2. Open the **Security** tab and choose **Create and manage API tokens**.
-3. Choose **Create API token with scopes**, then set a name and an expiry date.
-4. Choose **Bitbucket** as the app and select the scopes your code needs.
-   Bitbucket rejects a token that has no Bitbucket scopes.
-5. Copy the token. Atlassian shows it only once.
-
-The token is bound to your account and expires on the date you chose, so
-rotate it before then.
+For a bearer token, create a repository, project, or workspace access token in
+its **Access tokens** settings, or obtain an OAuth access token through the
+application's OAuth flow. The SDK uses the resulting token but does not obtain
+or refresh it.
 
 #### What the SDK does not do
 
 The SDK only reads the sources listed above. It has no OS keyring or keychain
 integration, no password-manager support, no OAuth flow, and no interactive
-prompts — that is an application-level concern for whatever consumes this SDK.
-Bearer-token support is planned, for access tokens and for an OAuth access token
-that your application obtains; see [`docs/api/roadmap.md`][api-roadmap].
+prompts — those are application-level concerns for whatever consumes this SDK.
+The application is responsible for obtaining, refreshing and storing bearer
+tokens.
 
 #### Protecting the token
 
-A Bitbucket API token grants the access of its scopes to everything your
-account can reach. Never commit one, and rotate it immediately if it is
-exposed. The SDK never logs headers or its configuration, and the token is
-excluded from `repr(ClientConfig)`.
+A Bitbucket token grants the access of its scopes to everything it can reach.
+Never commit one, and rotate it immediately if it is exposed. The SDK never
+logs headers or its configuration, and credential values are excluded from
+`repr(ClientConfig)`.
 
 The full contract is in
 [`docs/sdk/credential-contract.md`][sdk-credential-contract], and the
@@ -161,7 +169,7 @@ values that belong to Bitbucket are in
 ### Async client
 
 `AsyncBitbucketClient` mirrors the sync client one-for-one — same
-`email`/`api_token`/`options`, same `workspace()`, `default_workspace()`,
+`email`/`api_token`/`access_token`/`options`, same `workspace()`, `default_workspace()`,
 `.user`, same resource tree (`.pull_requests`, `.refs`, `.source`,
 `.commits`, ...), and the same `merge_and_wait` polling helper. Single-shot
 methods are `async def`; auto-paginating methods return `AsyncIterator`.
@@ -185,22 +193,24 @@ async with AsyncBitbucketClient() as client:
     print(status.task_status)
 ```
 
-`BasicAuth` and the credential-resolution rules (provider, env vars,
-deprecated `ATLASSIAN_API_KEY`) are shared between the sync and async
+`BasicAuth`, `BearerAuth` and the credential-resolution rules (provider, env
+vars, deprecated `ATLASSIAN_API_KEY`) are shared between the sync and async
 clients, so the credential tests in [`docs/sdk/credential-tests.md`][sdk-credential-tests]
 apply to both.
 
 ## Configuration
 
-| Variable               | Where it's read                       | Default        | Description                                                      |
-| ---------------------- | ------------------------------------- | -------------- | ---------------------------------------------------------------- |
-| `ATLASSIAN_USER_EMAIL` | `BitbucketClient()`                   | none, required | Email of the Atlassian account, used when `email` is not passed. |
-| `ATLASSIAN_API_TOKEN`  | `BitbucketClient()`                   | none, required | API token, used when `api_token` is not passed.                  |
-| `ATLASSIAN_API_KEY`    | `BitbucketClient()`                   | none           | Deprecated name of `ATLASSIAN_API_TOKEN`; emits a warning.       |
-| `BITBUCKET_WORKSPACE`  | `BitbucketClient.default_workspace()` | none           | Workspace slug used by `default_workspace()`.                    |
+| Variable                 | Where it's read                       | Default        | Description                                                      |
+| ------------------------ | ------------------------------------- | -------------- | ---------------------------------------------------------------- |
+| `ATLASSIAN_USER_EMAIL`   | `BitbucketClient()`                   | none           | Email of the Atlassian account, used for basic auth.             |
+| `ATLASSIAN_API_TOKEN`    | `BitbucketClient()`                   | none           | API token, used for basic auth.                                  |
+| `ATLASSIAN_API_KEY`      | `BitbucketClient()`                   | none           | Deprecated name of `ATLASSIAN_API_TOKEN`; emits a warning.       |
+| `BITBUCKET_ACCESS_TOKEN` | `BitbucketClient()`                   | none           | Bearer access token; no email is required.                       |
+| `BITBUCKET_WORKSPACE`    | `BitbucketClient.default_workspace()` | none           | Workspace slug used by `default_workspace()`.                    |
 
-The names are exported as `EMAIL_ENV_VAR`, `API_TOKEN_ENV_VAR` and
-`WORKSPACE_ENV_VAR`, so an application does not have to repeat the strings.
+The names are exported as `EMAIL_ENV_VAR`, `API_TOKEN_ENV_VAR`,
+`ACCESS_TOKEN_ENV_VAR` and `WORKSPACE_ENV_VAR`, so an application does not
+have to repeat the strings.
 
 ## Origin
 

@@ -3,9 +3,11 @@ from bitbucket.aio.client import AsyncBitbucketClient
 from bitbucket.aio.repository import AsyncRepositoryClient
 from bitbucket.aio.workspace import AsyncWorkspaceClient
 from bitbucket.client import BitbucketClient
+from bitbucket.config import ACCESS_TOKEN_ENV_VAR
 from bitbucket.config import API_TOKEN_ENV_VAR
 from bitbucket.config import EMAIL_ENV_VAR
 from bitbucket.config import WORKSPACE_ENV_VAR
+from bitbucket.config import AccessTokenProvider
 from bitbucket.config import ApiTokenProvider
 from bitbucket.config import ClientOptions
 from bitbucket.errors import AuthenticationError
@@ -120,10 +122,12 @@ from bitbucket.retry import RetryPolicy
 from bitbucket.workspace import WorkspaceClient
 
 __all__ = [
+    "ACCESS_TOKEN_ENV_VAR",
     "API_TOKEN_ENV_VAR",
     "EMAIL_ENV_VAR",
     "NO_RETRY",
     "WORKSPACE_ENV_VAR",
+    "AccessTokenProvider",
     "Account",
     "AccountId",
     "AccountLinks",

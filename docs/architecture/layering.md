@@ -45,7 +45,7 @@ flowchart TD
 
 `AsyncBitbucketClient` is a hand-written mirror under `bitbucket.aio`, not a
 codegen product. It reuses every piece that has no I/O (`models/`,
-`errors.py`, `retry.py`, `config.py`, `_auth.BasicAuth`, and
+`errors.py`, `retry.py`, `config.py`, `_auth.BasicAuth`, `_auth.BearerAuth`, and
 `resources.base.page_from_payload`) and duplicates only the I/O layer —
 `aio/_transport.AsyncTransport`, `aio/_retry_transport.AsyncRetryTransport`,
 `aio/_pagination.apaginate`, and `aio/_polling.apoll_until_terminal`. The

@@ -2,6 +2,9 @@
 
 ## 2026-09-30
 
+* **Updated**: `sdk/credentials.md`, `architecture/async-client.md`,
+  `architecture/layering.md`, `README.md` and `api/roadmap.md` for shipped
+  bearer-token authentication and its sync/async credential contract.
 * **Added**: `api/recipes.md` and `architecture/project-layout.md`, moved out
   of the README's Usage section.
 * **Restructure**: Moved `architecture/release-checklist.md` to

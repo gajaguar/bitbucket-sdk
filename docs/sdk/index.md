@@ -2,8 +2,8 @@
 
 How this SDK reads, protects and tests the credentials its callers give it.
 
-* [Bitbucket credential](credentials.md) - The names the SDK uses for the
-  Bitbucket email and API token, and where the token is created.
+* [Bitbucket credentials](credentials.md) - The basic and bearer credentials
+  the SDK accepts, their environment variables, and where tokens are created.
 * [Credential contract](credential-contract.md) - The SDK reads a credential
   from a provider, an argument or an environment variable, in that order, and
   keeps it out of logs and output.

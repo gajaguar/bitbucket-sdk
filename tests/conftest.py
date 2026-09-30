@@ -5,11 +5,12 @@ from typing import Final
 
 import pytest
 
-from bitbucket._auth import BasicAuth  # ruff: ignore[import-private-name]
+from bitbucket._auth import auth_for  # ruff: ignore[import-private-name]
 from bitbucket._transport import Transport  # ruff: ignore[import-private-name]
 from bitbucket.aio._transport import AsyncTransport  # ruff: ignore[import-private-name]
 from bitbucket.aio.client import AsyncBitbucketClient
 from bitbucket.client import BitbucketClient
+from bitbucket.config import BasicCredentials
 from bitbucket.config import ClientConfig
 from bitbucket.config import ClientOptions
 from bitbucket.retry import NO_RETRY
@@ -34,12 +35,14 @@ def client() -> Iterator[BitbucketClient]:
 @pytest.fixture
 def transport() -> Iterator[Transport]:
     config = ClientConfig(
-        email="a@b.com",
-        api_token="tok",  # ruff: ignore[hardcoded-password-func-arg]
+        credentials=BasicCredentials(
+            email="a@b.com",
+            api_token="tok",  # ruff: ignore[hardcoded-password-func-arg]
+        ),
         base_url=BASE_URL,
         retry=NO_RETRY,
     )
-    built_transport = Transport(config, BasicAuth("a@b.com", "tok"))
+    built_transport = Transport(config, auth_for(config.credentials))
     try:
         yield built_transport
     finally:
@@ -64,12 +67,14 @@ async def aclient() -> AsyncIterator[AsyncBitbucketClient]:
 @pytest.fixture
 async def atransport() -> AsyncIterator[AsyncTransport]:
     config = ClientConfig(
-        email="a@b.com",
-        api_token="tok",  # ruff: ignore[hardcoded-password-func-arg]
+        credentials=BasicCredentials(
+            email="a@b.com",
+            api_token="tok",  # ruff: ignore[hardcoded-password-func-arg]
+        ),
         base_url=BASE_URL,
         retry=NO_RETRY,
     )
-    built_transport = AsyncTransport(config, BasicAuth("a@b.com", "tok"))
+    built_transport = AsyncTransport(config, auth_for(config.credentials))
     try:
         yield built_transport
     finally:

@@ -15,7 +15,6 @@ from bitbucket.errors import error_for_response
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from bitbucket._auth import BasicAuth
     from bitbucket.config import ClientConfig
     from bitbucket.retry import CqsKind
 
@@ -48,7 +47,7 @@ def _resolved_params(
 
 def _log(method: str, path: str, response: httpx.Response) -> None:
     # Only primitives are logged; headers and the config object are never logged so the
-    # basic-auth credentials cannot leak into a caller's log sink.
+    # Basic or Bearer Authorization credentials cannot leak into a caller's log sink.
     elapsed_ms = _elapsed_ms(response)
     LOGGER.debug("%s %s -> %s (%.1fms)", method, path, response.status_code, elapsed_ms)
 
@@ -84,7 +83,7 @@ def _bytes_or_error(response: httpx.Response) -> bytes:
 
 
 class Transport:
-    def __init__(self, config: ClientConfig, auth: BasicAuth) -> None:
+    def __init__(self, config: ClientConfig, auth: httpx.Auth) -> None:
         self._config = config
         self._client = httpx.Client(
             base_url=config.base_url,

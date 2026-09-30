@@ -33,13 +33,13 @@ These modules have no I/O and are reused unchanged by both clients:
   `CqsKind`. The retry transport is the only consumer; the rule lives
   here, the implementation is per-client.
 - `bitbucket.config` — `ClientConfig`, `ClientOptions`,
-  `resolve_credentials`, `resolve_workspace`, the `ApiTokenProvider`
-  callable. `BitbucketClient.__init__` and `AsyncBitbucketClient.__init__`
-  both call the shared `_build_config` helper.
-- `bitbucket._auth.BasicAuth` — its `auth_flow` generator drives
-  `httpx.Auth.async_auth_flow` for the async transport unchanged, so
-  Basic auth and the per-request `ApiTokenProvider` behave identically in
-  both clients.
+  `resolve_credentials`, `resolve_workspace`, the `ApiTokenProvider` and
+  `AccessTokenProvider` callables. `BitbucketClient.__init__` and
+  `AsyncBitbucketClient.__init__` both call the shared `_build_config` helper.
+- `bitbucket._auth.BasicAuth` and `bitbucket._auth.BearerAuth` — their
+  `auth_flow` generators drive `httpx.Auth.async_auth_flow` for the async
+  transport unchanged, so both auth schemes and their per-request providers
+  behave identically in both clients.
 - `bitbucket.resources.base.page_from_payload` — the async pagination
   helper reuses it.
 
@@ -83,5 +83,5 @@ applies to both clients. The
 [`docs/sdk/credential-tests.md`](../sdk/credential-tests.md) tests are
 split: the "Sending" and "Hiding" groups run for both `BitbucketClient`
 and `AsyncBitbucketClient` because the same `_build_config` resolves the
-email and token in both, and the same `BasicAuth` attaches the
+credentials in both, and the same `BasicAuth` or `BearerAuth` attaches the
 `Authorization` header.

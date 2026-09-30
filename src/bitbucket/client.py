@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from typing import Self
 
-from bitbucket._auth import BasicAuth
+from bitbucket._auth import auth_for
 from bitbucket._transport import Transport
 from bitbucket.config import DEFAULT_BASE_URL
 from bitbucket.config import ClientConfig
@@ -16,19 +16,20 @@ from bitbucket.retry import RetryPolicy
 from bitbucket.workspace import WorkspaceClient
 
 if TYPE_CHECKING:
+    from bitbucket.config import AccessTokenProvider
     from bitbucket.config import ApiTokenProvider
 
 
 def _build_config(
     email: str | None,
     api_token: str | ApiTokenProvider | None,
+    access_token: str | AccessTokenProvider | None,
     options: ClientOptions | None,
 ) -> ClientConfig:
     resolved_options = options or ClientOptions()
-    resolved_email, resolved_token = resolve_credentials(email, api_token)
+    credentials = resolve_credentials(email, api_token, access_token)
     return ClientConfig(
-        email=resolved_email,
-        api_token=resolved_token,
+        credentials=credentials,
         base_url=resolved_options.base_url or DEFAULT_BASE_URL,
         timeout=resolved_options.timeout,
         retry=resolved_options.retry or RetryPolicy(),
@@ -42,10 +43,11 @@ class BitbucketClient:
         email: str | None = None,
         api_token: str | ApiTokenProvider | None = None,
         *,
+        access_token: str | AccessTokenProvider | None = None,
         options: ClientOptions | None = None,
     ) -> None:
-        self._config = _build_config(email, api_token, options)
-        self._transport = Transport(self._config, BasicAuth(self._config.email, self._config.api_token))
+        self._config = _build_config(email, api_token, access_token, options)
+        self._transport = Transport(self._config, auth_for(self._config.credentials))
         self.user = UserResource(self._transport)
 
     def __enter__(self) -> Self:
