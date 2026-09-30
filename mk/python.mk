@@ -13,8 +13,9 @@ LANG_TEST_TARGETS       += pytest
 
 ##@ Python
 
-install-python: ## Sync Python deps (this SDK ships no console scripts to register)
+install-python: ## Sync Python deps and register the console scripts the project declares
 	$(UV) sync $(addprefix --upgrade-package ,$(PYPI_DEPS))
+	if grep -q '^\[project\.scripts\]' pyproject.toml; then $(UV) tool install --editable . --force; fi
 
 lint: ## Lint with Ruff — accepts FILES="..." to limit scope
 	$(UV) run ruff check --preview $(or $(FILES),.)
