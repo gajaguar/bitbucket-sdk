@@ -43,12 +43,11 @@ holds the values and authentication schemes that belong to Bitbucket Cloud.
 * **Where it is created:** repository, project, or workspace settings → Access
   tokens, or the application's OAuth flow.
 
-When both credential kinds are available, the kind with the strongest source
-wins: a provider (3), an explicit string argument (2), then an environment
-variable (1). Two kinds at the same explicit rank are ambiguous and raise
-`ConfigurationError`. When both kinds are available only through the
-environment, the bearer token wins. The resolver only reads or warns for the
-kind that wins.
+When both credential kinds are available, an explicit argument or provider
+beats the other kind's environment variable. Two explicit kinds, or two kinds
+available only through the environment, are ambiguous and raise
+`ConfigurationError`. The resolver only reads or warns for the kind that wins.
+See [choosing between credential kinds](credential-contract.md#choosing-between-credential-kinds).
 
 ## Shared behavior
 

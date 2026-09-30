@@ -34,6 +34,22 @@ When no source has a value, the SDK raises a `MissingCredentialsError`. A
 documented, fixed order matters more than the number of sources: the
 caller can predict which value wins.[^boto3-credentials]
 
+## Choosing between credential kinds
+
+An SDK that accepts more than one kind of credential, such as a key and a
+token, uses exactly one kind per client. A kind is available when the caller
+supplied all its parts, explicitly or through the environment. An
+explicit argument or provider is stronger than an environment variable.
+
+* An explicit kind beats the other kind's environment variable.
+* Two explicit kinds raise `ConfigurationError`.
+* Two kinds available only through the environment raise `ConfigurationError`.
+* No available kind raises `MissingCredentialsError`.
+
+The SDK never guesses between two kinds of the same strength: acting as the
+wrong identity is worse than an error. It reads or warns only about the
+environment variables of the kind it picks.
+
 ## The provider
 
 A provider is called on every request, inside the authentication step, and

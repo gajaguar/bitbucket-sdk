@@ -22,6 +22,16 @@ breaks the [credential contract](credential-contract.md) fails a test.
 * When a variable was renamed, the old name works and emits a deprecation
   warning, and the new name wins when both are set.
 
+## Selection
+
+Only for an SDK that accepts more than one kind of credential.
+
+* An explicit kind beats the other kind's environment variable.
+* Two explicit kinds raise `ConfigurationError`.
+* Two kinds available only through the environment raise
+  `ConfigurationError`.
+* A kind with a missing part does not count as available.
+
 ## Sending
 
 * The authentication header reaches the request.
