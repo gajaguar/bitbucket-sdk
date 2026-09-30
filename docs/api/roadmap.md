@@ -23,8 +23,8 @@ rather than a single operator credential.
 
 ## Non-goals (carried from the tech spec)
 
-Per [`TECH_SPEC.local.md`](TECH_SPEC.local.md) §1.2, none of the phases below
-change these:
+Per the original technical specification (§1.2, not published), none of the
+phases below change these:
 
 - No local caching, no ORM, no persistence.
 - No business logic layered on top of Bitbucket semantics — the SDK maps the
@@ -49,7 +49,7 @@ every operation added in any phase needs:
 4. A declared `CqsKind` (query / idempotent command / non-idempotent command).
 5. A `endpoint-coverage.md` row moved from `planned` to `done`.
 
-## Phase 0 — OAuth 2.0 bearer auth (`0.1.1`)
+## Phase 0 — OAuth 2.0 bearer auth (`0.5.0`)
 
 Cross-cutting infrastructure, not an endpoint group — this phase adds no
 `endpoint-coverage.md` rows and does not move the coverage percentage. It
@@ -96,7 +96,7 @@ MCP server, a web app's OAuth callback handler, ...):
 This mirrors the SDK's existing non-goals (no persistence, no policy
 beyond mapping the API) rather than expanding them.
 
-## Phase 1 — complete the pull-request surface (`0.2.0`) — shipped
+## Phase 1 — complete the pull-request surface — shipped in `0.4.0`
 
 The surface the SDK already claims to cover. Closed every remaining `planned`
 row under Pull requests / Pull request comments / Pull request statuses /
@@ -127,7 +127,7 @@ task-status URL to poll, not the merged PR directly — this needs a small
 async-task-polling helper (poll `GET .../merge/task-status/{task_id}` until
 terminal), the first pattern of its kind in the SDK.
 
-## Phase 2 — repository core (`0.3.0`) — shipped (52 of 55 operations)
+## Phase 2 — repository core — shipped in `0.4.0` (52 of 55 operations)
 
 25 `Repositories` operations, plus the directly-related content endpoints
 (`Commit statuses` below was already `done`, see Phase 1):
@@ -162,7 +162,7 @@ terminal), the first pattern of its kind in the SDK.
 the live spec (`x-revision` in `endpoint-coverage.md`) and close the remaining
 `planned` rows there before treating Phase 2 as fully closed.
 
-## Phase 3 — governance (`0.4.0`)
+## Phase 3 — governance (`0.6.0`)
 
 Also closes Phase 2's 3 `planned` `Commits` rows (see that phase's
 follow-up note) once the live spec confirms their exact shape.
@@ -178,7 +178,7 @@ Workspace- and project-level administration surface:
 No new architectural seams — all fit `NestedResource` or hand-written methods
 following the existing pattern.
 
-## Phase 4 — CI/CD (`0.5.0`)
+## Phase 4 — CI/CD (`0.7.0`)
 
 - `Pipelines` (68): pipeline trigger/list/get/stop, steps, logs, test reports,
   pipelines-config (caches, runners, variables, schedules, SSH key pair,
@@ -210,12 +210,16 @@ in the machine-readable spec — see the footnote in `endpoint-coverage.md`.
 | Phase | Version | Adds                     |  Cumulative coverage |
 | ----- | ------- | ------------------------ | -------------------: |
 | —     | 0.1.0   | (shipped)                |              17 (6%) |
-| 0     | 0.1.1   | +0 (OAuth bearer auth)   |              17 (6%) |
-| 1     | 0.2.0   | +28 (shipped)            |             45 (15%) |
-| 2     | 0.3.0   | +52 (shipped, 3 planned) |             97 (33%) |
-| 3     | 0.4.0   | +49 (46 + the 3 above)   |            146 (50%) |
-| 4     | 0.5.0   | +93                      |            239 (81%) |
+| 1, 2  | 0.4.0   | +80 (shipped, 3 planned) |             97 (33%) |
+| 0     | 0.5.0   | +0 (OAuth bearer auth)   |             97 (33%) |
+| 3     | 0.6.0   | +49 (46 + the 3 above)   |            146 (50%) |
+| 4     | 0.7.0   | +93                      |            239 (81%) |
 | 5     | 1.0.0   | +55                      |           294 (100%) |
+
+Phases 1 and 2 were planned as `0.2.0` and `0.3.0` but never tagged; they
+shipped together in `0.4.0` with the credential contract. `0.4.1` changed
+tooling and distribution only. Each remaining phase adds features without
+breaking the API, so it bumps the minor version.
 
 Phase 0 is listed first because it unblocks delegated-access consumers
 independently of endpoint coverage, not because later phases depend on it —
