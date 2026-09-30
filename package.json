@@ -1,8 +1,8 @@
 {
-	"name": "app-template-node-tools",
+	"name": "bitbucket-sdk-tools",
 	"private": true,
 	"devDependencies": {
-		"markdownlint-cli2": "^0.22.1",
-		"cspell": "^10.0.1"
+		"cspell": "^10.3.3",
+		"markdownlint-cli2": "^0.23.3"
 	}
 }

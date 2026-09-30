@@ -13,7 +13,7 @@ from bitbucket.models.commit import CommitRef
 from bitbucket.models.link import Links
 from bitbucket.models.repository import Repository
 
-type PullRequestState = Literal[  # pylint: disable=app-module-const-naming
+type PullRequestState = Literal[  # pylint: disable=gajaguar-module-const-naming
     "OPEN", "DRAFT", "QUEUED", "MERGED", "DECLINED", "SUPERSEDED"
 ]
 

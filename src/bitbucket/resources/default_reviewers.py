@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 class DefaultReviewersResource:
     # {id} item path uses {target_username}, not {account_id} — see the note in
-    # docs/coverage.md — and has no create/update body, so it doesn't fit
+    # docs/api/endpoint-coverage.md — and has no create/update body, so it doesn't fit
     # NestedResource's {path}/{id} shape — hand-written per the
     # over-abstraction guard in docs/TECH_SPEC.md.
     def __init__(self, transport: Transport, workspace: WorkspaceSlug, repository: RepositorySlug) -> None:

@@ -24,7 +24,7 @@ LOGGER.addHandler(NullHandler())
 
 _NO_CONTENT: Final = 204
 
-type JSONValue = (  # pylint: disable=app-module-const-naming
+type JSONValue = (  # pylint: disable=gajaguar-module-const-naming
     bool | int | float | str | list[JSONValue] | dict[str, JSONValue] | None
 )
 
