@@ -152,6 +152,7 @@ def test_deployments_and_reports_surface_is_public() -> None:
         "ReportWrite",
         "Snippet",
         "SnippetComment",
+        "SnippetCommit",
         "SnippetCommentCreate",
         "SnippetCreate",
         "SnippetFile",

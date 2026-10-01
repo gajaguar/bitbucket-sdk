@@ -10,7 +10,10 @@ from bitbucket.models.base import BitbucketModel
 from bitbucket.models.comment import Comment
 from bitbucket.models.comment import CommentContentCreate
 from bitbucket.models.comment import CommentParentRef
+from bitbucket.models.commit import AuthorRef
+from bitbucket.models.commit import CommitRef
 from bitbucket.models.link import Links
+from bitbucket.models.pull_request import RenderedField
 
 
 class SnippetScm(StrEnum):
@@ -56,6 +59,20 @@ class Snippet(BitbucketModel):
 
 
 class SnippetComment(Comment):
+    snippet: Snippet | None = None
+
+
+class SnippetCommit(BitbucketModel):
+    # The spec's `snippet_commit` is `base_commit` plus `links` and `snippet`.
+    type: str | None = None
+    hash: str | None = None
+    date: BitbucketInstant | None = None
+    author: AuthorRef | None = None
+    committer: AuthorRef | None = None
+    message: str | None = None
+    summary: RenderedField | None = None
+    parents: list[CommitRef] | None = None
+    links: Links | None = None
     snippet: Snippet | None = None
 
 

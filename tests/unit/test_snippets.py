@@ -8,6 +8,7 @@ import pytest
 import respx
 from httpx import Response
 
+from bitbucket.errors import BitbucketAPIError
 from bitbucket.errors import ForbiddenError
 from bitbucket.models import Snippet
 from bitbucket.models import SnippetCommentCreate
@@ -278,3 +279,120 @@ def test_snippet_watchers_follow_the_next_link(client: BitbucketClient) -> None:
     result = list(_snippet(client).watchers())
     # Assert
     assert [account.display_name for account in result] == ["Ann", "Bob"]
+
+
+COMMIT_BODY: Final = {
+    "type": "snippet_commit",
+    "hash": "367ab19",
+    "date": "2026-01-02T03:04:05.000000+00:00",
+    "message": "Update a.py",
+    "summary": {"raw": "Update a.py"},
+    "author": {"raw": "Ann <ann@example.com>"},
+    "parents": [{"hash": "1111111"}],
+    "snippet": {"id": "abc"},
+}
+
+
+@respx.mock
+def test_snippet_commits_follow_the_next_link(client: BitbucketClient) -> None:
+    # Arrange
+    next_url = f"{BASE_URL}/snippet-commits-page-2"
+    respx.get(f"{ONE}/commits").mock(return_value=Response(200, json={"values": [COMMIT_BODY], "next": next_url}))
+    respx.get(next_url).mock(return_value=Response(200, json={"values": [{**COMMIT_BODY, "hash": "89abcde"}]}))
+    # Act
+    result = list(_snippet(client).commits())
+    # Assert
+    assert [commit.hash for commit in result] == ["367ab19", "89abcde"]
+
+
+@respx.mock
+def test_snippet_commit_parses_the_base_commit_fields(client: BitbucketClient) -> None:
+    # Arrange
+    respx.get(f"{ONE}/commits/367ab19").mock(return_value=Response(200, json=COMMIT_BODY))
+    # Act
+    commit = _snippet(client).commit("367ab19")
+    # Assert
+    assert commit.message == "Update a.py"
+    assert commit.summary is not None
+    assert commit.summary.raw == "Update a.py"
+    assert commit.author is not None
+    assert commit.author.raw == "Ann <ann@example.com>"
+    assert commit.parents is not None
+    assert commit.parents[0].hash == "1111111"
+    assert commit.snippet is not None
+    assert commit.snippet.id == "abc"
+
+
+@respx.mock
+def test_snippet_file_follows_the_redirect_to_the_latest_revision(client: BitbucketClient) -> None:
+    # Arrange
+    target = f"{BASE_URL}/snippets/ws/abc/files/367ab19/a.py"
+    respx.get(f"{ONE}/files/a.py").mock(return_value=Response(302, headers={"Location": target}))
+    respx.get(target).mock(return_value=Response(200, content=b"\x00print(1)"))
+    # Act
+    content = _snippet(client).file("a.py")
+    # Assert
+    assert content == b"\x00print(1)"
+
+
+@respx.mock
+def test_snippet_diff_sends_the_path_filter_only_when_given(client: BitbucketClient) -> None:
+    # Arrange
+    route = respx.get(f"{ONE}/367ab19/diff").mock(return_value=Response(200, text="diff --git"))
+    # Act
+    filtered = _snippet(client).diff("367ab19", path="a.py")
+    unfiltered = _snippet(client).diff("367ab19")
+    # Assert
+    assert filtered == unfiltered == "diff --git"
+    assert route.calls[0].request.url.params["path"] == "a.py"
+    assert "path" not in route.calls[1].request.url.params
+
+
+@respx.mock
+def test_snippet_changes_between_versions_return_the_raw_text(client: BitbucketClient) -> None:
+    # Arrange
+    respx.get(f"{ONE}/367ab19/patch").mock(return_value=Response(200, text="From 367ab19"))
+    # Act
+    patch = _snippet(client).patch("367ab19")
+    # Assert
+    assert patch == "From 367ab19"
+
+
+@respx.mock
+def test_snippet_revision_get_and_file(client: BitbucketClient) -> None:
+    # Arrange
+    respx.get(f"{ONE}/367ab19").mock(return_value=Response(200, json=SNIPPET_BODY))
+    respx.get(f"{ONE}/367ab19/files/a.py").mock(return_value=Response(200, content=b"old"))
+    revision = _snippet(client).revision("367ab19")
+    # Act
+    snippet = revision.get()
+    content = revision.file("a.py")
+    # Assert
+    assert snippet.id == "abc"
+    assert content == b"old"
+
+
+@respx.mock
+def test_snippet_revision_update_and_delete_use_the_node_path(client: BitbucketClient) -> None:
+    # Arrange
+    put = respx.put(f"{ONE}/367ab19").mock(return_value=Response(200, json=SNIPPET_BODY))
+    delete = respx.delete(f"{ONE}/367ab19").mock(return_value=Response(204))
+    revision = _snippet(client).revision("367ab19")
+    # Act
+    revision.update(SnippetUpdate(title="New"))
+    result = revision.delete()
+    # Assert
+    assert json.loads(put.calls[0].request.content) == {"title": "New"}
+    assert result is None
+    assert delete.called
+
+
+@respx.mock
+def test_snippet_revision_update_raises_when_it_is_not_the_latest(client: BitbucketClient) -> None:
+    # Arrange
+    respx.put(f"{ONE}/1111111").mock(return_value=Response(405, json={"error": {"message": "not latest"}}))
+    # Act
+    # Assert
+    with pytest.raises(BitbucketAPIError) as raised:
+        _snippet(client).revision("1111111").update(SnippetUpdate(title="New"))
+    assert raised.value.status_code == 405

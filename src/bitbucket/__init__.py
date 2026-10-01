@@ -217,6 +217,7 @@ from bitbucket.models import SearchSegment
 from bitbucket.models import Snippet
 from bitbucket.models import SnippetComment
 from bitbucket.models import SnippetCommentCreate
+from bitbucket.models import SnippetCommit
 from bitbucket.models import SnippetCreate
 from bitbucket.models import SnippetFile
 from bitbucket.models import SnippetRole
@@ -470,6 +471,7 @@ __all__ = [
     "Snippet",
     "SnippetComment",
     "SnippetCommentCreate",
+    "SnippetCommit",
     "SnippetCreate",
     "SnippetFile",
     "SnippetRole",
