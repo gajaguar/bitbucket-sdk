@@ -39,11 +39,11 @@ once, under its first tag, to sum to 294 without double-counting).
 | ------------------- | ---------: | ------: | ------: |
 | Pipelines           |         68 |       0 |      0% |
 | Pullrequests        |         38 |      37 |     97% |
-| Repositories        |         24 |      23 |     96% |
+| Repositories        |         24 |      24 |    100% |
 | Snippets            |         24 |       0 |      0% |
 | Commits             |         17 |      14 |     82% |
 | Deployments         |         16 |       0 |      0% |
-| Workspaces          |         16 |       7 |     44% |
+| Workspaces          |         16 |      16 |    100% |
 | Projects            |         16 |      16 |    100% |
 | properties          |         12 |       0 |      0% |
 | Reports             |          9 |       0 |      0% |
@@ -59,7 +59,7 @@ once, under its first tag, to sum to 294 without double-counting).
 | Addon               |          3 |       0 |      0% |
 | Search              |          3 |       0 |      0% |
 | Webhooks            |          2 |       2 |    100% |
-| **Total**           |    **294** | **133** | **45%** |
+| **Total**           |    **294** | **143** | **49%** |
 
 The spec also declares `Issue tracker` and `Wiki` tags with zero operations
 attached to any path — Bitbucket's issue-tracker and wiki REST endpoints are
@@ -101,7 +101,7 @@ to close this gap.
 | `DELETE .../permissions-config/users/{selected_user_id}`    | `repo.permissions.users.delete(account_id)`           | done    |
 | `GET .../override-settings`                                 | `repo.permissions.override_settings()`                | done    |
 | `PUT .../override-settings`                                 | `repo.permissions.update_override_settings(payload)`  | done    |
-| `GET /user/workspaces/{workspace}/permissions/repositories` | —                                                     | planned |
+| `GET /user/workspaces/{workspace}/permissions/repositories` | `ws.my_repository_permissions(q=..., sort=...)`       | done    |
 
 Note: override-settings sits beside `permissions-config`, not under it. The
 `GET` returns an inheritance state (`type` plus an `override_settings`
@@ -260,6 +260,40 @@ value with a `404`. Both endpoints are public, but the SDK still sends its
 credentials. The repository-level hook endpoints are under
 [Repositories](#repositories) — they carry the `Webhooks` tag too, but are
 counted once, under `Repositories`.
+
+## Workspaces
+
+| Endpoint                                                  | SDK method                                            | Status |
+| --------------------------------------------------------- | ----------------------------------------------------- | ------ |
+| `GET /user/workspaces`                                    | `client.user.workspaces(administrator=..., sort=...)` | done   |
+| `GET /user/workspaces/{workspace}/permission`             | `ws.my_permission()`                                  | done   |
+| `GET /workspaces/{workspace}`                             | `ws.get()`                                            | done   |
+| `GET .../workspaces/{workspace}/members`                  | `ws.members.list()`                                   | done   |
+| `GET .../workspaces/{workspace}/members/{member}`         | `ws.members.get(member)`                              | done   |
+| `GET .../workspaces/{workspace}/permissions`              | `ws.permissions.list(q=...)`                          | done   |
+| `GET .../workspaces/{workspace}/permissions/repositories` | `ws.permissions.repositories(q=..., sort=...)`        | done   |
+| `GET .../permissions/repositories/{repo_slug}`            | `ws.permissions.repository(slug, q=..., sort=...)`    | done   |
+| `GET .../workspaces/{workspace}/settings/gpg/public-key`  | `ws.gpg_public_key()`                                 | done   |
+
+Note: the hooks, the project listing and the pull requests by author are
+first-tagged `Workspaces` too, so they count under this group; they are listed
+under [Workspace webhooks](#workspace-webhooks), [Projects](#projects) and
+[Pull requests](#pull-requests). The caller's repository permissions
+(`GET /user/workspaces/{workspace}/permissions/repositories`) count under
+`Repositories`; see there.
+
+Note: `{member}` is a member UUID or an Atlassian account id. The two `/user`
+operations act on the authenticated user, so `client.user.workspaces()` lives
+on the client and `ws.my_permission()` takes the workspace from `ws`.
+
+Note: permissions are effective ones, with no split between direct and group
+grants. The `collaborator` role is being removed by Bitbucket but still parses;
+`last_accessed` and `added_on` vanish once administration moves to
+admin.atlassian.com, so they are optional. The spec does not declare
+`permission` on a membership, but its description and examples return it.
+
+Note: the GPG public key is plain text (one key, or two during a rotation), so
+`gpg_public_key()` returns a `str` rather than a model.
 
 ## Workspace webhooks
 

@@ -227,7 +227,7 @@ See [`CONTRIBUTING.md`][contributing].
 
 ## Open items
 
-- Most of workspaces, and pipelines, are not yet modeled — see
+- Pipelines, snippets and deployments are not yet modeled — see
   [`docs/api/endpoint-coverage.md`][api-endpoint-coverage] for the
   full endpoint matrix and [`docs/api/roadmap.md`][api-roadmap] for
   the phased plan to full API parity.
