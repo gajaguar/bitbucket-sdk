@@ -21,7 +21,7 @@ Status values: `planned`, `in-progress`, `done`.
   version at `/2.0`; there is no header-negotiated or dated version scheme to
   pin beyond that.
 - **Spec checked:** `https://dac-static.atlassian.com/cloud/bitbucket/swagger.v3.json`
-  (OpenAPI 3.0.0), `x-revision: 167b2dc51ec8`, checked 2026-09-16.
+  (OpenAPI 3.0.0), `x-revision: 6856b45887d7`, checked 2026-09-30.
 - **SDK base URL:** `https://api.bitbucket.org/2.0` — see
   `src/bitbucket/config.py`'s `DEFAULT_BASE_URL`.
 
@@ -38,8 +38,8 @@ once, under its first tag, to sum to 294 without double-counting).
 | Group               | Operations |    Done |       % |
 | ------------------- | ---------: | ------: | ------: |
 | Pipelines           |         68 |       0 |      0% |
-| Pullrequests        |         37 |      37 |    100% |
-| Repositories        |         25 |      23 |     92% |
+| Pullrequests        |         38 |      37 |     97% |
+| Repositories        |         24 |      23 |     96% |
 | Snippets            |         24 |       0 |      0% |
 | Commits             |         17 |      14 |     82% |
 | Deployments         |         16 |       0 |      0% |
@@ -76,31 +76,39 @@ to close this gap.
 
 ## Repositories
 
-| Endpoint                                                                    | SDK method                                                   | Status |
-| --------------------------------------------------------------------------- | ------------------------------------------------------------ | ------ |
-| `GET /repositories/{workspace}`                                             | `ws.repositories.list(q=..., sort=...)`                      | done   |
-| `GET /repositories/{workspace}/{repo_slug}`                                 | `ws.repositories.get(slug)`                                  | done   |
-| `POST /repositories/{workspace}/{repo_slug}`                                | `ws.repositories.create(slug, payload)`                      | done   |
-| `PUT /repositories/{workspace}/{repo_slug}`                                 | `ws.repositories.update(slug, payload)`                      | done   |
-| `DELETE /repositories/{workspace}/{repo_slug}`                              | `ws.repositories.delete(slug)`                               | done   |
-| `POST .../repositories/{workspace}/{repo_slug}/forks`                       | `ws.repositories.create_fork(slug, payload)`                 | done   |
-| `GET .../repositories/{workspace}/{repo_slug}/forks`                        | `ws.repositories.forks(slug)`                                | done   |
-| `GET .../repositories/{workspace}/{repo_slug}/watchers`                     | `ws.repositories.watchers(slug)`                             | done   |
-| `GET .../hooks`                                                             | `repo.hooks.list()`                                          | done   |
-| `POST .../hooks`                                                            | `repo.hooks.create(payload)`                                 | done   |
-| `GET .../hooks/{uid}`                                                       | `repo.hooks.get(uid)`                                        | done   |
-| `PUT .../hooks/{uid}`                                                       | `repo.hooks.update(uid, payload)`                            | done   |
-| `DELETE .../hooks/{uid}`                                                    | `repo.hooks.delete(uid)`                                     | done   |
-| `GET .../permissions-config/groups`                                         | `repo.permissions.groups.list()`                             | done   |
-| `GET .../permissions-config/groups/{group_slug}`                            | `repo.permissions.groups.get(group_slug)`                    | done   |
-| `PUT .../permissions-config/groups/{group_slug}`                            | `repo.permissions.groups.update(group_slug, payload)`        | done   |
-| `DELETE .../permissions-config/groups/{group_slug}`                         | `repo.permissions.groups.delete(group_slug)`                 | done   |
-| `GET .../permissions-config/users`                                          | `repo.permissions.users.list()`                              | done   |
-| `GET .../permissions-config/users/{account_id}`                             | `repo.permissions.users.get(account_id)`                     | done   |
-| `PUT .../permissions-config/users/{account_id}`                             | `repo.permissions.users.update(account_id, payload)`         | done   |
-| `DELETE .../permissions-config/users/{account_id}`                          | `repo.permissions.users.delete(account_id)`                  | done   |
-| `GET .../permissions-config/override-settings`                              | `repo.permissions.override_settings()`                       | done   |
-| `PUT .../permissions-config/override-settings`                              | `repo.permissions.update_override_settings(payload)`         | done   |
+| Endpoint                                                    | SDK method                                            | Status  |
+| ----------------------------------------------------------- | ----------------------------------------------------- | ------- |
+| `GET /repositories/{workspace}`                             | `ws.repositories.list(q=..., sort=...)`               | done    |
+| `GET /repositories/{workspace}/{repo_slug}`                 | `ws.repositories.get(slug)`                           | done    |
+| `POST /repositories/{workspace}/{repo_slug}`                | `ws.repositories.create(slug, payload)`               | done    |
+| `PUT /repositories/{workspace}/{repo_slug}`                 | `ws.repositories.update(slug, payload)`               | done    |
+| `DELETE /repositories/{workspace}/{repo_slug}`              | `ws.repositories.delete(slug)`                        | done    |
+| `POST .../repositories/{workspace}/{repo_slug}/forks`       | `ws.repositories.create_fork(slug, payload)`          | done    |
+| `GET .../repositories/{workspace}/{repo_slug}/forks`        | `ws.repositories.forks(slug)`                         | done    |
+| `GET .../repositories/{workspace}/{repo_slug}/watchers`     | `ws.repositories.watchers(slug)`                      | done    |
+| `GET .../hooks`                                             | `repo.hooks.list()`                                   | done    |
+| `POST .../hooks`                                            | `repo.hooks.create(payload)`                          | done    |
+| `GET .../hooks/{uid}`                                       | `repo.hooks.get(uid)`                                 | done    |
+| `PUT .../hooks/{uid}`                                       | `repo.hooks.update(uid, payload)`                     | done    |
+| `DELETE .../hooks/{uid}`                                    | `repo.hooks.delete(uid)`                              | done    |
+| `GET .../permissions-config/groups`                         | `repo.permissions.groups.list()`                      | done    |
+| `GET .../permissions-config/groups/{group_slug}`            | `repo.permissions.groups.get(group_slug)`             | done    |
+| `PUT .../permissions-config/groups/{group_slug}`            | `repo.permissions.groups.update(group_slug, payload)` | done    |
+| `DELETE .../permissions-config/groups/{group_slug}`         | `repo.permissions.groups.delete(group_slug)`          | done    |
+| `GET .../permissions-config/users`                          | `repo.permissions.users.list()`                       | done    |
+| `GET .../permissions-config/users/{selected_user_id}`       | `repo.permissions.users.get(account_id)`              | done    |
+| `PUT .../permissions-config/users/{selected_user_id}`       | `repo.permissions.users.update(account_id, payload)`  | done    |
+| `DELETE .../permissions-config/users/{selected_user_id}`    | `repo.permissions.users.delete(account_id)`           | done    |
+| `GET .../override-settings`                                 | `repo.permissions.override_settings()`                | done    |
+| `PUT .../override-settings`                                 | `repo.permissions.update_override_settings(payload)`  | done    |
+| `GET /user/workspaces/{workspace}/permissions/repositories` | —                                                     | planned |
+
+Note: override-settings sits beside `permissions-config`, not under it. The
+`GET` returns an inheritance state (`type` plus an `override_settings`
+object); the `PUT` answers `204` with no body, so `update_override_settings`
+returns `None`. The spec does not declare the `PUT` request body, so the SDK
+sends `{"override_settings": {...}}`, the shape the `GET` returns. The
+`{selected_user_id}` path segment is the SDK's `account_id` argument.
 
 Note: repository creation is `POST /repositories/{workspace}/{repo_slug}` —
 the slug is part of the path, not a body-only field. Paths omitting the
@@ -138,67 +146,68 @@ same way the Pull requests section abbreviates `.../pullrequests`.
 | `PUT .../pullrequests/{pull_request_id}/properties/{app_key}/{property_name}`    | `repo.pull_requests.properties(id).put(key, name, value)`  | done    |
 | `DELETE .../pullrequests/{pull_request_id}/properties/{app_key}/{property_name}` | `repo.pull_requests.properties(id).delete(key, name)`      | done    |
 | `GET .../commit/{commit}/pullrequests`                                           | `ws.repositories.commit_pull_requests(slug, commit)`       | done    |
+| `GET .../pullrequests/{pull_request_id}/mergeability/checks`                     | —                                                          | planned |
 | `GET /workspaces/{workspace}/pullrequests/{selected_user}`                       | `ws.pull_requests_by_author(user, states=..., fields=...)` | done    |
 
 ## Pull request comments
 
-| Endpoint                                                                  | SDK method                                                    | Status  |
-| ------------------------------------------------------------------------- | ------------------------------------------------------------- | ------- |
-| `GET .../pullrequests/{pull_request_id}/comments`                         | `repo.pull_requests.comments(id).list(sort=...)`              | done    |
-| `GET .../pullrequests/{pull_request_id}/comments/{comment_id}`            | `repo.pull_requests.comments(id).get(comment_id)`             | done    |
-| `POST .../pullrequests/{pull_request_id}/comments`                        | `repo.pull_requests.comments(id).create(payload)`             | done    |
-| `PUT .../pullrequests/{pull_request_id}/comments/{comment_id}`            | `repo.pull_requests.comments(id).update(comment_id, payload)` | done    |
-| `DELETE .../pullrequests/{pull_request_id}/comments/{comment_id}`         | `repo.pull_requests.comments(id).delete(comment_id)`          | done    |
-| `POST .../pullrequests/{pull_request_id}/comments/{comment_id}/resolve`   | `repo.pull_requests.comments(id).resolve(comment_id)`         | done    |
-| `DELETE .../pullrequests/{pull_request_id}/comments/{comment_id}/resolve` | `repo.pull_requests.comments(id).unresolve(comment_id)`       | done    |
+| Endpoint                                                                  | SDK method                                                    | Status |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------- | ------ |
+| `GET .../pullrequests/{pull_request_id}/comments`                         | `repo.pull_requests.comments(id).list(sort=...)`              | done   |
+| `GET .../pullrequests/{pull_request_id}/comments/{comment_id}`            | `repo.pull_requests.comments(id).get(comment_id)`             | done   |
+| `POST .../pullrequests/{pull_request_id}/comments`                        | `repo.pull_requests.comments(id).create(payload)`             | done   |
+| `PUT .../pullrequests/{pull_request_id}/comments/{comment_id}`            | `repo.pull_requests.comments(id).update(comment_id, payload)` | done   |
+| `DELETE .../pullrequests/{pull_request_id}/comments/{comment_id}`         | `repo.pull_requests.comments(id).delete(comment_id)`          | done   |
+| `POST .../pullrequests/{pull_request_id}/comments/{comment_id}/resolve`   | `repo.pull_requests.comments(id).resolve(comment_id)`         | done   |
+| `DELETE .../pullrequests/{pull_request_id}/comments/{comment_id}/resolve` | `repo.pull_requests.comments(id).unresolve(comment_id)`       | done   |
 
 ## Pull request statuses
 
-| Endpoint                                           | SDK method                                            | Status |
-| -------------------------------------------------- | ----------------------------------------------------- | ------ |
-| `GET .../pullrequests/{pull_request_id}/statuses`  | `repo.pull_requests.statuses(id).list()`              | done   |
-| `GET .../commit/{commit}/statuses`                 | `repo.commit_statuses.list(commit)`                   | done   |
-| `POST .../commit/{commit}/statuses/build`          | `repo.commit_statuses.create(commit, payload)`        | done   |
-| `GET .../commit/{commit}/statuses/build/{key}`     | `repo.commit_statuses.get(commit, key)`               | done   |
-| `PUT .../commit/{commit}/statuses/build/{key}`     | `repo.commit_statuses.update(commit, key, payload)`   | done   |
+| Endpoint                                          | SDK method                                          | Status |
+| ------------------------------------------------- | --------------------------------------------------- | ------ |
+| `GET .../pullrequests/{pull_request_id}/statuses` | `repo.pull_requests.statuses(id).list()`            | done   |
+| `GET .../commit/{commit}/statuses`                | `repo.commit_statuses.list(commit)`                 | done   |
+| `POST .../commit/{commit}/statuses/build`         | `repo.commit_statuses.create(commit, payload)`      | done   |
+| `GET .../commit/{commit}/statuses/build/{key}`    | `repo.commit_statuses.get(commit, key)`             | done   |
+| `PUT .../commit/{commit}/statuses/build/{key}`    | `repo.commit_statuses.update(commit, key, payload)` | done   |
 
 ## Default reviewers
 
-| Endpoint                                          | SDK method                                          | Status |
-| ------------------------------------------------- | --------------------------------------------------- | ------ |
-| `GET .../default-reviewers`                       | `repo.default_reviewers.list()`                     | done   |
-| `GET .../default-reviewers/{target_username}`     | `repo.default_reviewers.get(target_username)`       | done   |
-| `PUT .../default-reviewers/{target_username}`     | `repo.default_reviewers.add(target_username)`       | done   |
-| `DELETE .../default-reviewers/{target_username}`  | `repo.default_reviewers.remove(target_username)`    | done   |
-| `GET .../effective-default-reviewers`             | `repo.default_reviewers.effective()`                | done   |
+| Endpoint                                         | SDK method                                       | Status |
+| ------------------------------------------------ | ------------------------------------------------ | ------ |
+| `GET .../default-reviewers`                      | `repo.default_reviewers.list()`                  | done   |
+| `GET .../default-reviewers/{target_username}`    | `repo.default_reviewers.get(target_username)`    | done   |
+| `PUT .../default-reviewers/{target_username}`    | `repo.default_reviewers.add(target_username)`    | done   |
+| `DELETE .../default-reviewers/{target_username}` | `repo.default_reviewers.remove(target_username)` | done   |
+| `GET .../effective-default-reviewers`            | `repo.default_reviewers.effective()`             | done   |
 
 Note: the endpoint uses `{target_username}`, not `{account_id}`.
 
 ## Refs
 
-| Endpoint                             | SDK method                           | Status |
-| ------------------------------------ | ------------------------------------ | ------ |
-| `GET .../refs`                       | `repo.refs.list()`                   | done   |
-| `GET .../refs/branches`              | `repo.refs.branches.list()`          | done   |
-| `POST .../refs/branches`             | `repo.refs.branches.create(payload)` | done   |
-| `GET .../refs/branches/{name}`       | `repo.refs.branches.get(name)`       | done   |
-| `DELETE .../refs/branches/{name}`    | `repo.refs.branches.delete(name)`    | done   |
-| `GET .../refs/tags`                  | `repo.refs.tags.list()`              | done   |
-| `POST .../refs/tags`                 | `repo.refs.tags.create(payload)`     | done   |
-| `GET .../refs/tags/{name}`           | `repo.refs.tags.get(name)`           | done   |
-| `DELETE .../refs/tags/{name}`        | `repo.refs.tags.delete(name)`        | done   |
+| Endpoint                          | SDK method                           | Status |
+| --------------------------------- | ------------------------------------ | ------ |
+| `GET .../refs`                    | `repo.refs.list()`                   | done   |
+| `GET .../refs/branches`           | `repo.refs.branches.list()`          | done   |
+| `POST .../refs/branches`          | `repo.refs.branches.create(payload)` | done   |
+| `GET .../refs/branches/{name}`    | `repo.refs.branches.get(name)`       | done   |
+| `DELETE .../refs/branches/{name}` | `repo.refs.branches.delete(name)`    | done   |
+| `GET .../refs/tags`               | `repo.refs.tags.list()`              | done   |
+| `POST .../refs/tags`              | `repo.refs.tags.create(payload)`     | done   |
+| `GET .../refs/tags/{name}`        | `repo.refs.tags.get(name)`           | done   |
+| `DELETE .../refs/tags/{name}`     | `repo.refs.tags.delete(name)`        | done   |
 
 Note: no `update` for branches or tags — Bitbucket has no PUT-by-name
 endpoint for either.
 
 ## Source
 
-| Endpoint                                     | SDK method                                                    | Status |
-| -------------------------------------------- | ------------------------------------------------------------- | ------ |
-| `GET .../src`                                | `repo.source.list()`                                          | done   |
-| `POST .../src`                               | `repo.source.create_commit(files, ...)`                       | done   |
-| `GET .../src/{commit}/{path}`                | `repo.source.list_path(commit, path)` / `.read(commit, path)` | done   |
-| `GET .../filehistory/{commit}/{path}`        | `repo.source.file_history(commit, path)`                      | done   |
+| Endpoint                              | SDK method                                                    | Status |
+| ------------------------------------- | ------------------------------------------------------------- | ------ |
+| `GET .../src`                         | `repo.source.list()`                                          | done   |
+| `POST .../src`                        | `repo.source.create_commit(files, ...)`                       | done   |
+| `GET .../src/{commit}/{path}`         | `repo.source.list_path(commit, path)` / `.read(commit, path)` | done   |
+| `GET .../filehistory/{commit}/{path}` | `repo.source.file_history(commit, path)`                      | done   |
 
 Note: `GET .../src/{commit}/{path}` is polymorphic — a directory or a file,
 depending on `path` — so the SDK exposes it as two methods rather than
@@ -206,47 +215,45 @@ guessing from the response.
 
 ## Commits
 
-| Endpoint                                                            | SDK method                                                  | Status  |
-| ------------------------------------------------------------------- | ----------------------------------------------------------- | ------- |
-| `GET .../commits`                                                   | `repo.commits.list(include=..., exclude=...)`               | done    |
-| `GET .../commits/{revision}`                                        | `repo.commits.list_from(revision)`                          | done    |
-| `GET .../commit/{commit}`                                           | `repo.commits.get(commit)`                                  | done    |
-| `POST .../commit/{commit}/approve`                                  | `repo.commits.approve(commit)`                              | done    |
-| `DELETE .../commit/{commit}/approve`                                | `repo.commits.unapprove(commit)`                            | done    |
-| `GET .../commit/{commit}/comments`                                  | `repo.commits.comments(commit).list()`                      | done    |
-| `POST .../commit/{commit}/comments`                                 | `repo.commits.comments(commit).create(payload)`             | done    |
-| `GET .../commit/{commit}/comments/{comment_id}`                     | `repo.commits.comments(commit).get(comment_id)`             | done    |
-| `PUT .../commit/{commit}/comments/{comment_id}`                     | `repo.commits.comments(commit).update(comment_id, payload)` | done    |
-| `DELETE .../commit/{commit}/comments/{comment_id}`                  | `repo.commits.comments(commit).delete(comment_id)`          | done    |
-| `GET .../diff/{spec}`                                               | `repo.commits.diff(spec)`                                   | done    |
-| `GET .../diffstat/{spec}`                                           | `repo.commits.diffstat(spec)`                               | done    |
-| `GET .../patch/{spec}`                                              | `repo.commits.patch(spec)`                                  | done    |
-| `GET .../merge-base/{spec}`                                         | `repo.commits.merge_base(spec)`                             | done    |
-| commit merge-conflict detection                                     | —                                                           | planned |
-| (unverified — 2 further operations per the original 17-op estimate) | —                                                           | planned |
+| Endpoint                                           | SDK method                                                  | Status  |
+| -------------------------------------------------- | ----------------------------------------------------------- | ------- |
+| `GET .../commits`                                  | `repo.commits.list(include=..., exclude=...)`               | done    |
+| `GET .../commits/{revision}`                       | `repo.commits.list_from(revision)`                          | done    |
+| `GET .../commit/{commit}`                          | `repo.commits.get(commit)`                                  | done    |
+| `POST .../commit/{commit}/approve`                 | `repo.commits.approve(commit)`                              | done    |
+| `DELETE .../commit/{commit}/approve`               | `repo.commits.unapprove(commit)`                            | done    |
+| `GET .../commit/{commit}/comments`                 | `repo.commits.comments(commit).list()`                      | done    |
+| `POST .../commit/{commit}/comments`                | `repo.commits.comments(commit).create(payload)`             | done    |
+| `GET .../commit/{commit}/comments/{comment_id}`    | `repo.commits.comments(commit).get(comment_id)`             | done    |
+| `PUT .../commit/{commit}/comments/{comment_id}`    | `repo.commits.comments(commit).update(comment_id, payload)` | done    |
+| `DELETE .../commit/{commit}/comments/{comment_id}` | `repo.commits.comments(commit).delete(comment_id)`          | done    |
+| `GET .../diff/{spec}`                              | `repo.commits.diff(spec)`                                   | done    |
+| `GET .../diffstat/{spec}`                          | `repo.commits.diffstat(spec)`                               | done    |
+| `GET .../patch/{spec}`                             | `repo.commits.patch(spec)`                                  | done    |
+| `GET .../merge-base/{revspec}`                     | `repo.commits.merge_base(spec)`                             | done    |
+| `GET .../file-conflicts/{spec}`                    | —                                                           | planned |
+| `POST .../commits`                                 | —                                                           | planned |
+| `POST .../commits/{revision}`                      | —                                                           | planned |
 
-Note: this group's original 17-operation estimate in `roadmap.md` included a
-"file-conflicts" endpoint this pass could not confidently map to a real,
-documented Bitbucket Cloud path without re-checking the live spec (see
-`roadmap.md`'s note on regenerating these numbers) — left `planned` rather
-than guessed at. 14 of the group's operations are implemented and verified
-against the endpoint shapes documented in Bitbucket's public API reference.
+Note: the three `planned` rows were confirmed against `x-revision`
+`6856b45887d7`; the spec declares no request body for the two `POST`
+operations, so check a live response before modelling them.
 
 ## Downloads
 
-| Endpoint                                 | SDK method                               | Status |
-| ---------------------------------------- | ---------------------------------------- | ------ |
-| `GET .../downloads`                      | `repo.downloads.list()`                  | done   |
-| `POST .../downloads`                     | `repo.downloads.upload(name, content)`   | done   |
-| `GET .../downloads/{filename}`           | `repo.downloads.get(filename)`           | done   |
-| `DELETE .../downloads/{filename}`        | `repo.downloads.delete(filename)`        | done   |
+| Endpoint                          | SDK method                             | Status |
+| --------------------------------- | -------------------------------------- | ------ |
+| `GET .../downloads`               | `repo.downloads.list()`                | done   |
+| `POST .../downloads`              | `repo.downloads.upload(name, content)` | done   |
+| `GET .../downloads/{filename}`    | `repo.downloads.get(filename)`         | done   |
+| `DELETE .../downloads/{filename}` | `repo.downloads.delete(filename)`      | done   |
 
 ## Webhooks
 
-| Endpoint                              | SDK method                                 | Status |
-| ------------------------------------- | ------------------------------------------ | ------ |
-| `GET /hook_events`                    | `client.hook_events.subject_types()`       | done   |
-| `GET /hook_events/{subject_type}`     | `client.hook_events.list(subject_type)`    | done   |
+| Endpoint                          | SDK method                              | Status |
+| --------------------------------- | --------------------------------------- | ------ |
+| `GET /hook_events`                | `client.hook_events.subject_types()`    | done   |
+| `GET /hook_events/{subject_type}` | `client.hook_events.list(subject_type)` | done   |
 
 Note: `subject_type` is `repository` or `workspace`; the spec rejects any other
 value with a `404`. Both endpoints are public, but the SDK still sends its
@@ -256,13 +263,13 @@ counted once, under `Repositories`.
 
 ## Workspace webhooks
 
-| Endpoint                                  | SDK method                           | Status |
-| ----------------------------------------- | ------------------------------------ | ------ |
-| `GET /workspaces/{workspace}/hooks`       | `ws.hooks.list()`                    | done   |
-| `POST /workspaces/{workspace}/hooks`      | `ws.hooks.create(payload)`           | done   |
-| `GET .../hooks/{uid}`                     | `ws.hooks.get(uid)`                  | done   |
-| `PUT .../hooks/{uid}`                     | `ws.hooks.update(uid, payload)`      | done   |
-| `DELETE .../hooks/{uid}`                  | `ws.hooks.delete(uid)`               | done   |
+| Endpoint                             | SDK method                      | Status |
+| ------------------------------------ | ------------------------------- | ------ |
+| `GET /workspaces/{workspace}/hooks`  | `ws.hooks.list()`               | done   |
+| `POST /workspaces/{workspace}/hooks` | `ws.hooks.create(payload)`      | done   |
+| `GET .../hooks/{uid}`                | `ws.hooks.get(uid)`             | done   |
+| `PUT .../hooks/{uid}`                | `ws.hooks.update(uid, payload)` | done   |
+| `DELETE .../hooks/{uid}`             | `ws.hooks.delete(uid)`          | done   |
 
 Note: these five operations are first-tagged `Workspaces`, so they count under
 that group in the summary above, not under `Webhooks`.

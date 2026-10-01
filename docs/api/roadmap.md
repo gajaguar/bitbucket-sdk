@@ -10,7 +10,7 @@ status: stable
 
 This SDK targets **Bitbucket Cloud REST API `2.0`**, checked against
 `https://dac-static.atlassian.com/cloud/bitbucket/swagger.v3.json`,
-`x-revision: 167b2dc51ec8` (2026-09-16). Regenerate the numbers below against
+`x-revision: 6856b45887d7` (2026-09-30). Regenerate the numbers below against
 a newer revision whenever [endpoint coverage](endpoint-coverage.md) is re-verified.
 
 **Where we are today:** 116 / 294 operations (39%) — see the coverage summary
@@ -154,9 +154,9 @@ terminal), the first pattern of its kind in the SDK.
 `request_multipart` and `request_bytes` seams alongside the existing
 `request_text` to cover both.
 
-**Follow-up:** re-verify the `Commits` group's exact operation list against
-the live spec (`x-revision` in `endpoint-coverage.md`) and close the remaining
-`planned` rows there before treating Phase 2 as fully closed.
+**Follow-up (resolved):** the live spec confirms the 3 remaining `Commits`
+operations — `GET .../file-conflicts/{spec}`, `POST .../commits` and
+`POST .../commits/{revision}` — and they ship in Phase 3 (`0.8.0`).
 
 ## Phase 0b — bearer token auth (`0.6.0`) — shipped
 
@@ -216,7 +216,7 @@ variable) were settled before the code landed, following the
 ## Phase 3 — governance (`0.7.0` and `0.8.0`)
 
 Also closes Phase 2's 3 `planned` `Commits` rows (see that phase's
-follow-up note) once the live spec confirms their exact shape.
+follow-up note), whose shape the live spec now confirms.
 
 Workspace- and project-level administration surface:
 
@@ -232,15 +232,22 @@ Workspace- and project-level administration surface:
   **shipped in `0.7.0`**, pulled forward with `Webhooks` because they reuse
   `HooksResource` as-is.
 - `Users` (4), `SSH` (5), `GPG` (4), `Search` (3).
+- Two operations the spec added since the first check:
+  `GET .../pullrequests/{pull_request_id}/mergeability/checks` (a
+  `Pullrequests` read) and
+  `GET /user/workspaces/{workspace}/permissions/repositories` (counted under
+  `Repositories`).
 
-No new architectural seams — all fit `NestedResource` or hand-written methods
-following the existing pattern.
+No new architectural seams — verified against `x-revision` `6856b45887d7`:
+every remaining operation fits `NestedResource` or a hand-written method
+following the existing pattern. The one non-JSON response,
+`GET /workspaces/{workspace}/settings/gpg/public-key`, is plain text and uses
+the existing `Transport.request_text`.
 
-**Follow-up:** the spec's `x-revision` is now `6856b45887d7`, not the
-`167b2dc51ec8` this document was checked against. The total is still 294
-operations, but the per-first-tag counts differ (the live spec has
-`Repositories` 24 and `Pullrequests` 38, where the table has 25 and 37).
-Re-verify the table against the new revision before the next phase closes.
+The table was re-verified against that revision: the total is still 294, and
+the per-first-tag counts are `Repositories` 24 and `Pullrequests` 38.
+Re-verifying also found the repository override-settings path wrong in the
+SDK; the fix is noted in [endpoint coverage](endpoint-coverage.md).
 
 ## Phase 4 — CI/CD (`0.9.0`)
 
@@ -278,9 +285,9 @@ in the machine-readable spec — see the footnote in `endpoint-coverage.md`.
 | 0a    | 0.5.0   | +0 (async client)               | 97 (33%)            |
 | 0b    | 0.6.0   | +0 (bearer token auth, shipped) | 97 (33%)            |
 | 3a    | 0.7.0   | +19 (shipped)                   | 116 (39%)           |
-| 3b    | 0.8.0   | +30 (the rest of Phase 3)       | 146 (50%)           |
-| 4     | 0.9.0   | +93                             | 239 (81%)           |
-| 5     | 1.0.0   | +55                             | 294 (100%)          |
+| 3b    | 0.8.0   | +46 (the rest of Phase 3)       | 162 (55%)           |
+| 4     | 0.9.0   | +93                             | 255 (87%)           |
+| 5     | 1.0.0   | +39                             | 294 (100%)          |
 
 Phase 3 is split across two releases. `0.7.0` carries the 19 operations
 already done (the webhook groups, `Branch restrictions` and `Branching model`);
