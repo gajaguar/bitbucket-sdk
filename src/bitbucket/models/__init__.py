@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from bitbucket.models.account import Account
+from bitbucket.models.account import AccountStatus
 from bitbucket.models.account import DefaultReviewer
 from bitbucket.models.account import DefaultReviewerAndType
+from bitbucket.models.account import User
 from bitbucket.models.account import UserType
 from bitbucket.models.activity import Activity
 from bitbucket.models.activity import ActivityApproval
@@ -44,6 +46,8 @@ from bitbucket.models.conflict import FileConflict
 from bitbucket.models.diffstat import DiffStat
 from bitbucket.models.diffstat import DiffStatEndpoint
 from bitbucket.models.download import Download
+from bitbucket.models.gpg_key import GpgKey
+from bitbucket.models.gpg_key import GpgKeyCreate
 from bitbucket.models.hook import HookEvent
 from bitbucket.models.hook import HookSubjectType
 from bitbucket.models.hook import Webhook
@@ -98,6 +102,9 @@ from bitbucket.models.repository import Scm
 from bitbucket.models.repository import WorkspaceSpec
 from bitbucket.models.source import FileHistoryEntry
 from bitbucket.models.source import TreeEntry
+from bitbucket.models.ssh_key import SshKey
+from bitbucket.models.ssh_key import SshKeyCreate
+from bitbucket.models.ssh_key import SshKeyUpdate
 from bitbucket.models.status import CommitStatusCreate
 from bitbucket.models.status import CommitStatusUpdate
 from bitbucket.models.status import PullRequestStatus
@@ -110,6 +117,7 @@ from bitbucket.models.task import TaskContentCreate
 from bitbucket.models.task import TaskCreate
 from bitbucket.models.task import TaskState
 from bitbucket.models.task import TaskUpdate
+from bitbucket.models.user_email import UserEmail
 from bitbucket.models.workspace import Workspace
 from bitbucket.models.workspace import WorkspaceAccess
 from bitbucket.models.workspace import WorkspaceForkingMode
@@ -119,6 +127,7 @@ from bitbucket.models.workspace import WorkspacePermissionLevel
 __all__ = [
     "Account",
     "AccountLinks",
+    "AccountStatus",
     "Activity",
     "ActivityApproval",
     "ActivityUpdate",
@@ -164,6 +173,8 @@ __all__ = [
     "FileHistoryEntry",
     "ForkCreate",
     "ForkPolicy",
+    "GpgKey",
+    "GpgKeyCreate",
     "GroupPermission",
     "GroupPermissionUpdate",
     "GroupRef",
@@ -212,6 +223,9 @@ __all__ = [
     "RepositoryUpdate",
     "ReviewerSpec",
     "Scm",
+    "SshKey",
+    "SshKeyCreate",
+    "SshKeyUpdate",
     "Tag",
     "TagCreate",
     "Task",
@@ -220,6 +234,8 @@ __all__ = [
     "TaskState",
     "TaskUpdate",
     "TreeEntry",
+    "User",
+    "UserEmail",
     "UserPermission",
     "UserPermissionUpdate",
     "UserType",

@@ -2,6 +2,7 @@ from bitbucket._version import __version__
 from bitbucket.aio.client import AsyncBitbucketClient
 from bitbucket.aio.project import AsyncProjectClient
 from bitbucket.aio.repository import AsyncRepositoryClient
+from bitbucket.aio.user import AsyncUserClient
 from bitbucket.aio.workspace import AsyncWorkspaceClient
 from bitbucket.client import BitbucketClient
 from bitbucket.config import ACCESS_TOKEN_ENV_VAR
@@ -36,6 +37,7 @@ from bitbucket.ids import Uuid
 from bitbucket.ids import WorkspaceSlug
 from bitbucket.models import Account
 from bitbucket.models import AccountLinks
+from bitbucket.models import AccountStatus
 from bitbucket.models import Activity
 from bitbucket.models import ActivityApproval
 from bitbucket.models import ActivityUpdate
@@ -79,6 +81,8 @@ from bitbucket.models import FileConflict
 from bitbucket.models import FileHistoryEntry
 from bitbucket.models import ForkCreate
 from bitbucket.models import ForkPolicy
+from bitbucket.models import GpgKey
+from bitbucket.models import GpgKeyCreate
 from bitbucket.models import GroupPermission
 from bitbucket.models import GroupPermissionUpdate
 from bitbucket.models import GroupRef
@@ -120,6 +124,9 @@ from bitbucket.models import RepositorySpec
 from bitbucket.models import RepositoryUpdate
 from bitbucket.models import ReviewerSpec
 from bitbucket.models import Scm
+from bitbucket.models import SshKey
+from bitbucket.models import SshKeyCreate
+from bitbucket.models import SshKeyUpdate
 from bitbucket.models import Tag
 from bitbucket.models import TagCreate
 from bitbucket.models import Task
@@ -128,6 +135,8 @@ from bitbucket.models import TaskCreate
 from bitbucket.models import TaskState
 from bitbucket.models import TaskUpdate
 from bitbucket.models import TreeEntry
+from bitbucket.models import User
+from bitbucket.models import UserEmail
 from bitbucket.models import UserPermission
 from bitbucket.models import UserPermissionUpdate
 from bitbucket.models import UserType
@@ -140,6 +149,7 @@ from bitbucket.repository import RepositoryClient
 from bitbucket.retry import NO_RETRY
 from bitbucket.retry import CqsKind
 from bitbucket.retry import RetryPolicy
+from bitbucket.user import UserClient
 from bitbucket.workspace import WorkspaceClient
 
 __all__ = [
@@ -152,6 +162,7 @@ __all__ = [
     "Account",
     "AccountId",
     "AccountLinks",
+    "AccountStatus",
     "Activity",
     "ActivityApproval",
     "ActivityUpdate",
@@ -159,6 +170,7 @@ __all__ = [
     "AsyncBitbucketClient",
     "AsyncProjectClient",
     "AsyncRepositoryClient",
+    "AsyncUserClient",
     "AsyncWorkspaceClient",
     "AuthenticationError",
     "AuthorRef",
@@ -212,6 +224,8 @@ __all__ = [
     "ForbiddenError",
     "ForkCreate",
     "ForkPolicy",
+    "GpgKey",
+    "GpgKeyCreate",
     "GroupPermission",
     "GroupPermissionUpdate",
     "GroupRef",
@@ -264,6 +278,9 @@ __all__ = [
     "ReviewerSpec",
     "Scm",
     "ServerError",
+    "SshKey",
+    "SshKeyCreate",
+    "SshKeyUpdate",
     "Tag",
     "TagCreate",
     "Task",
@@ -274,6 +291,9 @@ __all__ = [
     "TaskUpdate",
     "TransportError",
     "TreeEntry",
+    "User",
+    "UserClient",
+    "UserEmail",
     "UserPermission",
     "UserPermissionUpdate",
     "UserType",

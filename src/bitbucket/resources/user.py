@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING
 from typing import cast
 
 from bitbucket._pagination import paginate
-from bitbucket.models.account import Account
+from bitbucket.models.account import User
+from bitbucket.models.user_email import UserEmail
 from bitbucket.models.workspace import WorkspaceAccess
 from bitbucket.resources.base import page_from_payload
 from bitbucket.retry import CqsKind
@@ -24,9 +25,26 @@ class UserResource:
         self._transport = transport
 
     # GET /user
-    def me(self) -> Account:
+    def me(self) -> User:
         data = self._transport.request("GET", "/user", kind=CqsKind.QUERY)
-        return Account.model_validate(data)
+        return User.model_validate(data)
+
+    # GET .../user/emails (auto-paginating)
+    def emails(self) -> Iterator[UserEmail]:
+        return paginate(lambda cursor: self.emails_page(cursor=cursor))
+
+    # GET .../user/emails
+    def emails_page(self, *, cursor: str | None = None) -> Page[UserEmail]:
+        if cursor:
+            data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)
+        else:
+            data = self._transport.request("GET", "/user/emails", kind=CqsKind.QUERY)
+        return page_from_payload(cast("dict[str, Any]", data), UserEmail)
+
+    # GET .../user/emails/{email}
+    def email(self, address: str) -> UserEmail:
+        data = self._transport.request("GET", f"/user/emails/{address}", kind=CqsKind.QUERY)
+        return UserEmail.model_validate(data)
 
     # GET .../user/workspaces (auto-paginating)
     def workspaces(
