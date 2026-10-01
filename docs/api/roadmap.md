@@ -231,16 +231,16 @@ Workspace- and project-level administration surface:
   permissions under `/user`. The 5 workspace hook operations
   (`/workspaces/{workspace}/hooks[/{uid}]`) shipped in `0.7.0`, pulled forward
   with `Webhooks` because they reuse `HooksResource` as-is.
-- `Users` (4), `SSH` (5), `GPG` (4) — **shipped on `main`**: the caller's
+- `Users` (4), `SSH` (5), `GPG` (4) — **shipped in `0.9.0`**: the caller's
   profile and emails under `/user`, and a `client.users(selected_user)` handle
   for the profile, SSH keys and GPG keys of any user.
-- `Search` (3) — **shipped on `main`**: code search under workspaces, users
+- `Search` (3) — **shipped in `0.9.0`**: code search under workspaces, users
   and a new `client.teams(username)` handle, through one `SearchResource`; the
   result's file reuses `TreeEntry`. The spec deprecates all three operations
   on 2026-11-01.
 - Two operations the spec added since the first check:
   `GET .../pullrequests/{pull_request_id}/mergeability/checks` (a
-  `Pullrequests` read, **shipped on `main`**) and
+  `Pullrequests` read, **shipped in `0.9.0`**) and
   `GET /user/workspaces/{workspace}/permissions/repositories` (counted under
   `Repositories`, shipped with `Workspaces`).
 
@@ -266,7 +266,7 @@ Phase 4 is split in two, counting each operation under its first tag. The four
 are first-tagged `Pipelines`, so they count in 4a although they are about
 deployment environments.
 
-### 4a — `Pipelines` (68) — shipped on `main`
+### 4a — `Pipelines` (68) — shipped in `0.9.0`
 
 Pipelines trigger, list, get and stop; steps, step and container logs, test
 reports; pipelines-config (settings, build number, schedules, SSH key pair,
@@ -284,7 +284,7 @@ response schema and return the JSON as is. Everything else fits
 `RunnersResource` for two) or a hand-written method. Secrets (variable values,
 the SSH private key, a runner's OAuth secret) are `SecretStr`.
 
-### 4b — `Deployments` (16) and `Reports` (9) — shipped on `main`
+### 4b — `Deployments` (16) and `Reports` (9) — shipped in `0.9.0`
 
 - `Deployments` (16): deploy keys, deployments, environments. 4b extends the
   `EnvironmentsResource` that 4a introduced for the environment variables.
@@ -325,15 +325,15 @@ in the machine-readable spec — see the footnote in `endpoint-coverage.md`.
 | 0b    | 0.6.0    | +0 (bearer token auth, shipped) | 97 (33%)            |
 | 3a    | 0.7.0    | +19 (shipped)                   | 116 (39%)           |
 | 3b    | 0.8.0    | +27 (shipped)                   | 143 (49%)           |
-| 3c    | next     | +19 (all on `main`)             | 162 (55%)           |
-| 4a    | next     | +68 (all on `main`)             | 230 (78%)           |
-| 4b    | next     | +25 (all on `main`)             | 255 (87%)           |
+| 3c    | 0.9.0    | +19 (shipped)                   | 162 (55%)           |
+| 4a    | 0.9.0    | +68 (shipped)                   | 230 (78%)           |
+| 4b    | 0.9.0    | +25 (shipped)                   | 255 (87%)           |
 | 5     | 1.0.0    | +39                             | 294 (100%)          |
 
 Phase 3 is split across two releases. `0.7.0` carries the 19 operations
 already done (the webhook groups, `Branch restrictions` and `Branching model`);
-`0.8.0` adds 27 more, and the rest of the phase follows in the next
-release. Each bump follows the [release checklist](../release/release-checklist.md).
+`0.8.0` adds 27 more, and `0.9.0` closes the phase together with Phase 4.
+Each bump follows the [release checklist](../release/release-checklist.md).
 
 Phases 1 and 2 were planned as `0.2.0` and `0.3.0` but never tagged; they
 shipped together in `0.4.0` with the credential contract. `0.4.1` changed

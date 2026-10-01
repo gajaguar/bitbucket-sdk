@@ -2,6 +2,10 @@
 
 ## 2026-10-01
 
+* **Updated**: `api/roadmap.md` and the version files for release `0.9.0`: the
+  rows `3c`, `4a` and `4b` (255 of 294 operations) now name the release that
+  ships them, and the phase sections say `shipped in 0.9.0` instead of
+  `shipped on main`.
 * **Updated**: `api/endpoint-coverage.md`, `api/roadmap.md` and `README.md` for
   Phase 4b, the `Deployments` and `Reports` groups (255 of 294 operations):
   environments, deployments, repository and project deploy keys, and
