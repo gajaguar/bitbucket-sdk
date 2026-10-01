@@ -3,6 +3,15 @@
 ## 2026-10-01
 
 * **Updated**: `api/endpoint-coverage.md`, `api/roadmap.md` and `README.md` for
+  Phase 4a, the `Pipelines` group (230 of 294 operations): pipelines, steps,
+  logs, test reports, pipelines-config, variables for four scopes, runners,
+  OIDC and the four environment variables. The roadmap now splits Phase 4 into
+  4a and 4b (`Deployments` and `Reports`). The new section records the spec's
+  `pipelines_config` and `pipelines-config` spellings, the runner operations
+  with no request body, the responses with no schema, the `307` and `Range`
+  handling of the logs and the `SecretStr` fields; `x-revision`
+  `6856b45887d7` is unchanged.
+* **Updated**: `api/endpoint-coverage.md`, `api/roadmap.md` and `README.md` for
   the rest of row `3c` (162 of 294 operations): `mergeability/checks`,
   `file-conflicts` and the two `POST` commit listings, with the spec's notes on
   their form body and paging; `x-revision` `6856b45887d7` is unchanged.
