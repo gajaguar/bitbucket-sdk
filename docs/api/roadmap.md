@@ -13,7 +13,7 @@ This SDK targets **Bitbucket Cloud REST API `2.0`**, checked against
 `x-revision: 6856b45887d7` (2026-09-30). Regenerate the numbers below against
 a newer revision whenever [endpoint coverage](endpoint-coverage.md) is re-verified.
 
-**Where we are today:** 155 / 294 operations (53%) — see the coverage summary
+**Where we are today:** 158 / 294 operations (54%) — see the coverage summary
 table in [endpoint coverage](endpoint-coverage.md) for the full breakdown by resource
 group. This document lays out the path from there to full parity, in phases
 tied to version milestones, plus two cross-cutting phases (0a and 0b) that
@@ -237,8 +237,10 @@ Workspace- and project-level administration surface:
 - `Users` (4), `SSH` (5), `GPG` (4) — **shipped on `main`**: the caller's
   profile and emails under `/user`, and a `client.users(selected_user)` handle
   for the profile, SSH keys and GPG keys of any user.
-- `Search` (3) — still planned; it shares no resources or models with the
-  groups above.
+- `Search` (3) — **shipped on `main`**: code search under workspaces, users
+  and a new `client.teams(username)` handle, through one `SearchResource`; the
+  result's file reuses `TreeEntry`. The spec deprecates all three operations
+  on 2026-11-01.
 - Two operations the spec added since the first check:
   `GET .../pullrequests/{pull_request_id}/mergeability/checks` (a
   `Pullrequests` read) and
@@ -293,7 +295,7 @@ in the machine-readable spec — see the footnote in `endpoint-coverage.md`.
 | 0b    | 0.6.0   | +0 (bearer token auth, shipped) | 97 (33%)            |
 | 3a    | 0.7.0   | +19 (shipped)                   | 116 (39%)           |
 | 3b    | 0.8.0   | +27 (shipped)                   | 143 (49%)           |
-| 3c    | next    | +19 (12 on `main`, 7 planned)   | 162 (55%)           |
+| 3c    | next    | +19 (15 on `main`, 4 planned)   | 162 (55%)           |
 | 4     | 0.9.0   | +93                             | 255 (87%)           |
 | 5     | 1.0.0   | +39                             | 294 (100%)          |
 

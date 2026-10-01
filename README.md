@@ -184,11 +184,24 @@ user.ssh_keys.create(SshKeyCreate(key="ssh-ed25519 AAAA...", label="Work"), expi
 user.gpg_keys.delete("A1B2C3D4E5F6A7B8")
 ```
 
+### Code search
+
+`ws.search`, `client.users(selected_user).search` and
+`client.teams(username).search` search code across an account's repositories.
+The query is required and uses the UI's syntax; code search must be turned on
+at <https://bitbucket.org/search>, and Bitbucket deprecates these routes on
+2026-11-01:
+
+```python
+for result in client.workspace("acme").search.code("foo repo:demo", pagelen=50):
+    print(result.file.path if result.file else None, result.content_match_count)
+```
+
 ### Async client
 
 `AsyncBitbucketClient` mirrors the sync client one-for-one — same
 `email`/`api_token`/`access_token`/`options`, same `workspace()`, `default_workspace()`,
-`users()`, `.user`, same resource tree (`.pull_requests`, `.refs`, `.source`,
+`users()`, `teams()`, `.user`, same resource tree (`.pull_requests`, `.refs`, `.source`,
 `.commits`, ...), and the same `merge_and_wait` polling helper. Single-shot
 methods are `async def`; auto-paginating methods return `AsyncIterator`.
 

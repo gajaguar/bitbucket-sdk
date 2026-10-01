@@ -1,5 +1,12 @@
 # Directory Update Log
 
+## 2026-10-01
+
+* **Updated**: `api/endpoint-coverage.md`, `api/roadmap.md` and `README.md` for
+  the `Search` group (158 of 294 operations), with notes on its deprecation on
+  2026-11-01 and on turning code search on; re-checked against spec
+  `x-revision` `6856b45887d7`, which is unchanged.
+
 ## 2026-09-30
 
 * **Updated**: `api/endpoint-coverage.md`, `api/roadmap.md` and `README.md` for

@@ -2,6 +2,7 @@ from bitbucket._version import __version__
 from bitbucket.aio.client import AsyncBitbucketClient
 from bitbucket.aio.project import AsyncProjectClient
 from bitbucket.aio.repository import AsyncRepositoryClient
+from bitbucket.aio.team import AsyncTeamClient
 from bitbucket.aio.user import AsyncUserClient
 from bitbucket.aio.workspace import AsyncWorkspaceClient
 from bitbucket.client import BitbucketClient
@@ -60,6 +61,7 @@ from bitbucket.models import BranchingModelKind
 from bitbucket.models import BranchingModelSettings
 from bitbucket.models import BranchingModelSettingsUpdate
 from bitbucket.models import BranchingModelTarget
+from bitbucket.models import CodeSearchResult
 from bitbucket.models import Comment
 from bitbucket.models import CommentContentCreate
 from bitbucket.models import CommentCreate
@@ -124,6 +126,9 @@ from bitbucket.models import RepositorySpec
 from bitbucket.models import RepositoryUpdate
 from bitbucket.models import ReviewerSpec
 from bitbucket.models import Scm
+from bitbucket.models import SearchContentMatch
+from bitbucket.models import SearchLine
+from bitbucket.models import SearchSegment
 from bitbucket.models import SshKey
 from bitbucket.models import SshKeyCreate
 from bitbucket.models import SshKeyUpdate
@@ -149,6 +154,7 @@ from bitbucket.repository import RepositoryClient
 from bitbucket.retry import NO_RETRY
 from bitbucket.retry import CqsKind
 from bitbucket.retry import RetryPolicy
+from bitbucket.team import TeamClient
 from bitbucket.user import UserClient
 from bitbucket.workspace import WorkspaceClient
 
@@ -170,6 +176,7 @@ __all__ = [
     "AsyncBitbucketClient",
     "AsyncProjectClient",
     "AsyncRepositoryClient",
+    "AsyncTeamClient",
     "AsyncUserClient",
     "AsyncWorkspaceClient",
     "AuthenticationError",
@@ -196,6 +203,7 @@ __all__ = [
     "BranchingModelSettingsUpdate",
     "BranchingModelTarget",
     "ClientOptions",
+    "CodeSearchResult",
     "Comment",
     "CommentContentCreate",
     "CommentCreate",
@@ -277,6 +285,9 @@ __all__ = [
     "RetryPolicy",
     "ReviewerSpec",
     "Scm",
+    "SearchContentMatch",
+    "SearchLine",
+    "SearchSegment",
     "ServerError",
     "SshKey",
     "SshKeyCreate",
@@ -289,6 +300,7 @@ __all__ = [
     "TaskId",
     "TaskState",
     "TaskUpdate",
+    "TeamClient",
     "TransportError",
     "TreeEntry",
     "User",
