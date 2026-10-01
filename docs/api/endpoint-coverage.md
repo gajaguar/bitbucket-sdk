@@ -307,7 +307,10 @@ endpoint for either.
 
 Note: `GET .../src/{commit}/{path}` is polymorphic — a directory or a file,
 depending on `path` — so the SDK exposes it as two methods rather than
-guessing from the response.
+guessing from the response. A file managed by LFS answers `301` to Atlassian's
+media platform, which the spec describes but does not list as a response, so
+`read` follows the redirect without sending `Authorization` to the other
+origin.
 
 ## Commits
 
@@ -353,6 +356,11 @@ Notes, checked against `x-revision` `6856b45887d7`:
 | `POST .../downloads`              | `repo.downloads.upload(name, content)` | done   |
 | `GET .../downloads/{filename}`    | `repo.downloads.get(filename)`         | done   |
 | `DELETE .../downloads/{filename}` | `repo.downloads.delete(filename)`      | done   |
+
+Note: `GET .../downloads/{filename}` declares `302`, `403` and `404` and no
+`200`: the file is served from a signed storage URL on another origin. `get`
+follows the redirect, and the request to the storage URL carries no
+`Authorization` header.
 
 ## Webhooks
 

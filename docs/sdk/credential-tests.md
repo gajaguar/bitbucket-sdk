@@ -35,6 +35,8 @@ Only for an SDK that accepts more than one kind of credential.
 ## Sending
 
 * The authentication header reaches the request.
+* A redirect followed to another origin does not carry the authentication
+  header.
 * A provider is not called until the first request.
 * A provider is called on every request.
 * A provider that returns an empty value raises `MissingCredentialsError`.

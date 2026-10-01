@@ -2,6 +2,14 @@
 
 ## 2026-10-01
 
+* **Updated**: `api/endpoint-coverage.md`, `sdk/credential-contract.md` and
+  `sdk/credential-tests.md` for the fix to `downloads.get` (issue 43): the
+  `Downloads` note records the `302` the spec declares in place of a `200`,
+  the `Source` note records the `301` of an LFS file, and the credential notes
+  say a redirect followed to another origin carries no authentication header.
+  `x-revision` `6856b45887d7` is unchanged and the summary still adds up to
+  294.
+
 * **Updated**: `api/roadmap.md`, `release/release-checklist.md` and the
   version files for release `1.0.0`: Phase 5 is shipped (291 of 294
   operations; the three `Addon` ones stay `unsupported`), the milestone table
