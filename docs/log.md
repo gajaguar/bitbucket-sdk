@@ -3,6 +3,13 @@
 ## 2026-10-01
 
 * **Updated**: `api/endpoint-coverage.md`, `api/roadmap.md` and `README.md` for
+  the rest of the `Snippets` group (291 of 294 operations): commits,
+  revisions, raw files, diff and patch. The new notes record the `405` on a
+  revision that is not the latest, the `302` that the HEAD file follows, the
+  responses with no schema and the `patch` that takes no `path`; the three
+  `Addon` operations stay `unsupported`; `x-revision` `6856b45887d7` is
+  unchanged.
+* **Updated**: `api/endpoint-coverage.md`, `api/roadmap.md` and `README.md` for
   the first part of the `Snippets` group (282 of 294 operations): snippet CRUD
   for a workspace and for the authenticated user, comments, watch and
   watchers. The new section records the bodies the spec leaves out (JSON for
