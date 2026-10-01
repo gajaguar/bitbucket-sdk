@@ -3,6 +3,10 @@
 ## 2026-09-30
 
 * **Updated**: `api/endpoint-coverage.md`, `api/roadmap.md` and `README.md` for
+  the `Users`, `SSH` and `GPG` groups (155 of 294 operations); re-checked
+  against spec `x-revision` `6856b45887d7`, which is unchanged. The roadmap now
+  says `Projects` and `Workspaces` shipped in `0.8.0`.
+* **Updated**: `api/endpoint-coverage.md`, `api/roadmap.md` and `README.md` for
   the `Workspaces` group (143 of 294 operations): members, permissions, the
   caller's own workspaces and the GPG public key.
 * **Updated**: `api/endpoint-coverage.md` and `api/roadmap.md` for the

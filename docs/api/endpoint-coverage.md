@@ -50,16 +50,16 @@ once, under its first tag, to sum to 294 without double-counting).
 | Refs                |          9 |       9 |    100% |
 | Branching model     |          7 |       7 |    100% |
 | Branch restrictions |          5 |       5 |    100% |
-| SSH                 |          5 |       0 |      0% |
+| SSH                 |          5 |       5 |    100% |
 | Commit statuses     |          4 |       4 |    100% |
 | Downloads           |          4 |       4 |    100% |
 | Source              |          4 |       4 |    100% |
-| Users               |          4 |       1 |     25% |
-| GPG                 |          4 |       0 |      0% |
+| Users               |          4 |       4 |    100% |
+| GPG                 |          4 |       4 |    100% |
 | Addon               |          3 |       0 |      0% |
 | Search              |          3 |       0 |      0% |
 | Webhooks            |          2 |       2 |    100% |
-| **Total**           |    **294** | **143** | **49%** |
+| **Total**           |    **294** | **155** | **53%** |
 
 The spec also declares `Issue tracker` and `Wiki` tags with zero operations
 attached to any path — Bitbucket's issue-tracker and wiki REST endpoints are
@@ -68,11 +68,60 @@ describe them, so the 294 total above is the spec's surface, not necessarily
 the full historical API. See the [roadmap](roadmap.md) for the phased plan
 to close this gap.
 
-## User
+## Users
 
-| Endpoint    | SDK method         | Status |
-| ----------- | ------------------ | ------ |
-| `GET /user` | `client.user.me()` | done   |
+| Endpoint                     | SDK method                   | Status |
+| ---------------------------- | ---------------------------- | ------ |
+| `GET /user`                  | `client.user.me()`           | done   |
+| `GET /user/emails`           | `client.user.emails()`       | done   |
+| `GET /user/emails/{email}`   | `client.user.email(address)` | done   |
+| `GET /users/{selected_user}` | `user.get()`                 | done   |
+
+Note: the `/user` operations act on the authenticated user and live on
+`client.user`; everything under `/users/{selected_user}` hangs off the
+`user = client.users(selected_user)` handle (the SSH and GPG tables use the
+same `user`), which sends no request until a method is called.
+`{selected_user}` is an Atlassian account id or a `{uuid}`.
+
+Note: the spec types `GET /user` and `GET /users/{selected_user}` as `account`
+although it defines a richer `user` schema, so both return `User` (an
+`Account` plus `account_status`, `has_2fa_enabled` and `is_staff`).
+`account_status` maps an unrecognized value to `UNKNOWN`, since the spec says
+more values may follow. The two email operations declare no success response,
+only a default error, so `UserEmail` follows their descriptions: `email`,
+`is_primary`, `is_confirmed`.
+
+## SSH
+
+| Endpoint                               | SDK method                                      | Status |
+| -------------------------------------- | ----------------------------------------------- | ------ |
+| `GET /users/{selected_user}/ssh-keys`  | `user.ssh_keys.list()`                          | done   |
+| `POST /users/{selected_user}/ssh-keys` | `user.ssh_keys.create(payload, expires_on=...)` | done   |
+| `GET .../ssh-keys/{key_id}`            | `user.ssh_keys.get(key_id)`                     | done   |
+| `PUT .../ssh-keys/{key_id}`            | `user.ssh_keys.update(key_id, payload)`         | done   |
+| `DELETE .../ssh-keys/{key_id}`         | `user.ssh_keys.delete(key_id)`                  | done   |
+
+Note: `{key_id}` is the key's UUID. `expires_on` is a query parameter on the
+`POST`, in ISO-8601, and is sent only when given. The spec declares no write
+schema, so the `POST` and `PUT` bodies are `SshKeyCreate` (`key`, `label`) and
+`SshKeyUpdate` (`label`), the fields its examples send. Its `PUT` description
+says only `comment` can change, yet the example sends `label`; the SDK follows
+the example.
+
+## GPG
+
+| Endpoint                               | SDK method                          | Status |
+| -------------------------------------- | ----------------------------------- | ------ |
+| `GET /users/{selected_user}/gpg-keys`  | `user.gpg_keys.list()`              | done   |
+| `POST /users/{selected_user}/gpg-keys` | `user.gpg_keys.create(payload)`     | done   |
+| `GET .../gpg-keys/{fingerprint}`       | `user.gpg_keys.get(fingerprint)`    | done   |
+| `DELETE .../gpg-keys/{fingerprint}`    | `user.gpg_keys.delete(fingerprint)` | done   |
+
+Note: a GPG key is addressed by its fingerprint, and there is no `PUT`, so
+`gpg_keys` has no `update`. Deleting a subkey answers `403`. `key` and
+`subkeys` are only returned when requested through `fields`, so every `GpgKey`
+field is optional. `GpgKeyCreate` sends `key` and `name`; the spec reuses the
+read schema for the body.
 
 ## Repositories
 
