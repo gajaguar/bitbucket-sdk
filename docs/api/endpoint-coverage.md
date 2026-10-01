@@ -38,10 +38,10 @@ once, under its first tag, to sum to 294 without double-counting).
 | Group               | Operations |    Done |       % |
 | ------------------- | ---------: | ------: | ------: |
 | Pipelines           |         68 |       0 |      0% |
-| Pullrequests        |         38 |      37 |     97% |
+| Pullrequests        |         38 |      38 |    100% |
 | Repositories        |         24 |      24 |    100% |
 | Snippets            |         24 |       0 |      0% |
-| Commits             |         17 |      14 |     82% |
+| Commits             |         17 |      17 |    100% |
 | Deployments         |         16 |       0 |      0% |
 | Workspaces          |         16 |      16 |    100% |
 | Projects            |         16 |      16 |    100% |
@@ -59,7 +59,7 @@ once, under its first tag, to sum to 294 without double-counting).
 | Addon               |          3 |       0 |      0% |
 | Search              |          3 |       3 |    100% |
 | Webhooks            |          2 |       2 |    100% |
-| **Total**           |    **294** | **158** | **54%** |
+| **Total**           |    **294** | **162** | **55%** |
 
 The spec also declares `Issue tracker` and `Wiki` tags with zero operations
 attached to any path — Bitbucket's issue-tracker and wiki REST endpoints are
@@ -196,37 +196,43 @@ same way the Pull requests section abbreviates `.../pullrequests`.
 
 ## Pull requests
 
-| Endpoint                                                                         | SDK method                                                 | Status  |
-| -------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------- |
-| `GET .../pullrequests`                                                           | `repo.pull_requests.list(state=..., q=..., fields=...)`    | done    |
-| `GET .../pullrequests/{pull_request_id}`                                         | `repo.pull_requests.get(id)`                               | done    |
-| `POST .../pullrequests`                                                          | `repo.pull_requests.create(payload)`                       | done    |
-| `PUT .../pullrequests/{pull_request_id}`                                         | `repo.pull_requests.update(id, payload)`                   | done    |
-| `GET .../pullrequests/activity`                                                  | `ws.repositories.pull_request_activity(slug)`              | done    |
-| `GET .../pullrequests/{pull_request_id}/activity`                                | `repo.pull_requests.activity(id)`                          | done    |
-| `POST .../pullrequests/{pull_request_id}/approve`                                | `repo.pull_requests.approve(id)`                           | done    |
-| `DELETE .../pullrequests/{pull_request_id}/approve`                              | `repo.pull_requests.unapprove(id)`                         | done    |
-| `GET .../pullrequests/{pull_request_id}/commits`                                 | `repo.pull_requests.commits(id)`                           | done    |
-| `GET .../pullrequests/{pull_request_id}/conflicts`                               | `repo.pull_requests.conflicts(id)`                         | done    |
-| `POST .../pullrequests/{pull_request_id}/decline`                                | `repo.pull_requests.decline(id)`                           | done    |
-| `GET .../pullrequests/{pull_request_id}/diff`                                    | `repo.pull_requests.diff(id)`                              | done    |
-| `GET .../pullrequests/{pull_request_id}/diffstat`                                | `repo.pull_requests.diffstat(id)`                          | done    |
-| `POST .../pullrequests/{pull_request_id}/merge`                                  | `repo.pull_requests.merge(id, payload)`                    | done    |
-| `GET .../pullrequests/{pull_request_id}/merge/task-status/{task_id}`             | `repo.pull_requests.merge_task_status(id, task_id)`        | done    |
-| `GET .../pullrequests/{pull_request_id}/patch`                                   | `repo.pull_requests.patch(id)`                             | done    |
-| `POST .../pullrequests/{pull_request_id}/request-changes`                        | `repo.pull_requests.request_changes(id)`                   | done    |
-| `DELETE .../pullrequests/{pull_request_id}/request-changes`                      | `repo.pull_requests.unrequest_changes(id)`                 | done    |
-| `GET .../pullrequests/{pull_request_id}/tasks`                                   | `repo.pull_requests.tasks(id).list()`                      | done    |
-| `POST .../pullrequests/{pull_request_id}/tasks`                                  | `repo.pull_requests.tasks(id).create(payload)`             | done    |
-| `GET .../pullrequests/{pull_request_id}/tasks/{task_id}`                         | `repo.pull_requests.tasks(id).get(task_id)`                | done    |
-| `PUT .../pullrequests/{pull_request_id}/tasks/{task_id}`                         | `repo.pull_requests.tasks(id).update(task_id, payload)`    | done    |
-| `DELETE .../pullrequests/{pull_request_id}/tasks/{task_id}`                      | `repo.pull_requests.tasks(id).delete(task_id)`             | done    |
-| `GET .../pullrequests/{pull_request_id}/properties/{app_key}/{property_name}`    | `repo.pull_requests.properties(id).get(key, name)`         | done    |
-| `PUT .../pullrequests/{pull_request_id}/properties/{app_key}/{property_name}`    | `repo.pull_requests.properties(id).put(key, name, value)`  | done    |
-| `DELETE .../pullrequests/{pull_request_id}/properties/{app_key}/{property_name}` | `repo.pull_requests.properties(id).delete(key, name)`      | done    |
-| `GET .../commit/{commit}/pullrequests`                                           | `ws.repositories.commit_pull_requests(slug, commit)`       | done    |
-| `GET .../pullrequests/{pull_request_id}/mergeability/checks`                     | —                                                          | planned |
-| `GET /workspaces/{workspace}/pullrequests/{selected_user}`                       | `ws.pull_requests_by_author(user, states=..., fields=...)` | done    |
+| Endpoint                                                                         | SDK method                                                 | Status |
+| -------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------ |
+| `GET .../pullrequests`                                                           | `repo.pull_requests.list(state=..., q=..., fields=...)`    | done   |
+| `GET .../pullrequests/{pull_request_id}`                                         | `repo.pull_requests.get(id)`                               | done   |
+| `POST .../pullrequests`                                                          | `repo.pull_requests.create(payload)`                       | done   |
+| `PUT .../pullrequests/{pull_request_id}`                                         | `repo.pull_requests.update(id, payload)`                   | done   |
+| `GET .../pullrequests/activity`                                                  | `ws.repositories.pull_request_activity(slug)`              | done   |
+| `GET .../pullrequests/{pull_request_id}/activity`                                | `repo.pull_requests.activity(id)`                          | done   |
+| `POST .../pullrequests/{pull_request_id}/approve`                                | `repo.pull_requests.approve(id)`                           | done   |
+| `DELETE .../pullrequests/{pull_request_id}/approve`                              | `repo.pull_requests.unapprove(id)`                         | done   |
+| `GET .../pullrequests/{pull_request_id}/commits`                                 | `repo.pull_requests.commits(id)`                           | done   |
+| `GET .../pullrequests/{pull_request_id}/conflicts`                               | `repo.pull_requests.conflicts(id)`                         | done   |
+| `POST .../pullrequests/{pull_request_id}/decline`                                | `repo.pull_requests.decline(id)`                           | done   |
+| `GET .../pullrequests/{pull_request_id}/diff`                                    | `repo.pull_requests.diff(id)`                              | done   |
+| `GET .../pullrequests/{pull_request_id}/diffstat`                                | `repo.pull_requests.diffstat(id)`                          | done   |
+| `POST .../pullrequests/{pull_request_id}/merge`                                  | `repo.pull_requests.merge(id, payload)`                    | done   |
+| `GET .../pullrequests/{pull_request_id}/merge/task-status/{task_id}`             | `repo.pull_requests.merge_task_status(id, task_id)`        | done   |
+| `GET .../pullrequests/{pull_request_id}/patch`                                   | `repo.pull_requests.patch(id)`                             | done   |
+| `POST .../pullrequests/{pull_request_id}/request-changes`                        | `repo.pull_requests.request_changes(id)`                   | done   |
+| `DELETE .../pullrequests/{pull_request_id}/request-changes`                      | `repo.pull_requests.unrequest_changes(id)`                 | done   |
+| `GET .../pullrequests/{pull_request_id}/tasks`                                   | `repo.pull_requests.tasks(id).list()`                      | done   |
+| `POST .../pullrequests/{pull_request_id}/tasks`                                  | `repo.pull_requests.tasks(id).create(payload)`             | done   |
+| `GET .../pullrequests/{pull_request_id}/tasks/{task_id}`                         | `repo.pull_requests.tasks(id).get(task_id)`                | done   |
+| `PUT .../pullrequests/{pull_request_id}/tasks/{task_id}`                         | `repo.pull_requests.tasks(id).update(task_id, payload)`    | done   |
+| `DELETE .../pullrequests/{pull_request_id}/tasks/{task_id}`                      | `repo.pull_requests.tasks(id).delete(task_id)`             | done   |
+| `GET .../pullrequests/{pull_request_id}/properties/{app_key}/{property_name}`    | `repo.pull_requests.properties(id).get(key, name)`         | done   |
+| `PUT .../pullrequests/{pull_request_id}/properties/{app_key}/{property_name}`    | `repo.pull_requests.properties(id).put(key, name, value)`  | done   |
+| `DELETE .../pullrequests/{pull_request_id}/properties/{app_key}/{property_name}` | `repo.pull_requests.properties(id).delete(key, name)`      | done   |
+| `GET .../commit/{commit}/pullrequests`                                           | `ws.repositories.commit_pull_requests(slug, commit)`       | done   |
+| `GET .../pullrequests/{pull_request_id}/mergeability/checks`                     | `repo.pull_requests.mergeability_checks(id, q=...)`        | done   |
+| `GET /workspaces/{workspace}/pullrequests/{selected_user}`                       | `ws.pull_requests_by_author(user, states=..., fields=...)` | done   |
+
+Note: `mergeability/checks` is not paginated (`size` and `values`, no `next`),
+so `mergeability_checks` returns a list. `q` takes a small BBQL subset and
+anything else is a `400`. A `429` (its own rate limit) is retried like any
+other, under the default `RetryPolicy`; a `500` means custom merge checks or
+the merge queue could not be read.
 
 ## Pull request comments
 
@@ -294,29 +300,39 @@ guessing from the response.
 
 ## Commits
 
-| Endpoint                                           | SDK method                                                  | Status  |
-| -------------------------------------------------- | ----------------------------------------------------------- | ------- |
-| `GET .../commits`                                  | `repo.commits.list(include=..., exclude=...)`               | done    |
-| `GET .../commits/{revision}`                       | `repo.commits.list_from(revision)`                          | done    |
-| `GET .../commit/{commit}`                          | `repo.commits.get(commit)`                                  | done    |
-| `POST .../commit/{commit}/approve`                 | `repo.commits.approve(commit)`                              | done    |
-| `DELETE .../commit/{commit}/approve`               | `repo.commits.unapprove(commit)`                            | done    |
-| `GET .../commit/{commit}/comments`                 | `repo.commits.comments(commit).list()`                      | done    |
-| `POST .../commit/{commit}/comments`                | `repo.commits.comments(commit).create(payload)`             | done    |
-| `GET .../commit/{commit}/comments/{comment_id}`    | `repo.commits.comments(commit).get(comment_id)`             | done    |
-| `PUT .../commit/{commit}/comments/{comment_id}`    | `repo.commits.comments(commit).update(comment_id, payload)` | done    |
-| `DELETE .../commit/{commit}/comments/{comment_id}` | `repo.commits.comments(commit).delete(comment_id)`          | done    |
-| `GET .../diff/{spec}`                              | `repo.commits.diff(spec)`                                   | done    |
-| `GET .../diffstat/{spec}`                          | `repo.commits.diffstat(spec)`                               | done    |
-| `GET .../patch/{spec}`                             | `repo.commits.patch(spec)`                                  | done    |
-| `GET .../merge-base/{revspec}`                     | `repo.commits.merge_base(spec)`                             | done    |
-| `GET .../file-conflicts/{spec}`                    | —                                                           | planned |
-| `POST .../commits`                                 | —                                                           | planned |
-| `POST .../commits/{revision}`                      | —                                                           | planned |
+| Endpoint                                           | SDK method                                                           | Status |
+| -------------------------------------------------- | -------------------------------------------------------------------- | ------ |
+| `GET .../commits`                                  | `repo.commits.list(include=..., exclude=...)`                        | done   |
+| `GET .../commits/{revision}`                       | `repo.commits.list_from(revision)`                                   | done   |
+| `GET .../commit/{commit}`                          | `repo.commits.get(commit)`                                           | done   |
+| `POST .../commit/{commit}/approve`                 | `repo.commits.approve(commit)`                                       | done   |
+| `DELETE .../commit/{commit}/approve`               | `repo.commits.unapprove(commit)`                                     | done   |
+| `GET .../commit/{commit}/comments`                 | `repo.commits.comments(commit).list()`                               | done   |
+| `POST .../commit/{commit}/comments`                | `repo.commits.comments(commit).create(payload)`                      | done   |
+| `GET .../commit/{commit}/comments/{comment_id}`    | `repo.commits.comments(commit).get(comment_id)`                      | done   |
+| `PUT .../commit/{commit}/comments/{comment_id}`    | `repo.commits.comments(commit).update(comment_id, payload)`          | done   |
+| `DELETE .../commit/{commit}/comments/{comment_id}` | `repo.commits.comments(commit).delete(comment_id)`                   | done   |
+| `GET .../diff/{spec}`                              | `repo.commits.diff(spec)`                                            | done   |
+| `GET .../diffstat/{spec}`                          | `repo.commits.diffstat(spec)`                                        | done   |
+| `GET .../patch/{spec}`                             | `repo.commits.patch(spec)`                                           | done   |
+| `GET .../merge-base/{revspec}`                     | `repo.commits.merge_base(spec)`                                      | done   |
+| `GET .../file-conflicts/{spec}`                    | `repo.commits.file_conflicts(spec)`                                  | done   |
+| `POST .../commits`                                 | `repo.commits.list_by_post(include=..., exclude=...)`                | done   |
+| `POST .../commits/{revision}`                      | `repo.commits.list_from_by_post(revision, include=..., exclude=...)` | done   |
 
-Note: the three `planned` rows were confirmed against `x-revision`
-`6856b45887d7`; the spec declares no request body for the two `POST`
-operations, so check a live response before modelling them.
+Notes, checked against `x-revision` `6856b45887d7`:
+
+- Both `POST` operations declare no `requestBody` and no parameters. The
+  `GET .../commits` description says that include and exclude go in an
+  `x-www-form-urlencoded` `POST` when they do not fit in a query string, so
+  the SDK sends them as a repeated form body. Each later page is a `POST` to
+  the `next` link with the same body, so the filter cannot be lost. They only
+  read (scope `read:repository`), so they are `QUERY`.
+- The spec lists no `include`, `exclude` or `path` parameters on either `GET`,
+  although the SDK sends `include` and `exclude` there.
+- `file-conflicts` pages with `next` and `values`. `GET
+  .../pullrequests/{pull_request_id}/conflicts` is only a `302` to it, and
+  both return `FileConflict` (now with `scenario` and `message`).
 
 ## Downloads
 

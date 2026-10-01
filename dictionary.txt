@@ -8,6 +8,7 @@ asciinema
 astroid
 atransport
 attribution
+bbql
 bitbucket
 capsys
 commitizen
