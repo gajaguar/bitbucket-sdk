@@ -53,9 +53,10 @@ class PullRequestsResource(NestedResource[PullRequest, PullRequestCreate, PullRe
 
     # GET {path}/{id}/activity (auto-paginating)
     def activity(self, pull_request_id: PullRequestId | int) -> Iterator[Activity]:
-        return paginate(lambda cursor: self._activity_page(pull_request_id, cursor=cursor))
+        return paginate(lambda cursor: self.activity_page(pull_request_id, cursor=cursor))
 
-    def _activity_page(self, pull_request_id: PullRequestId | int, *, cursor: str | None) -> Page[Activity]:
+    # GET {path}/{id}/activity
+    def activity_page(self, pull_request_id: PullRequestId | int, *, cursor: str | None = None) -> Page[Activity]:
         if cursor:
             data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
@@ -75,9 +76,10 @@ class PullRequestsResource(NestedResource[PullRequest, PullRequestCreate, PullRe
 
     # GET {path}/{id}/commits (auto-paginating)
     def commits(self, pull_request_id: PullRequestId | int) -> Iterator[Commit]:
-        return paginate(lambda cursor: self._commits_page(pull_request_id, cursor=cursor))
+        return paginate(lambda cursor: self.commits_page(pull_request_id, cursor=cursor))
 
-    def _commits_page(self, pull_request_id: PullRequestId | int, *, cursor: str | None) -> Page[Commit]:
+    # GET {path}/{id}/commits
+    def commits_page(self, pull_request_id: PullRequestId | int, *, cursor: str | None = None) -> Page[Commit]:
         if cursor:
             data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
@@ -87,9 +89,10 @@ class PullRequestsResource(NestedResource[PullRequest, PullRequestCreate, PullRe
 
     # GET {path}/{id}/conflicts (auto-paginating)
     def conflicts(self, pull_request_id: PullRequestId | int) -> Iterator[FileConflict]:
-        return paginate(lambda cursor: self._conflicts_page(pull_request_id, cursor=cursor))
+        return paginate(lambda cursor: self.conflicts_page(pull_request_id, cursor=cursor))
 
-    def _conflicts_page(self, pull_request_id: PullRequestId | int, *, cursor: str | None) -> Page[FileConflict]:
+    # GET {path}/{id}/conflicts
+    def conflicts_page(self, pull_request_id: PullRequestId | int, *, cursor: str | None = None) -> Page[FileConflict]:
         if cursor:
             data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
@@ -110,9 +113,10 @@ class PullRequestsResource(NestedResource[PullRequest, PullRequestCreate, PullRe
 
     # GET {path}/{id}/diffstat (auto-paginating)
     def diffstat(self, pull_request_id: PullRequestId | int) -> Iterator[DiffStat]:
-        return paginate(lambda cursor: self._diffstat_page(pull_request_id, cursor=cursor))
+        return paginate(lambda cursor: self.diffstat_page(pull_request_id, cursor=cursor))
 
-    def _diffstat_page(self, pull_request_id: PullRequestId | int, *, cursor: str | None) -> Page[DiffStat]:
+    # GET {path}/{id}/diffstat
+    def diffstat_page(self, pull_request_id: PullRequestId | int, *, cursor: str | None = None) -> Page[DiffStat]:
         if cursor:
             data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:

@@ -9,6 +9,8 @@
   and validation pipeline every request goes through.
 * [Pagination](pagination.md) - How Page and paginate() follow Bitbucket next
   URLs lazily.
+* [Public API conventions](public-api-conventions.md) - The naming and
+  return-type rules frozen at 1.0.0, and the asymmetries that are intentional.
 * [Modeling](modeling.md) - How read and write payloads map to frozen pydantic
   models.
 * [Endpoint comments](endpoint-comments.md) - Every resource method names the

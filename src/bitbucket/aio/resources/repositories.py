@@ -58,9 +58,10 @@ class AsyncRepositoriesResource:
 
     # GET .../repositories/{workspace}/{repo_slug}/forks (auto-paginating)
     def forks(self, slug: RepositorySlug | str) -> AsyncIterator[Repository]:
-        return apaginate(lambda cursor: self._forks_page(slug, cursor=cursor))
+        return apaginate(lambda cursor: self.forks_page(slug, cursor=cursor))
 
-    async def _forks_page(self, slug: RepositorySlug | str, *, cursor: str | None) -> Page[Repository]:
+    # GET .../repositories/{workspace}/{repo_slug}/forks
+    async def forks_page(self, slug: RepositorySlug | str, *, cursor: str | None = None) -> Page[Repository]:
         if cursor:
             data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
@@ -106,9 +107,10 @@ class AsyncRepositoriesResource:
 
     # GET .../repositories/{workspace}/{repo_slug}/watchers (auto-paginating)
     def watchers(self, slug: RepositorySlug | str) -> AsyncIterator[Account]:
-        return apaginate(lambda cursor: self._watchers_page(slug, cursor=cursor))
+        return apaginate(lambda cursor: self.watchers_page(slug, cursor=cursor))
 
-    async def _watchers_page(self, slug: RepositorySlug | str, *, cursor: str | None) -> Page[Account]:
+    # GET .../repositories/{workspace}/{repo_slug}/watchers
+    async def watchers_page(self, slug: RepositorySlug | str, *, cursor: str | None = None) -> Page[Account]:
         if cursor:
             data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
@@ -117,10 +119,11 @@ class AsyncRepositoriesResource:
 
     # GET .../commit/{commit}/pullrequests (auto-paginating)
     def commit_pull_requests(self, slug: RepositorySlug | str, commit: CommitHash | str) -> AsyncIterator[PullRequest]:
-        return apaginate(lambda cursor: self._commit_pull_requests_page(slug, commit, cursor=cursor))
+        return apaginate(lambda cursor: self.commit_pull_requests_page(slug, commit, cursor=cursor))
 
-    async def _commit_pull_requests_page(
-        self, slug: RepositorySlug | str, commit: CommitHash | str, *, cursor: str | None
+    # GET .../commit/{commit}/pullrequests
+    async def commit_pull_requests_page(
+        self, slug: RepositorySlug | str, commit: CommitHash | str, *, cursor: str | None = None
     ) -> Page[PullRequest]:
         if cursor:
             data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY)
@@ -131,9 +134,12 @@ class AsyncRepositoriesResource:
 
     # GET .../pullrequests/activity (auto-paginating)
     def pull_request_activity(self, slug: RepositorySlug | str) -> AsyncIterator[Activity]:
-        return apaginate(lambda cursor: self._pull_request_activity_page(slug, cursor=cursor))
+        return apaginate(lambda cursor: self.pull_request_activity_page(slug, cursor=cursor))
 
-    async def _pull_request_activity_page(self, slug: RepositorySlug | str, *, cursor: str | None) -> Page[Activity]:
+    # GET .../pullrequests/activity
+    async def pull_request_activity_page(
+        self, slug: RepositorySlug | str, *, cursor: str | None = None
+    ) -> Page[Activity]:
         if cursor:
             data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:

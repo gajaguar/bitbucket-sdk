@@ -89,9 +89,10 @@ with BitbucketClient() as client:
 ```
 
 Every `list()` method returns a lazy iterator that follows Bitbucket's `next`
-cursor; iterate it directly, wrap it in `list(...)`, or call
-`list_page(cursor=...)` to manage pagination yourself. More examples — commenting,
-merging and waiting for the result, creating a repository — are in
+cursor; iterate it directly, wrap it in `list(...)`, or call the matching
+`*_page(cursor=...)` method (`list_page`, `commits_page`, ...) to manage
+pagination yourself. More examples — commenting, merging and waiting for the
+result, creating a repository — are in
 [`docs/api/recipes.md`][api-recipes]. The layout of the repository is in
 [`docs/architecture/project-layout.md`][architecture-project-layout].
 

@@ -108,16 +108,17 @@ class WorkspaceClient:
         # /2.0/pullrequests/{user} (removed 2025-02-20); the workspace-scoped
         # route ignores the old `role` parameter.
         return paginate(
-            lambda cursor: self._pull_requests_by_author_page(user, states=states, fields=fields, cursor=cursor)
+            lambda cursor: self.pull_requests_by_author_page(user, states=states, fields=fields, cursor=cursor)
         )
 
-    def _pull_requests_by_author_page(
+    # GET .../workspaces/{workspace}/pullrequests/{user}
+    def pull_requests_by_author_page(
         self,
         user: str,
         *,
-        states: list[PullRequestState] | None,
-        fields: str | None,
-        cursor: str | None,
+        states: list[PullRequestState] | None = None,
+        fields: str | None = None,
+        cursor: str | None = None,
     ) -> Page[PullRequest]:
         if cursor:
             data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)

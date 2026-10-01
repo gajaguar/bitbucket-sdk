@@ -23,8 +23,8 @@ class AsyncPropertiesResource:
         return await self._transport.request("GET", self._item_path(app_key, property_name), kind=CqsKind.QUERY)
 
     # PUT {path}/{app_key}/{property_name}
-    async def put(self, app_key: str, property_name: str, value: JSONValue) -> JSONValue:
-        return await self._transport.request(
+    async def put(self, app_key: str, property_name: str, value: JSONValue) -> None:
+        await self._transport.request(
             "PUT", self._item_path(app_key, property_name), kind=CqsKind.IDEMPOTENT_COMMAND, json=value
         )
 

@@ -51,9 +51,12 @@ class SourceResource:
 
     # GET .../filehistory/{commit}/{path} (auto-paginating)
     def file_history(self, commit: CommitHash | str, path: str) -> Iterator[FileHistoryEntry]:
-        return paginate(lambda cursor: self._file_history_page(commit, path, cursor=cursor))
+        return paginate(lambda cursor: self.file_history_page(commit, path, cursor=cursor))
 
-    def _file_history_page(self, commit: CommitHash | str, path: str, *, cursor: str | None) -> Page[FileHistoryEntry]:
+    # GET .../filehistory/{commit}/{path}
+    def file_history_page(
+        self, commit: CommitHash | str, path: str, *, cursor: str | None = None
+    ) -> Page[FileHistoryEntry]:
         if cursor:
             data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
@@ -76,9 +79,10 @@ class SourceResource:
 
     # GET .../src/{commit}/{path} (auto-paginating) — directory listing at a path
     def list_path(self, commit: CommitHash | str, path: str = "") -> Iterator[TreeEntry]:
-        return paginate(lambda cursor: self._list_path_page(commit, path, cursor=cursor))
+        return paginate(lambda cursor: self.list_path_page(commit, path, cursor=cursor))
 
-    def _list_path_page(self, commit: CommitHash | str, path: str, *, cursor: str | None) -> Page[TreeEntry]:
+    # GET .../src/{commit}/{path} — directory listing at a path
+    def list_path_page(self, commit: CommitHash | str, path: str, *, cursor: str | None = None) -> Page[TreeEntry]:
         if cursor:
             data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:

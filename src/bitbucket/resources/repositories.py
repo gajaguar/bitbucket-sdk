@@ -56,9 +56,10 @@ class RepositoriesResource:
 
     # GET .../repositories/{workspace}/{repo_slug}/forks (auto-paginating)
     def forks(self, slug: RepositorySlug | str) -> Iterator[Repository]:
-        return paginate(lambda cursor: self._forks_page(slug, cursor=cursor))
+        return paginate(lambda cursor: self.forks_page(slug, cursor=cursor))
 
-    def _forks_page(self, slug: RepositorySlug | str, *, cursor: str | None) -> Page[Repository]:
+    # GET .../repositories/{workspace}/{repo_slug}/forks
+    def forks_page(self, slug: RepositorySlug | str, *, cursor: str | None = None) -> Page[Repository]:
         if cursor:
             data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
@@ -104,9 +105,10 @@ class RepositoriesResource:
 
     # GET .../repositories/{workspace}/{repo_slug}/watchers (auto-paginating)
     def watchers(self, slug: RepositorySlug | str) -> Iterator[Account]:
-        return paginate(lambda cursor: self._watchers_page(slug, cursor=cursor))
+        return paginate(lambda cursor: self.watchers_page(slug, cursor=cursor))
 
-    def _watchers_page(self, slug: RepositorySlug | str, *, cursor: str | None) -> Page[Account]:
+    # GET .../repositories/{workspace}/{repo_slug}/watchers
+    def watchers_page(self, slug: RepositorySlug | str, *, cursor: str | None = None) -> Page[Account]:
         if cursor:
             data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
@@ -115,10 +117,11 @@ class RepositoriesResource:
 
     # GET .../commit/{commit}/pullrequests (auto-paginating)
     def commit_pull_requests(self, slug: RepositorySlug | str, commit: CommitHash | str) -> Iterator[PullRequest]:
-        return paginate(lambda cursor: self._commit_pull_requests_page(slug, commit, cursor=cursor))
+        return paginate(lambda cursor: self.commit_pull_requests_page(slug, commit, cursor=cursor))
 
-    def _commit_pull_requests_page(
-        self, slug: RepositorySlug | str, commit: CommitHash | str, *, cursor: str | None
+    # GET .../commit/{commit}/pullrequests
+    def commit_pull_requests_page(
+        self, slug: RepositorySlug | str, commit: CommitHash | str, *, cursor: str | None = None
     ) -> Page[PullRequest]:
         if cursor:
             data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)
@@ -129,9 +132,10 @@ class RepositoriesResource:
 
     # GET .../pullrequests/activity (auto-paginating)
     def pull_request_activity(self, slug: RepositorySlug | str) -> Iterator[Activity]:
-        return paginate(lambda cursor: self._pull_request_activity_page(slug, cursor=cursor))
+        return paginate(lambda cursor: self.pull_request_activity_page(slug, cursor=cursor))
 
-    def _pull_request_activity_page(self, slug: RepositorySlug | str, *, cursor: str | None) -> Page[Activity]:
+    # GET .../pullrequests/activity
+    def pull_request_activity_page(self, slug: RepositorySlug | str, *, cursor: str | None = None) -> Page[Activity]:
         if cursor:
             data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:

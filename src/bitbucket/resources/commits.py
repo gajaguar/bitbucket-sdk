@@ -55,9 +55,10 @@ class CommitsResource:
 
     # GET .../diffstat/{spec} (auto-paginating)
     def diffstat(self, spec: str) -> Iterator[DiffStat]:
-        return paginate(lambda cursor: self._diffstat_page(spec, cursor=cursor))
+        return paginate(lambda cursor: self.diffstat_page(spec, cursor=cursor))
 
-    def _diffstat_page(self, spec: str, *, cursor: str | None) -> Page[DiffStat]:
+    # GET .../diffstat/{spec}
+    def diffstat_page(self, spec: str, *, cursor: str | None = None) -> Page[DiffStat]:
         if cursor:
             data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
@@ -91,9 +92,10 @@ class CommitsResource:
 
     # GET .../commits/{revision} (auto-paginating) — commits reachable from `revision`
     def list_from(self, revision: str) -> Iterator[Commit]:
-        return paginate(lambda cursor: self._list_from_page(revision, cursor=cursor))
+        return paginate(lambda cursor: self.list_from_page(revision, cursor=cursor))
 
-    def _list_from_page(self, revision: str, *, cursor: str | None) -> Page[Commit]:
+    # GET .../commits/{revision} — commits reachable from `revision`
+    def list_from_page(self, revision: str, *, cursor: str | None = None) -> Page[Commit]:
         if cursor:
             data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
@@ -102,9 +104,10 @@ class CommitsResource:
 
     # GET .../file-conflicts/{spec} (auto-paginating)
     def file_conflicts(self, spec: str) -> Iterator[FileConflict]:
-        return paginate(lambda cursor: self._file_conflicts_page(spec, cursor=cursor))
+        return paginate(lambda cursor: self.file_conflicts_page(spec, cursor=cursor))
 
-    def _file_conflicts_page(self, spec: str, *, cursor: str | None) -> Page[FileConflict]:
+    # GET .../file-conflicts/{spec}
+    def file_conflicts_page(self, spec: str, *, cursor: str | None = None) -> Page[FileConflict]:
         if cursor:
             data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
@@ -113,15 +116,32 @@ class CommitsResource:
 
     # POST .../commits (auto-paginating) — include/exclude in the form body
     def list_by_post(self, *, include: Sequence[str] = (), exclude: Sequence[str] = ()) -> Iterator[Commit]:
-        path = f"{self._base_path}/commits"
-        return paginate(lambda cursor: self._post_page(path, include, exclude, cursor=cursor))
+        return paginate(lambda cursor: self.list_by_post_page(cursor=cursor, include=include, exclude=exclude))
+
+    # POST .../commits — include/exclude in the form body
+    def list_by_post_page(
+        self, *, cursor: str | None = None, include: Sequence[str] = (), exclude: Sequence[str] = ()
+    ) -> Page[Commit]:
+        return self._post_page(f"{self._base_path}/commits", include, exclude, cursor=cursor)
 
     # POST .../commits/{revision} (auto-paginating) — include/exclude in the form body
     def list_from_by_post(
         self, revision: str, *, include: Sequence[str] = (), exclude: Sequence[str] = ()
     ) -> Iterator[Commit]:
-        path = f"{self._base_path}/commits/{revision}"
-        return paginate(lambda cursor: self._post_page(path, include, exclude, cursor=cursor))
+        return paginate(
+            lambda cursor: self.list_from_by_post_page(revision, cursor=cursor, include=include, exclude=exclude)
+        )
+
+    # POST .../commits/{revision} — include/exclude in the form body
+    def list_from_by_post_page(
+        self,
+        revision: str,
+        *,
+        cursor: str | None = None,
+        include: Sequence[str] = (),
+        exclude: Sequence[str] = (),
+    ) -> Page[Commit]:
+        return self._post_page(f"{self._base_path}/commits/{revision}", include, exclude, cursor=cursor)
 
     # Later pages re-POST the same form to `next`, so the filter survives whatever the URL encodes.
     def _post_page(

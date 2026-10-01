@@ -55,9 +55,10 @@ class AsyncCommitsResource:
 
     # GET .../diffstat/{spec} (auto-paginating)
     def diffstat(self, spec: str) -> AsyncIterator[DiffStat]:
-        return apaginate(lambda cursor: self._diffstat_page(spec, cursor=cursor))
+        return apaginate(lambda cursor: self.diffstat_page(spec, cursor=cursor))
 
-    async def _diffstat_page(self, spec: str, *, cursor: str | None) -> Page[DiffStat]:
+    # GET .../diffstat/{spec}
+    async def diffstat_page(self, spec: str, *, cursor: str | None = None) -> Page[DiffStat]:
         if cursor:
             data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
@@ -93,9 +94,10 @@ class AsyncCommitsResource:
 
     # GET .../commits/{revision} (auto-paginating) — commits reachable from `revision`
     def list_from(self, revision: str) -> AsyncIterator[Commit]:
-        return apaginate(lambda cursor: self._list_from_page(revision, cursor=cursor))
+        return apaginate(lambda cursor: self.list_from_page(revision, cursor=cursor))
 
-    async def _list_from_page(self, revision: str, *, cursor: str | None) -> Page[Commit]:
+    # GET .../commits/{revision} — commits reachable from `revision`
+    async def list_from_page(self, revision: str, *, cursor: str | None = None) -> Page[Commit]:
         if cursor:
             data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
@@ -104,9 +106,10 @@ class AsyncCommitsResource:
 
     # GET .../file-conflicts/{spec} (auto-paginating)
     def file_conflicts(self, spec: str) -> AsyncIterator[FileConflict]:
-        return apaginate(lambda cursor: self._file_conflicts_page(spec, cursor=cursor))
+        return apaginate(lambda cursor: self.file_conflicts_page(spec, cursor=cursor))
 
-    async def _file_conflicts_page(self, spec: str, *, cursor: str | None) -> Page[FileConflict]:
+    # GET .../file-conflicts/{spec}
+    async def file_conflicts_page(self, spec: str, *, cursor: str | None = None) -> Page[FileConflict]:
         if cursor:
             data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
@@ -115,15 +118,32 @@ class AsyncCommitsResource:
 
     # POST .../commits (auto-paginating) — include/exclude in the form body
     def list_by_post(self, *, include: Sequence[str] = (), exclude: Sequence[str] = ()) -> AsyncIterator[Commit]:
-        path = f"{self._base_path}/commits"
-        return apaginate(lambda cursor: self._post_page(path, include, exclude, cursor=cursor))
+        return apaginate(lambda cursor: self.list_by_post_page(cursor=cursor, include=include, exclude=exclude))
+
+    # POST .../commits — include/exclude in the form body
+    async def list_by_post_page(
+        self, *, cursor: str | None = None, include: Sequence[str] = (), exclude: Sequence[str] = ()
+    ) -> Page[Commit]:
+        return await self._post_page(f"{self._base_path}/commits", include, exclude, cursor=cursor)
 
     # POST .../commits/{revision} (auto-paginating) — include/exclude in the form body
     def list_from_by_post(
         self, revision: str, *, include: Sequence[str] = (), exclude: Sequence[str] = ()
     ) -> AsyncIterator[Commit]:
-        path = f"{self._base_path}/commits/{revision}"
-        return apaginate(lambda cursor: self._post_page(path, include, exclude, cursor=cursor))
+        return apaginate(
+            lambda cursor: self.list_from_by_post_page(revision, cursor=cursor, include=include, exclude=exclude)
+        )
+
+    # POST .../commits/{revision} — include/exclude in the form body
+    async def list_from_by_post_page(
+        self,
+        revision: str,
+        *,
+        cursor: str | None = None,
+        include: Sequence[str] = (),
+        exclude: Sequence[str] = (),
+    ) -> Page[Commit]:
+        return await self._post_page(f"{self._base_path}/commits/{revision}", include, exclude, cursor=cursor)
 
     # Later pages re-POST the same form to `next`, so the filter survives whatever the URL encodes.
     async def _post_page(
