@@ -2,6 +2,13 @@
 
 ## 2026-10-01
 
+* **Updated**: `api/roadmap.md`, `release/release-checklist.md` and the
+  version files for release `1.0.0`: Phase 5 is shipped (291 of 294
+  operations; the three `Addon` ones stay `unsupported`), the milestone table
+  and "Where we are today" name the release, and the checklist gives the
+  semantic-versioning rule from `1.0.0`. `x-revision` `6856b45887d7` is
+  unchanged.
+
 * **Added**: `architecture/public-api-conventions.md`, the rules the public
   surface follows from `1.0.0`: a `*_page` for every paginated iterator, `None`
   for a `204`, and `put` as create-or-replace. It lists the asymmetries that

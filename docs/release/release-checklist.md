@@ -15,7 +15,9 @@ release:
 1. Bump the version in `pyproject.toml` and `src/bitbucket/_version.py`
    following [Semantic Versioning](https://semver.org/): while the SDK is
    `0.y.z`, a new feature or a breaking change bumps the minor version, and a
-   fix or a change that leaves the API alone bumps the patch.
+   fix or a change that leaves the API alone bumps the patch. From `1.0.0`, a
+   breaking change bumps the major version, a new feature the minor and a fix
+   the patch.
 2. `make check` and `make test` — both must exit 0, and the 90% coverage gate
    must pass.
 3. `make build` — must produce a valid sdist and wheel, and

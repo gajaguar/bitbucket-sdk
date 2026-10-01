@@ -13,7 +13,8 @@ This SDK targets **Bitbucket Cloud REST API `2.0`**, checked against
 `x-revision: 6856b45887d7` (2026-10-01). Regenerate the numbers below against
 a newer revision whenever [endpoint coverage](endpoint-coverage.md) is re-verified.
 
-**Where we are today:** 291 / 294 operations (99%) — see the coverage summary
+**Where we are today:** `1.0.0` is released with 291 / 294 operations
+(99%), every callable one in the checked spec revision — see the coverage summary
 table in [endpoint coverage](endpoint-coverage.md) for the full breakdown by resource
 group. This document lays out the path from there to full parity, in phases
 tied to version milestones, plus two cross-cutting phases (0a and 0b) that
@@ -302,7 +303,7 @@ secret, and none declares a `429`. Several bodies are undeclared in the spec
 (deploy keys, environment `changes`); the models carry the fields the spec's
 examples show and accept extras. See [endpoint coverage](endpoint-coverage.md).
 
-## Phase 5 — remainder (`1.0.0`)
+## Phase 5 — remainder (shipped in `1.0.0`)
 
 - `Snippets` (24): full snippet CRUD, comments, commits, watch, files. Done.
 - `properties` (12): app-key/property-name CRUD on commits, repos, PRs, users
@@ -332,7 +333,7 @@ in the machine-readable spec — see the footnote in `endpoint-coverage.md`.
 | 3c    | 0.9.0    | +19 (shipped)                   | 162 (55%)           |
 | 4a    | 0.9.0    | +68 (shipped)                   | 230 (78%)           |
 | 4b    | 0.9.0    | +25 (shipped)                   | 255 (87%)           |
-| 5     | 1.0.0    | +39 (36 callable, 3 `Addon`)    | 294 (100%)          |
+| 5     | 1.0.0    | +39 (shipped, 3 unsupported)    | 294 (100%)          |
 
 Phase 3 is split across two releases. `0.7.0` carries the 19 operations
 already done (the webhook groups, `Branch restrictions` and `Branching model`);
@@ -341,8 +342,11 @@ Each bump follows the [release checklist](../release/release-checklist.md).
 
 Phases 1 and 2 were planned as `0.2.0` and `0.3.0` but never tagged; they
 shipped together in `0.4.0` with the credential contract. `0.4.1` changed
-tooling and distribution only. Each remaining phase adds features without
-breaking the API, so it bumps the minor version.
+tooling and distribution only. Phases 3 and 4 added features without breaking
+the API, so each bumped the minor version. `1.0.0` freezes the public names
+after a review of the surface (see
+[public API conventions](../architecture/public-api-conventions.md)); its one
+breaking change is that the properties `put` returns `None`.
 
 Phases 0a and 0b are listed first because they unblock their respective
 consumers (async callers in Phase 0a; delegated-access consumers in Phase 0b)
