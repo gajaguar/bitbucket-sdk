@@ -7,6 +7,8 @@ from bitbucket.resources.branching_model import RepositoryBranchingModelResource
 from bitbucket.resources.commit_statuses import CommitStatusesResource
 from bitbucket.resources.commits import CommitsResource
 from bitbucket.resources.default_reviewers import DefaultReviewersResource
+from bitbucket.resources.deploy_keys import DeployKeysResource
+from bitbucket.resources.deployments import DeploymentsResource
 from bitbucket.resources.downloads import DownloadsResource
 from bitbucket.resources.environments import EnvironmentsResource
 from bitbucket.resources.hooks import HooksResource
@@ -43,3 +45,5 @@ class RepositoryClient:  # pylint: disable=too-many-instance-attributes
         self.pipelines = PipelinesResource(transport, base_path)
         self.pipelines_config = RepositoryPipelinesConfig(transport, base_path)
         self.environments = EnvironmentsResource(transport, base_path)
+        self.deployments = DeploymentsResource(transport, base_path)
+        self.deploy_keys = DeployKeysResource(transport, base_path)

@@ -3,6 +3,14 @@
 ## 2026-10-01
 
 * **Updated**: `api/endpoint-coverage.md`, `api/roadmap.md` and `README.md` for
+  Phase 4b, the `Deployments` and `Reports` groups (255 of 294 operations):
+  environments, deployments, repository and project deploy keys, and
+  code-insight reports with their annotations. The new sections record the
+  request bodies the spec leaves out (deploy keys, environment `changes`), the
+  deploy-key schema gaps, the `202` and `204` responses, the read-only scopes
+  declared by the report writes and the CQS kind of each write; `x-revision`
+  `6856b45887d7` is unchanged.
+* **Updated**: `api/endpoint-coverage.md`, `api/roadmap.md` and `README.md` for
   Phase 4a, the `Pipelines` group (230 of 294 operations): pipelines, steps,
   logs, test reports, pipelines-config, variables for four scopes, runners,
   OIDC and the four environment variables. The roadmap now splits Phase 4 into
