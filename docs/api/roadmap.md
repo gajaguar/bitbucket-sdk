@@ -13,7 +13,7 @@ This SDK targets **Bitbucket Cloud REST API `2.0`**, checked against
 `x-revision: 6856b45887d7` (2026-10-01). Regenerate the numbers below against
 a newer revision whenever [endpoint coverage](endpoint-coverage.md) is re-verified.
 
-**Where we are today:** 255 / 294 operations (87%) — see the coverage summary
+**Where we are today:** 267 / 294 operations (91%) — see the coverage summary
 table in [endpoint coverage](endpoint-coverage.md) for the full breakdown by resource
 group. This document lays out the path from there to full parity, in phases
 tied to version milestones, plus two cross-cutting phases (0a and 0b) that
@@ -306,9 +306,13 @@ examples show and accept extras. See [endpoint coverage](endpoint-coverage.md).
 
 - `Snippets` (24): full snippet CRUD, comments, commits, watch, files.
 - `properties` (12): app-key/property-name CRUD on commits, repos, PRs, users
-  (Connect-app storage — narrow but mechanical, reuses `NestedResource`).
+  (Connect-app storage). Done: the 3 pull-request operations shipped in Phase
+  1 and the other 9 reuse the same `PropertiesResource`. All 12 are deprecated
+  in the spec (Connect end of support, 2027-01-31).
 - `Addon` (3): Connect-app lifecycle (`PUT`/`DELETE /addon`,
-  `GET /addon/{addon_key}/client-key}`).
+  `GET /addon/{addon_key}/client-key}`). Not implemented: the first two accept
+  only JWT and the third only a Forge app, and the SDK sends only Basic or
+  Bearer. They stay in the 294 as `unsupported`, so the SDK calls 291 of 294.
 
 At the end of Phase 5 the SDK covers all 294 operations in the checked spec
 revision. `Issue tracker` and `Wiki` (declared as spec tags but carrying no
@@ -328,7 +332,7 @@ in the machine-readable spec — see the footnote in `endpoint-coverage.md`.
 | 3c    | 0.9.0    | +19 (shipped)                   | 162 (55%)           |
 | 4a    | 0.9.0    | +68 (shipped)                   | 230 (78%)           |
 | 4b    | 0.9.0    | +25 (shipped)                   | 255 (87%)           |
-| 5     | 1.0.0    | +39                             | 294 (100%)          |
+| 5     | 1.0.0    | +39 (36 callable, 3 `Addon`)    | 294 (100%)          |
 
 Phase 3 is split across two releases. `0.7.0` carries the 19 operations
 already done (the webhook groups, `Branch restrictions` and `Branching model`);
