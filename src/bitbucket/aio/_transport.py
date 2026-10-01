@@ -64,9 +64,10 @@ class AsyncTransport:
         path: str,
         *,
         kind: CqsKind,
-        params: Mapping[str, str | float | bool | list[str] | None] | None = None,
+        headers: Mapping[str, str] | None = None,
+        follow_redirects: bool = False,
     ) -> bytes:
-        response = await self._send(method, path, kind=kind, params=params, json=None)
+        response = await self._send_raw(method, path, kind=kind, headers=headers, follow_redirects=follow_redirects)
         return _bytes_or_error(response)
 
     async def request_form(
@@ -107,6 +108,28 @@ class AsyncTransport:
                 path,
                 params=_resolved_params(params),
                 json=json,
+                extensions={"bitbucket_cqs": kind},
+            )
+        except httpx.TransportError as error:
+            raise TransportError(str(error)) from error
+        _log(method, path, response)
+        return response
+
+    async def _send_raw(
+        self,
+        method: str,
+        path: str,
+        *,
+        kind: CqsKind,
+        headers: Mapping[str, str] | None,
+        follow_redirects: bool,
+    ) -> httpx.Response:
+        try:
+            response = await self._client.request(
+                method,
+                path,
+                headers=headers,
+                follow_redirects=follow_redirects,
                 extensions={"bitbucket_cqs": kind},
             )
         except httpx.TransportError as error:
