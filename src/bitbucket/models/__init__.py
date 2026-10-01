@@ -189,6 +189,14 @@ from bitbucket.models.search import CodeSearchResult
 from bitbucket.models.search import SearchContentMatch
 from bitbucket.models.search import SearchLine
 from bitbucket.models.search import SearchSegment
+from bitbucket.models.snippet import Snippet
+from bitbucket.models.snippet import SnippetComment
+from bitbucket.models.snippet import SnippetCommentCreate
+from bitbucket.models.snippet import SnippetCreate
+from bitbucket.models.snippet import SnippetFile
+from bitbucket.models.snippet import SnippetRole
+from bitbucket.models.snippet import SnippetScm
+from bitbucket.models.snippet import SnippetUpdate
 from bitbucket.models.source import FileHistoryEntry
 from bitbucket.models.source import TreeEntry
 from bitbucket.models.ssh_key import SshKey
@@ -401,6 +409,14 @@ __all__ = [
     "SearchContentMatch",
     "SearchLine",
     "SearchSegment",
+    "Snippet",
+    "SnippetComment",
+    "SnippetCommentCreate",
+    "SnippetCreate",
+    "SnippetFile",
+    "SnippetRole",
+    "SnippetScm",
+    "SnippetUpdate",
     "SshKey",
     "SshKeyCreate",
     "SshKeyUpdate",

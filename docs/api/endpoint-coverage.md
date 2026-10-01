@@ -41,7 +41,7 @@ once, under its first tag, to sum to 294 without double-counting).
 | Pipelines           |         68 |      68 |    100% |
 | Pullrequests        |         38 |      38 |    100% |
 | Repositories        |         24 |      24 |    100% |
-| Snippets            |         24 |       0 |      0% |
+| Snippets            |         24 |      15 |     62% |
 | Commits             |         17 |      17 |    100% |
 | Deployments         |         16 |      16 |    100% |
 | Workspaces          |         16 |      16 |    100% |
@@ -60,7 +60,7 @@ once, under its first tag, to sum to 294 without double-counting).
 | Addon               |          3 |       0 |      0% |
 | Search              |          3 |       3 |    100% |
 | Webhooks            |          2 |       2 |    100% |
-| **Total**           |    **294** | **267** | **91%** |
+| **Total**           |    **294** | **282** | **96%** |
 
 The spec also declares `Issue tracker` and `Wiki` tags with zero operations
 attached to any path — Bitbucket's issue-tracker and wiki REST endpoints are
@@ -922,3 +922,73 @@ count in the 294 but are `unsupported`, not `done`. The spec lists
 contradicts the descriptions; the SDK follows the descriptions. `PUT /addon`
 declares no request body, though its description allows `{}`, a
 `descriptor` or a `descriptor_url`.
+
+## Snippets
+
+| Endpoint                                                          | SDK method                                                             | Status |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------- | ------ |
+| `POST /snippets`                                                  | `client.snippets.create(payload, files=...)`                           | done   |
+| `GET /snippets/{workspace}`                                       | `ws.snippets.list(role=...)`                                           | done   |
+| `POST /snippets/{workspace}`                                      | `ws.snippets.create(payload, files=...)`                               | done   |
+| `GET /snippets/{workspace}/{encoded_id}`                          | `ws.snippets.get(snippet_id)`                                          | done   |
+| `PUT /snippets/{workspace}/{encoded_id}`                          | `ws.snippets.update(snippet_id, payload, files=..., delete_files=...)` | done   |
+| `DELETE /snippets/{workspace}/{encoded_id}`                       | `ws.snippets.delete(snippet_id)`                                       | done   |
+| `GET /snippets/{workspace}/{encoded_id}/comments`                 | `ws.snippet(id).comments.list()`                                       | done   |
+| `POST /snippets/{workspace}/{encoded_id}/comments`                | `ws.snippet(id).comments.create(payload)`                              | done   |
+| `GET /snippets/{workspace}/{encoded_id}/comments/{comment_id}`    | `ws.snippet(id).comments.get(comment_id)`                              | done   |
+| `PUT /snippets/{workspace}/{encoded_id}/comments/{comment_id}`    | `ws.snippet(id).comments.update(comment_id, payload)`                  | done   |
+| `DELETE /snippets/{workspace}/{encoded_id}/comments/{comment_id}` | `ws.snippet(id).comments.delete(comment_id)`                           | done   |
+| `GET /snippets/{workspace}/{encoded_id}/watch`                    | `ws.snippet(id).is_watching()`                                         | done   |
+| `PUT /snippets/{workspace}/{encoded_id}/watch`                    | `ws.snippet(id).watch()`                                               | done   |
+| `DELETE /snippets/{workspace}/{encoded_id}/watch`                 | `ws.snippet(id).unwatch()`                                             | done   |
+| `GET /snippets/{workspace}/{encoded_id}/watchers`                 | `ws.snippet(id).watchers()`                                            | done   |
+
+Note: The group has 24 operations; these 15 are done. The other 9 (commits,
+revisions, raw files, diff and patch) are planned.
+
+Note: `ws.snippets` is the workspace collection and `ws.snippet(id)` a handle
+for one snippet, like `ws.repositories` and `ws.repository(slug)`; the handle
+sends no request until a method is called. `POST /snippets` creates under the
+authenticated user's account and is `client.snippets.create`, which offers no
+other method. `{encoded_id}` is the short id such as `abc`, as a string.
+
+Note: Request bodies. `POST` and `PUT` on a snippet declare no body (the `POST`
+declares the `snippet` schema as JSON, but its description says snippets "are
+created with a multipart POST"). The SDK follows the descriptions:
+
+- `create` always sends `multipart/form-data`: `title`, `is_private` and `scm`
+  as flat form fields, and one `file` part per entry of `files` (name to
+  bytes).
+- `update` sends JSON when it only changes metadata, so `SnippetUpdate(title=None)`
+  sends `null`, which the spec uses to delete a title. With `files` or
+  `delete_files` it sends `multipart/form-data` instead, where a file to delete
+  is a repeated `files` field. A form field cannot carry `null`, so `None`
+  fields are left out there.
+- `multipart/related` is not supported, and the SDK sends no `Accept` header, so
+  the response is the default JSON.
+
+Note: Responses. The spec's `snippet` schema declares `id` as an integer, but
+its samples and the `{encoded_id}` path use a string, so `Snippet.id` is text
+and an integer is read as text. It leaves out `links` and `files`, which the
+samples show; `Snippet` carries both, `files` as a map of file name to
+`SnippetFile` (its links). `scm` maps an unlisted value to `UNKNOWN`.
+`snippet_comment` does not extend `comment` in the spec; `SnippetComment`
+extends `Comment` and adds `snippet`, and `SnippetCommentCreate` takes
+`content.raw` and an optional `parent.id`, as the description says.
+
+Note: `GET .../watch` answers `204` when the user watches the snippet and
+`404` both when the user does not and when the snippet does not exist, so
+`is_watching()` returns `False` for either; any other error is raised.
+`watchers` is `deprecated` in the spec; it is kept, with no runtime warning.
+
+Note: Pagination: the snippet, comment and watcher lists declare `next` and
+`values` (auto-paginating). `watch`, `unwatch` and the three `DELETE`
+operations answer `204` with no body. CQS: `GET` is `QUERY`; `create` and
+comment `create` are `NON_IDEMPOTENT_COMMAND`; `update`, `watch`, `unwatch`
+and the `DELETE`s are `IDEMPOTENT_COMMAND`, since repeating them leaves the
+same state. Secrets: none; snippet contents are not credentials. Rate limits:
+none of the 15 declares a `429`; the retry policy is unchanged.
+
+Note: Scopes: the spec lists `snippet` and `snippet:write` for OAuth, and the
+`x-atlassian-oauth2-scopes` `read:snippet:bitbucket`, `write:snippet:bitbucket`
+and `delete:snippet:bitbucket`. `GET .../watchers` declares none.

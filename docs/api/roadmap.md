@@ -13,7 +13,7 @@ This SDK targets **Bitbucket Cloud REST API `2.0`**, checked against
 `x-revision: 6856b45887d7` (2026-10-01). Regenerate the numbers below against
 a newer revision whenever [endpoint coverage](endpoint-coverage.md) is re-verified.
 
-**Where we are today:** 267 / 294 operations (91%) — see the coverage summary
+**Where we are today:** 282 / 294 operations (96%) — see the coverage summary
 table in [endpoint coverage](endpoint-coverage.md) for the full breakdown by resource
 group. This document lays out the path from there to full parity, in phases
 tied to version milestones, plus two cross-cutting phases (0a and 0b) that
@@ -304,7 +304,9 @@ examples show and accept extras. See [endpoint coverage](endpoint-coverage.md).
 
 ## Phase 5 — remainder (`1.0.0`)
 
-- `Snippets` (24): full snippet CRUD, comments, commits, watch, files.
+- `Snippets` (24): full snippet CRUD, comments, commits, watch, files. Done:
+  CRUD, comments, watch and watchers (15); commits, revisions, raw files, diff
+  and patch (9) are next.
 - `properties` (12): app-key/property-name CRUD on commits, repos, PRs, users
   (Connect-app storage). Done: the 3 pull-request operations shipped in Phase
   1 and the other 9 reuse the same `PropertiesResource`. All 12 are deprecated

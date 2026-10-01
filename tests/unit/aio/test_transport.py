@@ -46,6 +46,20 @@ async def test_async_request_multipart_posts_files_and_form_data(atransport: Asy
 
 
 @respx.mock
+async def test_request_multipart_repeats_a_field_and_sends_plain_form_fields(atransport: AsyncTransport) -> None:
+    # Arrange
+    route = respx.put(f"{BASE_URL}/snippets/ws/abc").mock(return_value=Response(200, json={}))
+    parts = [("files", (None, "a.txt", None)), ("files", (None, "b.txt", None)), ("title", (None, "T", None))]
+    # Act
+    await atransport.request_multipart("PUT", "/snippets/ws/abc", kind=CqsKind.IDEMPOTENT_COMMAND, files=parts)
+    # Assert
+    body = route.calls[0].request.content
+    assert route.calls[0].request.headers["content-type"].startswith("multipart/form-data")
+    assert body.count(b'name="files"') == 2
+    assert b'name="title"\r\n\r\nT' in body
+
+
+@respx.mock
 async def test_async_request_multipart_decodes_json_body(atransport: AsyncTransport) -> None:
     # Arrange
     respx.post(f"{BASE_URL}/downloads").mock(return_value=Response(200, json={"name": "file.zip"}))

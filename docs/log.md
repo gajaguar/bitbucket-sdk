@@ -3,6 +3,14 @@
 ## 2026-10-01
 
 * **Updated**: `api/endpoint-coverage.md`, `api/roadmap.md` and `README.md` for
+  the first part of the `Snippets` group (282 of 294 operations): snippet CRUD
+  for a workspace and for the authenticated user, comments, watch and
+  watchers. The new section records the bodies the spec leaves out (JSON for
+  metadata, `multipart/form-data` for files, no `multipart/related`), the
+  integer `id` the samples contradict, the `links` and `files` fields only the
+  samples show, the `404` that `is_watching` reads as `False` and the CQS kind
+  of each write; `x-revision` `6856b45887d7` is unchanged.
+* **Updated**: `api/endpoint-coverage.md`, `api/roadmap.md` and `README.md` for
   the `properties` group (267 of 294 operations): application properties on
   repositories, commits and users, reusing `PropertiesResource`. The summary
   now counts the three pull-request property operations, which already shipped
