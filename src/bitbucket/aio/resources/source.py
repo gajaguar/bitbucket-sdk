@@ -51,10 +51,11 @@ class AsyncSourceResource:
 
     # GET .../filehistory/{commit}/{path} (auto-paginating)
     def file_history(self, commit: CommitHash | str, path: str) -> AsyncIterator[FileHistoryEntry]:
-        return apaginate(lambda cursor: self._file_history_page(commit, path, cursor=cursor))
+        return apaginate(lambda cursor: self.file_history_page(commit, path, cursor=cursor))
 
-    async def _file_history_page(
-        self, commit: CommitHash | str, path: str, *, cursor: str | None
+    # GET .../filehistory/{commit}/{path}
+    async def file_history_page(
+        self, commit: CommitHash | str, path: str, *, cursor: str | None = None
     ) -> Page[FileHistoryEntry]:
         if cursor:
             data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY)
@@ -78,9 +79,12 @@ class AsyncSourceResource:
 
     # GET .../src/{commit}/{path} (auto-paginating) — directory listing at a path
     def list_path(self, commit: CommitHash | str, path: str = "") -> AsyncIterator[TreeEntry]:
-        return apaginate(lambda cursor: self._list_path_page(commit, path, cursor=cursor))
+        return apaginate(lambda cursor: self.list_path_page(commit, path, cursor=cursor))
 
-    async def _list_path_page(self, commit: CommitHash | str, path: str, *, cursor: str | None) -> Page[TreeEntry]:
+    # GET .../src/{commit}/{path} — directory listing at a path
+    async def list_path_page(
+        self, commit: CommitHash | str, path: str, *, cursor: str | None = None
+    ) -> Page[TreeEntry]:
         if cursor:
             data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:

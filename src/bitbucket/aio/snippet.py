@@ -40,9 +40,10 @@ class AsyncSnippetClient:
 
     # GET .../snippets/{workspace}/{encoded_id}/commits (auto-paginating)
     def commits(self) -> AsyncIterator[SnippetCommit]:
-        return apaginate(lambda cursor: self._commits_page(cursor=cursor))
+        return apaginate(lambda cursor: self.commits_page(cursor=cursor))
 
-    async def _commits_page(self, *, cursor: str | None) -> Page[SnippetCommit]:
+    # GET .../snippets/{workspace}/{encoded_id}/commits
+    async def commits_page(self, *, cursor: str | None = None) -> Page[SnippetCommit]:
         data = await self._transport.request("GET", cursor or f"{self._path}/commits", kind=CqsKind.QUERY)
         return page_from_payload(cast("dict[str, Any]", data), SnippetCommit)
 
@@ -83,9 +84,10 @@ class AsyncSnippetClient:
 
     # GET .../snippets/{workspace}/{encoded_id}/watchers (auto-paginating)
     def watchers(self) -> AsyncIterator[Account]:
-        return apaginate(lambda cursor: self._watchers_page(cursor=cursor))
+        return apaginate(lambda cursor: self.watchers_page(cursor=cursor))
 
-    async def _watchers_page(self, *, cursor: str | None) -> Page[Account]:
+    # GET .../snippets/{workspace}/{encoded_id}/watchers
+    async def watchers_page(self, *, cursor: str | None = None) -> Page[Account]:
         data = await self._transport.request("GET", cursor or f"{self._path}/watchers", kind=CqsKind.QUERY)
         return page_from_payload(cast("dict[str, Any]", data), Account)
 

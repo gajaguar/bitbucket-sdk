@@ -65,6 +65,8 @@ lint.flake8-type-checking.runtime-evaluated-base-classes = [
 ]
 lint.flake8-bugbear.extend-immutable-calls = ["pydantic.Field"]
 lint.per-file-ignores."tests/**/*.py" = ["ANN", "assert", "magic-value-comparison"]
+lint.per-file-ignores."src/bitbucket/**/commits.py" = ["too-many-public-methods"]
+lint.per-file-ignores."src/bitbucket/**/pull_requests.py" = ["too-many-public-methods"]
 
 [tool.mypy]
 strict = true

@@ -56,9 +56,12 @@ class AsyncPullRequestsResource(
 
     # GET {path}/{id}/activity (auto-paginating)
     def activity(self, pull_request_id: PullRequestId | int) -> AsyncIterator[Activity]:
-        return apaginate(lambda cursor: self._activity_page(pull_request_id, cursor=cursor))
+        return apaginate(lambda cursor: self.activity_page(pull_request_id, cursor=cursor))
 
-    async def _activity_page(self, pull_request_id: PullRequestId | int, *, cursor: str | None) -> Page[Activity]:
+    # GET {path}/{id}/activity
+    async def activity_page(
+        self, pull_request_id: PullRequestId | int, *, cursor: str | None = None
+    ) -> Page[Activity]:
         if cursor:
             data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
@@ -78,9 +81,10 @@ class AsyncPullRequestsResource(
 
     # GET {path}/{id}/commits (auto-paginating)
     def commits(self, pull_request_id: PullRequestId | int) -> AsyncIterator[Commit]:
-        return apaginate(lambda cursor: self._commits_page(pull_request_id, cursor=cursor))
+        return apaginate(lambda cursor: self.commits_page(pull_request_id, cursor=cursor))
 
-    async def _commits_page(self, pull_request_id: PullRequestId | int, *, cursor: str | None) -> Page[Commit]:
+    # GET {path}/{id}/commits
+    async def commits_page(self, pull_request_id: PullRequestId | int, *, cursor: str | None = None) -> Page[Commit]:
         if cursor:
             data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
@@ -90,9 +94,12 @@ class AsyncPullRequestsResource(
 
     # GET {path}/{id}/conflicts (auto-paginating)
     def conflicts(self, pull_request_id: PullRequestId | int) -> AsyncIterator[FileConflict]:
-        return apaginate(lambda cursor: self._conflicts_page(pull_request_id, cursor=cursor))
+        return apaginate(lambda cursor: self.conflicts_page(pull_request_id, cursor=cursor))
 
-    async def _conflicts_page(self, pull_request_id: PullRequestId | int, *, cursor: str | None) -> Page[FileConflict]:
+    # GET {path}/{id}/conflicts
+    async def conflicts_page(
+        self, pull_request_id: PullRequestId | int, *, cursor: str | None = None
+    ) -> Page[FileConflict]:
         if cursor:
             data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
@@ -115,9 +122,12 @@ class AsyncPullRequestsResource(
 
     # GET {path}/{id}/diffstat (auto-paginating)
     def diffstat(self, pull_request_id: PullRequestId | int) -> AsyncIterator[DiffStat]:
-        return apaginate(lambda cursor: self._diffstat_page(pull_request_id, cursor=cursor))
+        return apaginate(lambda cursor: self.diffstat_page(pull_request_id, cursor=cursor))
 
-    async def _diffstat_page(self, pull_request_id: PullRequestId | int, *, cursor: str | None) -> Page[DiffStat]:
+    # GET {path}/{id}/diffstat
+    async def diffstat_page(
+        self, pull_request_id: PullRequestId | int, *, cursor: str | None = None
+    ) -> Page[DiffStat]:
         if cursor:
             data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
