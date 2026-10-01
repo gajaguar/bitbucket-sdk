@@ -5,12 +5,14 @@ from enum import StrEnum
 from bitbucket.models.account import Account
 from bitbucket.models.base import BitbucketModel
 from bitbucket.models.project import Project
+from bitbucket.models.repository import Repository
 
 
 class PermissionLevel(StrEnum):
     READ = "read"
     WRITE = "write"
     ADMIN = "admin"
+    NONE = "none"
     UNKNOWN = "unknown"
 
     @classmethod
@@ -42,6 +44,13 @@ class UserPermission(BitbucketModel):
 
 class UserPermissionUpdate(BitbucketModel):
     permission: PermissionLevel
+
+
+class RepositoryPermission(BitbucketModel):
+    type: str | None = None
+    permission: PermissionLevel | None = None
+    user: Account | None = None
+    repository: Repository | None = None
 
 
 class RepositoryOverrideSettings(BitbucketModel):

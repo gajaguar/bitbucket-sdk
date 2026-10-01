@@ -10,9 +10,14 @@ from bitbucket.aio.repository import AsyncRepositoryClient
 from bitbucket.aio.resources.hooks import AsyncHooksResource
 from bitbucket.aio.resources.projects import AsyncProjectsResource
 from bitbucket.aio.resources.repositories import AsyncRepositoriesResource
+from bitbucket.aio.resources.workspaces import AsyncWorkspaceMembersResource
+from bitbucket.aio.resources.workspaces import AsyncWorkspacePermissionsResource
 from bitbucket.ids import ProjectKey
 from bitbucket.ids import RepositorySlug
+from bitbucket.models.permission import RepositoryPermission
 from bitbucket.models.pull_request import PullRequest
+from bitbucket.models.workspace import Workspace
+from bitbucket.models.workspace import WorkspaceMembership
 from bitbucket.resources.base import page_from_payload
 from bitbucket.retry import CqsKind
 
@@ -32,12 +37,54 @@ class AsyncWorkspaceClient:
         self.repositories = AsyncRepositoriesResource(transport, slug)
         self.hooks = AsyncHooksResource(transport, f"/workspaces/{slug}")
         self.projects = AsyncProjectsResource(transport, f"/workspaces/{slug}")
+        self.members = AsyncWorkspaceMembersResource(transport, f"/workspaces/{slug}")
+        self.permissions = AsyncWorkspacePermissionsResource(transport, f"/workspaces/{slug}")
 
     def repository(self, slug: RepositorySlug | str) -> AsyncRepositoryClient:
         return AsyncRepositoryClient(self._transport, self.slug, RepositorySlug(str(slug)))
 
     def project(self, key: ProjectKey | str) -> AsyncProjectClient:
         return AsyncProjectClient(self._transport, self.slug, ProjectKey(str(key)))
+
+    # GET .../workspaces/{workspace}
+    async def get(self) -> Workspace:
+        data = await self._transport.request("GET", f"/workspaces/{self.slug}", kind=CqsKind.QUERY)
+        return Workspace.model_validate(data)
+
+    # GET .../workspaces/{workspace}/settings/gpg/public-key
+    async def gpg_public_key(self) -> str:
+        # Plain text; one key, or two while Bitbucket rotates it.
+        path = f"/workspaces/{self.slug}/settings/gpg/public-key"
+        return await self._transport.request_text("GET", path, kind=CqsKind.QUERY)
+
+    # GET .../user/workspaces/{workspace}/permission
+    async def my_permission(self) -> WorkspaceMembership:
+        data = await self._transport.request("GET", f"/user/workspaces/{self.slug}/permission", kind=CqsKind.QUERY)
+        return WorkspaceMembership.model_validate(data)
+
+    # GET .../user/workspaces/{workspace}/permissions/repositories (auto-paginating)
+    def my_repository_permissions(
+        self,
+        *,
+        q: str | None = None,
+        sort: str | None = None,
+    ) -> AsyncIterator[RepositoryPermission]:
+        return apaginate(lambda cursor: self.my_repository_permissions_page(q=q, sort=sort, cursor=cursor))
+
+    # GET .../user/workspaces/{workspace}/permissions/repositories
+    async def my_repository_permissions_page(
+        self,
+        *,
+        q: str | None = None,
+        sort: str | None = None,
+        cursor: str | None = None,
+    ) -> Page[RepositoryPermission]:
+        if cursor:
+            data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY)
+        else:
+            path = f"/user/workspaces/{self.slug}/permissions/repositories"
+            data = await self._transport.request("GET", path, kind=CqsKind.QUERY, params={"q": q, "sort": sort})
+        return page_from_payload(cast("dict[str, Any]", data), RepositoryPermission)
 
     # GET .../workspaces/{workspace}/pullrequests/{user} (auto-paginating)
     def pull_requests_by_author(
