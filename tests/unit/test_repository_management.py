@@ -220,25 +220,25 @@ def test_repository_user_permission_update_puts_permission_level(client: Bitbuck
 @respx.mock
 def test_repository_override_settings_returns_current_settings(client: BitbucketClient) -> None:
     # Arrange
-    respx.get(f"{BASE_URL}/repositories/ws/repo/permissions-config/override-settings").mock(
-        return_value=Response(200, json={"branching_model": True}),
+    respx.get(f"{BASE_URL}/repositories/ws/repo/override-settings").mock(
+        return_value=Response(
+            200, json={"type": "repository_inheritance_state", "override_settings": {"branching_model": True}}
+        ),
     )
     # Act
     result = _repository(client).permissions.override_settings()
     # Assert
-    assert result.branching_model is True
+    assert result.override_settings is not None
+    assert result.override_settings.branching_model is True
 
 
 @respx.mock
 def test_repository_override_settings_update_puts_new_settings(client: BitbucketClient) -> None:
     # Arrange
-    route = respx.put(f"{BASE_URL}/repositories/ws/repo/permissions-config/override-settings").mock(
-        return_value=Response(200, json={"branching_model": False}),
+    route = respx.put(f"{BASE_URL}/repositories/ws/repo/override-settings").mock(
+        return_value=Response(204),
     )
     # Act
-    result = _repository(client).permissions.update_override_settings(
-        RepositoryOverrideSettings(branching_model=False)
-    )
+    _repository(client).permissions.update_override_settings(RepositoryOverrideSettings(branching_model=False))
     # Assert
-    assert result.branching_model is False
-    assert route.calls[0].request.content == b'{"branching_model":false}'
+    assert route.calls[0].request.content == b'{"override_settings":{"branching_model":false}}'

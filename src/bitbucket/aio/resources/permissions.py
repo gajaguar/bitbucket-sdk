@@ -6,6 +6,7 @@ from typing import cast
 from bitbucket._pagination import apaginate
 from bitbucket.models.permission import GroupPermission
 from bitbucket.models.permission import GroupPermissionUpdate
+from bitbucket.models.permission import RepositoryInheritanceState
 from bitbucket.models.permission import RepositoryOverrideSettings
 from bitbucket.models.permission import UserPermission
 from bitbucket.models.permission import UserPermissionUpdate
@@ -97,24 +98,24 @@ class AsyncUserPermissionsResource:
 
 
 class AsyncRepositoryPermissionsResource:
-    # Umbrella over the three permissions-config sub-resources — groups: and
-    # users: are keyed collections, override_settings is a single-document
-    # resource, so none share AsyncNestedResource's {path}/{id} shape.
+    # Umbrella over the permissions-config sub-resources — groups: and users:
+    # are keyed collections; override_settings (a sibling path, not under
+    # permissions-config) is a single-document resource, so none share AsyncNestedResource's {path}/{id} shape.
     def __init__(self, transport: AsyncTransport, base_path: str) -> None:
         self._transport = transport
         self._base_path = base_path
         self.groups = AsyncGroupPermissionsResource(transport, base_path)
         self.users = AsyncUserPermissionsResource(transport, base_path)
 
-    # GET .../permissions-config/override-settings
-    async def override_settings(self) -> RepositoryOverrideSettings:
-        path = f"{self._base_path}/permissions-config/override-settings"
-        data = await self._transport.request("GET", path, kind=CqsKind.QUERY)
-        return RepositoryOverrideSettings.model_validate(data)
+    # GET .../override-settings
+    async def override_settings(self) -> RepositoryInheritanceState:
+        data = await self._transport.request("GET", f"{self._base_path}/override-settings", kind=CqsKind.QUERY)
+        return RepositoryInheritanceState.model_validate(data)
 
-    # PUT .../permissions-config/override-settings
-    async def update_override_settings(self, payload: RepositoryOverrideSettings) -> RepositoryOverrideSettings:
-        body = payload.model_dump(mode="json", by_alias=True, exclude_unset=True)
-        path = f"{self._base_path}/permissions-config/override-settings"
-        data = await self._transport.request("PUT", path, kind=CqsKind.IDEMPOTENT_COMMAND, json=body)
-        return RepositoryOverrideSettings.model_validate(data)
+    # PUT .../override-settings (204, no body)
+    async def update_override_settings(self, payload: RepositoryOverrideSettings) -> None:
+        settings = payload.model_dump(mode="json", by_alias=True, exclude_unset=True)
+        body: dict[str, Any] = {"override_settings": settings}
+        await self._transport.request(
+            "PUT", f"{self._base_path}/override-settings", kind=CqsKind.IDEMPOTENT_COMMAND, json=body
+        )

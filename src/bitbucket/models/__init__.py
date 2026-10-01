@@ -59,6 +59,7 @@ from bitbucket.models.permission import GroupPermission
 from bitbucket.models.permission import GroupPermissionUpdate
 from bitbucket.models.permission import GroupRef
 from bitbucket.models.permission import PermissionLevel
+from bitbucket.models.permission import RepositoryInheritanceState
 from bitbucket.models.permission import RepositoryOverrideSettings
 from bitbucket.models.permission import UserPermission
 from bitbucket.models.permission import UserPermissionUpdate
@@ -184,6 +185,7 @@ __all__ = [
     "RenderedField",
     "Repository",
     "RepositoryCreate",
+    "RepositoryInheritanceState",
     "RepositoryOverrideSettings",
     "RepositorySpec",
     "RepositoryUpdate",

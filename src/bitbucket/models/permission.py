@@ -47,3 +47,8 @@ class RepositoryOverrideSettings(BitbucketModel):
     branching_model: bool | None = None
     branch_restrictions: bool | None = None
     default_merge_strategy: bool | None = None
+
+
+class RepositoryInheritanceState(BitbucketModel):
+    type: str
+    override_settings: RepositoryOverrideSettings | None = None
