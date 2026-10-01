@@ -42,11 +42,11 @@ once, under its first tag, to sum to 294 without double-counting).
 | Repositories        |         24 |      24 |    100% |
 | Snippets            |         24 |       0 |      0% |
 | Commits             |         17 |      17 |    100% |
-| Deployments         |         16 |       0 |      0% |
+| Deployments         |         16 |      16 |    100% |
 | Workspaces          |         16 |      16 |    100% |
 | Projects            |         16 |      16 |    100% |
 | properties          |         12 |       0 |      0% |
-| Reports             |          9 |       0 |      0% |
+| Reports             |          9 |       9 |    100% |
 | Refs                |          9 |       9 |    100% |
 | Branching model     |          7 |       7 |    100% |
 | Branch restrictions |          5 |       5 |    100% |
@@ -59,7 +59,7 @@ once, under its first tag, to sum to 294 without double-counting).
 | Addon               |          3 |       0 |      0% |
 | Search              |          3 |       3 |    100% |
 | Webhooks            |          2 |       2 |    100% |
-| **Total**           |    **294** | **230** | **78%** |
+| **Total**           |    **294** | **255** | **87%** |
 
 The spec also declares `Issue tracker` and `Wiki` tags with zero operations
 attached to any path — Bitbucket's issue-tracker and wiki REST endpoints are
@@ -690,7 +690,7 @@ under `ws.pipelines_config`.
 Note: These four operations are first-tagged `Pipelines`, so they count in
 this group, but they belong to deployment environments. They live at
 `repo.environments.variables(environment_uuid)`, on an `EnvironmentsResource`
-that Phase 4b extends with the `Deployments` operations. The spec has no `GET`
+that also carries the `Deployments` operations (see below). The spec has no `GET`
 for a single deployment variable, so the resource has no `get`. Variables use
 the same models as the pipeline ones (the `deployment_variable` schema is the
 same shape). `list()` follows `next`.
@@ -728,3 +728,132 @@ schedules, caches and cache deletion need `pipeline:write`; variables, SSH key
 pair, known hosts, build number and environment variables need
 `pipeline:variable`; runner writes need `runner:write`; the repository
 configuration needs `repository:admin`. The OIDC operations declare none.
+
+## Deployments
+
+### Environments
+
+| Endpoint                                           | SDK method                                            | Status |
+| -------------------------------------------------- | ----------------------------------------------------- | ------ |
+| `GET .../environments`                             | `repo.environments.list()`                            | done   |
+| `POST .../environments`                            | `repo.environments.create(payload)`                   | done   |
+| `GET .../environments/{environment_uuid}`          | `repo.environments.get(environment_uuid)`             | done   |
+| `DELETE .../environments/{environment_uuid}`       | `repo.environments.delete(environment_uuid)`          | done   |
+| `POST .../environments/{environment_uuid}/changes` | `repo.environments.update(environment_uuid, payload)` | done   |
+
+Note: `POST .../environments/{environment_uuid}/changes` declares no request
+body and answers `202` with no content, so `update` sends `EnvironmentUpdate`
+(`name`, the one field `deployment_environment` documents) and returns `None`.
+`deployment_environment` declares only `uuid` and `name`; `Environment` accepts
+extra fields, and `EnvironmentCreate` always sends `type`
+(`deployment_environment`). `POST .../environments` answers `201` and `409`
+when the name exists. The four variable operations of an environment are
+counted under `Pipelines` (see above) and share the `repo.environments`
+resource.
+
+### Deployments
+
+| Endpoint                                | SDK method                              | Status |
+| --------------------------------------- | --------------------------------------- | ------ |
+| `GET .../deployments`                   | `repo.deployments.list()`               | done   |
+| `GET .../deployments/{deployment_uuid}` | `repo.deployments.get(deployment_uuid)` | done   |
+
+Note: The spec has no operation to create or change a deployment. A deployment's
+`state` is one of three subtypes (`deployment_state_undeployed`,
+`..._in_progress`, `..._completed`) and a completed state carries one of three
+status subtypes (`..._successful`, `..._failed`, `..._stopped`). `DeploymentState`
+and `DeploymentStatus` are one model each, with a `name` enum that falls back to
+`UNKNOWN`, like `PipelineState`.
+
+### Deploy keys
+
+| Endpoint                                                                     | SDK method                                 | Status |
+| ---------------------------------------------------------------------------- | ------------------------------------------ | ------ |
+| `GET .../deploy-keys`                                                        | `repo.deploy_keys.list()`                  | done   |
+| `POST .../deploy-keys`                                                       | `repo.deploy_keys.create(payload)`         | done   |
+| `GET .../deploy-keys/{key_id}`                                               | `repo.deploy_keys.get(key_id)`             | done   |
+| `PUT .../deploy-keys/{key_id}`                                               | `repo.deploy_keys.update(key_id, payload)` | done   |
+| `DELETE .../deploy-keys/{key_id}`                                            | `repo.deploy_keys.delete(key_id)`          | done   |
+| `GET /workspaces/{workspace}/projects/{project_key}/deploy-keys`             | `project.deploy_keys.list()`               | done   |
+| `POST /workspaces/{workspace}/projects/{project_key}/deploy-keys`            | `project.deploy_keys.create(payload)`      | done   |
+| `GET /workspaces/{workspace}/projects/{project_key}/deploy-keys/{key_id}`    | `project.deploy_keys.get(key_id)`          | done   |
+| `DELETE /workspaces/{workspace}/projects/{project_key}/deploy-keys/{key_id}` | `project.deploy_keys.delete(key_id)`       | done   |
+
+Note: The spec declares no request body for the `POST` and `PUT` of repository
+deploy keys or the `POST` of project deploy keys; their descriptions show `key`
+and `label`, which is what `DeployKeyCreate` and `DeployKeyUpdate` carry (the
+`PUT` must send the same `key` again). The spec has no `PUT` for a project key,
+so `project.deploy_keys` has no `update`. Both `POST` answer `200`, not `201`.
+The schemas declare no `id`, though the `{key_id}` path and the examples use
+it, and list `added_on` where the examples show `created_on`; the models
+declare both. The project `GET` example shows a paginated envelope while its
+schema is a single key; the SDK follows the schema. The 9 operations declare no
+`operationId`.
+
+### Deployments notes
+
+Note: Pagination: the repository and project deploy-key lists, deployments and
+environments declare `next` and `values` (all auto-paginating, with no query
+parameters). Every other operation returns one object or no content: the three
+`DELETE` operations answer `204` and the environment `changes` answers `202`.
+
+Note: CQS kinds: every `GET` is a `QUERY`. `DELETE` and `PUT` are
+`IDEMPOTENT_COMMAND`. `POST` that creates (an environment, a deploy key) is
+`NON_IDEMPOTENT_COMMAND`, so a `5xx` is never retried and cannot hit a `409`.
+`POST .../changes` is `NON_IDEMPOTENT_COMMAND` as well: it answers `202`, and
+the spec does not say whether a repeat has a second effect.
+
+Note: Secrets: none of the 16 operations carries a secret. A deploy key's `key`
+is the SSH public key, so it is a plain `str`, like `SshKey.key`; the private
+half never reaches the API.
+
+Note: Rate limits: none of the 16 operations declares a `429`. The retry policy
+is unchanged, so a `429` is retried like on any other request, honouring
+`Retry-After`, and raises `RateLimitError` once the retries run out.
+
+Note: Scopes: environments and deployments need `pipeline` (the new-style
+`read:pipeline:bitbucket`, or `admin:pipeline:bitbucket` to create, change or
+delete an environment). Repository deploy keys need `repository:admin`
+(`admin:repository:bitbucket`, plus `write:ssh-key:bitbucket` or
+`delete:ssh-key:bitbucket` to write); project deploy keys need `project:admin`
+(`admin:project:bitbucket`, with the same two `ssh-key` scopes).
+
+## Reports
+
+| Endpoint                                                                   | SDK method                                                                        | Status |
+| -------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------ |
+| `GET .../commit/{commit}/reports`                                          | `repo.commits.reports(commit).list()`                                             | done   |
+| `GET .../commit/{commit}/reports/{reportId}`                               | `repo.commits.reports(commit).get(report_id)`                                     | done   |
+| `PUT .../commit/{commit}/reports/{reportId}`                               | `repo.commits.reports(commit).put(report_id, payload)`                            | done   |
+| `DELETE .../commit/{commit}/reports/{reportId}`                            | `repo.commits.reports(commit).delete(report_id)`                                  | done   |
+| `GET .../commit/{commit}/reports/{reportId}/annotations`                   | `repo.commits.reports(commit).annotations(report_id).list()`                      | done   |
+| `POST .../commit/{commit}/reports/{reportId}/annotations`                  | `repo.commits.reports(commit).annotations(report_id).put_many(payloads)`          | done   |
+| `GET .../commit/{commit}/reports/{reportId}/annotations/{annotationId}`    | `repo.commits.reports(commit).annotations(report_id).get(annotation_id)`          | done   |
+| `PUT .../commit/{commit}/reports/{reportId}/annotations/{annotationId}`    | `repo.commits.reports(commit).annotations(report_id).put(annotation_id, payload)` | done   |
+| `DELETE .../commit/{commit}/reports/{reportId}/annotations/{annotationId}` | `repo.commits.reports(commit).annotations(report_id).delete(annotation_id)`       | done   |
+
+Note: A report and an annotation are keyed by an id the caller picks, so `put`
+creates or replaces (`IDEMPOTENT_COMMAND`: a repeat writes the same state).
+`ReportWrite` and `ReportAnnotationWrite` leave out `type`, as the spec's
+sample requests do, and `ReportAnnotationWrite` carries `title` although the
+`report_annotation` schema omits it, because the samples send it. The spec
+gives `report_data.value` as `object`; its description says a number, string,
+boolean or `{text, href}` object depending on `type`, so `ReportData.value` is
+untyped.
+
+Note: `put_many` posts a JSON array of 1 to 100 annotations and returns the
+array the server answers. It is `IDEMPOTENT_COMMAND`: every annotation must
+carry an `external_id`, which makes the upload an upsert, so a repeat has no
+second effect. A report holds up to 1000 annotations.
+
+Note: Pagination: the report and annotation lists declare `next` and `values`
+(auto-paginating). Every other operation returns one object, the array of the
+bulk upload, or no content (`DELETE` answers `204`). Only the two `PUT`
+operations declare a `400`; the two single `GET` operations declare a `404`.
+
+Note: Secrets: none. Rate limits: none of the 9 operations declares a `429`;
+the retry policy is unchanged.
+
+Note: Scopes: all nine declare only the read scope (`repository`,
+`read:repository:bitbucket`), writes included; the spec is likely wrong, so a
+write may need more at runtime.

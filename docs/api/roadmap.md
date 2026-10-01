@@ -13,7 +13,7 @@ This SDK targets **Bitbucket Cloud REST API `2.0`**, checked against
 `x-revision: 6856b45887d7` (2026-10-01). Regenerate the numbers below against
 a newer revision whenever [endpoint coverage](endpoint-coverage.md) is re-verified.
 
-**Where we are today:** 230 / 294 operations (78%) — see the coverage summary
+**Where we are today:** 255 / 294 operations (87%) — see the coverage summary
 table in [endpoint coverage](endpoint-coverage.md) for the full breakdown by resource
 group. This document lays out the path from there to full parity, in phases
 tied to version milestones, plus two cross-cutting phases (0a and 0b) that
@@ -284,13 +284,23 @@ response schema and return the JSON as is. Everything else fits
 `RunnersResource` for two) or a hand-written method. Secrets (variable values,
 the SSH private key, a runner's OAuth secret) are `SecretStr`.
 
-### 4b — `Deployments` (16) and `Reports` (9)
+### 4b — `Deployments` (16) and `Reports` (9) — shipped on `main`
 
 - `Deployments` (16): deploy keys, deployments, environments. 4b extends the
   `EnvironmentsResource` that 4a introduced for the environment variables.
 - `Reports` (9): code-insight reports and annotations on commits.
 
 Coverage goes from 230 to 255 (87%).
+
+**Architecture note:** no new seam. Environments extend the 4a resource (the
+`changes` call answers `202` with no content, so `update` returns `None`).
+Deploy keys use `NestedResource` for repositories and a small hand-written
+resource for projects, which have no `PUT`. Reports and annotations are keyed
+by an id the caller picks, so `put` is an `IDEMPOTENT_COMMAND`, and the bulk
+annotation upload posts a JSON array. None of the 25 operations carries a
+secret, and none declares a `429`. Several bodies are undeclared in the spec
+(deploy keys, environment `changes`); the models carry the fields the spec's
+examples show and accept extras. See [endpoint coverage](endpoint-coverage.md).
 
 ## Phase 5 — remainder (`1.0.0`)
 
@@ -317,7 +327,7 @@ in the machine-readable spec — see the footnote in `endpoint-coverage.md`.
 | 3b    | 0.8.0    | +27 (shipped)                   | 143 (49%)           |
 | 3c    | next     | +19 (all on `main`)             | 162 (55%)           |
 | 4a    | next     | +68 (all on `main`)             | 230 (78%)           |
-| 4b    | after 4a | +25                             | 255 (87%)           |
+| 4b    | next     | +25 (all on `main`)             | 255 (87%)           |
 | 5     | 1.0.0    | +39                             | 294 (100%)          |
 
 Phase 3 is split across two releases. `0.7.0` carries the 19 operations
