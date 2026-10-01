@@ -8,8 +8,11 @@ from bitbucket.resources.commit_statuses import CommitStatusesResource
 from bitbucket.resources.commits import CommitsResource
 from bitbucket.resources.default_reviewers import DefaultReviewersResource
 from bitbucket.resources.downloads import DownloadsResource
+from bitbucket.resources.environments import EnvironmentsResource
 from bitbucket.resources.hooks import HooksResource
 from bitbucket.resources.permissions import RepositoryPermissionsResource
+from bitbucket.resources.pipelines import PipelinesResource
+from bitbucket.resources.pipelines_config import RepositoryPipelinesConfig
 from bitbucket.resources.pull_requests import PullRequestsResource
 from bitbucket.resources.refs import RefsResource
 from bitbucket.resources.source import SourceResource
@@ -37,3 +40,6 @@ class RepositoryClient:  # pylint: disable=too-many-instance-attributes
         self.downloads = DownloadsResource(transport, base_path)
         self.branch_restrictions = BranchRestrictionsResource(transport, base_path)
         self.branching_model = RepositoryBranchingModelResource(transport, base_path)
+        self.pipelines = PipelinesResource(transport, base_path)
+        self.pipelines_config = RepositoryPipelinesConfig(transport, base_path)
+        self.environments = EnvironmentsResource(transport, base_path)

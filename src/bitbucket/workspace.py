@@ -15,6 +15,7 @@ from bitbucket.project import ProjectClient
 from bitbucket.repository import RepositoryClient
 from bitbucket.resources.base import page_from_payload
 from bitbucket.resources.hooks import HooksResource
+from bitbucket.resources.pipelines_config import WorkspacePipelinesConfig
 from bitbucket.resources.projects import ProjectsResource
 from bitbucket.resources.repositories import RepositoriesResource
 from bitbucket.resources.search import SearchResource
@@ -41,6 +42,7 @@ class WorkspaceClient:
         self.members = WorkspaceMembersResource(transport, f"/workspaces/{slug}")
         self.permissions = WorkspacePermissionsResource(transport, f"/workspaces/{slug}")
         self.search = SearchResource(transport, f"/workspaces/{slug}")
+        self.pipelines_config = WorkspacePipelinesConfig(transport, f"/workspaces/{slug}")
 
     def repository(self, slug: RepositorySlug | str) -> RepositoryClient:
         return RepositoryClient(self._transport, self.slug, RepositorySlug(str(slug)))

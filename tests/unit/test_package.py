@@ -58,3 +58,66 @@ def test_mergeability_surface_is_public() -> None:
     missing = names - set(bitbucket.__all__)
     # Assert
     assert not missing
+
+
+def test_pipelines_surface_is_public() -> None:
+    # Arrange
+    names = {
+        "Pipeline",
+        "PipelineBuildNumber",
+        "PipelineBuildNumberUpdate",
+        "PipelineCache",
+        "PipelineCacheContentUri",
+        "PipelineCommand",
+        "PipelineCommitRef",
+        "PipelineCommitTargetCreate",
+        "PipelineConfigurationSource",
+        "PipelineCreate",
+        "PipelineError",
+        "PipelineImage",
+        "PipelineKnownHost",
+        "PipelineKnownHostCreate",
+        "PipelineKnownHostUpdate",
+        "PipelineLinks",
+        "PipelineRefTargetCreate",
+        "PipelineRefType",
+        "PipelineResultName",
+        "PipelineSchedule",
+        "PipelineScheduleCreate",
+        "PipelineScheduleExecution",
+        "PipelineScheduleTargetCreate",
+        "PipelineScheduleUpdate",
+        "PipelineSelector",
+        "PipelineSelectorType",
+        "PipelineSshKeyPair",
+        "PipelineSshKeyPairUpdate",
+        "PipelineSshPublicKey",
+        "PipelineStageName",
+        "PipelineState",
+        "PipelineStateName",
+        "PipelineStateResult",
+        "PipelineStateStage",
+        "PipelineStep",
+        "PipelineStepResult",
+        "PipelineStepResultName",
+        "PipelineStepState",
+        "PipelineStepStateName",
+        "PipelineTarget",
+        "PipelineTrigger",
+        "PipelineVariable",
+        "PipelineVariableCreate",
+        "PipelineVariableUpdate",
+        "PipelinesConfig",
+        "PipelinesConfigUpdate",
+        "Runner",
+        "RunnerCreate",
+        "RunnerOAuthClient",
+        "RunnerState",
+        "RunnerStatus",
+        "RunnerUpdate",
+        "RunnerVersion",
+    }
+    # Act
+    missing = names - set(bitbucket.__all__)
+    # Assert
+    assert not missing
