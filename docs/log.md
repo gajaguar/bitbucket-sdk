@@ -2,6 +2,10 @@
 
 ## 2026-10-01
 
+* **Updated**: the version files for release `1.0.1`, a patch release that
+  leaves the API alone: `downloads.get` and `source.read` follow the redirect
+  the spec describes (issue 43). `x-revision` `6856b45887d7` is unchanged.
+
 * **Updated**: `api/endpoint-coverage.md`, `sdk/credential-contract.md` and
   `sdk/credential-tests.md` for the fix to `downloads.get` (issue 43): the
   `Downloads` note records the `302` the spec declares in place of a `200`,
