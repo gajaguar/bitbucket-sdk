@@ -15,6 +15,7 @@ from bitbucket.aio.resources.hooks import AsyncHooksResource
 from bitbucket.aio.resources.permissions import AsyncRepositoryPermissionsResource
 from bitbucket.aio.resources.pipelines import AsyncPipelinesResource
 from bitbucket.aio.resources.pipelines_config import AsyncRepositoryPipelinesConfig
+from bitbucket.aio.resources.properties import AsyncPropertiesResource
 from bitbucket.aio.resources.pull_requests import AsyncPullRequestsResource
 from bitbucket.aio.resources.refs import AsyncRefsResource
 from bitbucket.aio.resources.source import AsyncSourceResource
@@ -47,3 +48,4 @@ class AsyncRepositoryClient:  # pylint: disable=too-many-instance-attributes
         self.environments = AsyncEnvironmentsResource(transport, base_path)
         self.deployments = AsyncDeploymentsResource(transport, base_path)
         self.deploy_keys = AsyncDeployKeysResource(transport, base_path)
+        self.properties = AsyncPropertiesResource(transport, base_path)
