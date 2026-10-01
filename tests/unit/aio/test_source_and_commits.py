@@ -54,6 +54,21 @@ async def test_source_read_returns_raw_file_bytes(aclient: AsyncBitbucketClient)
 
 
 @respx.mock
+async def test_source_read_follows_the_redirect_for_an_lfs_file(aclient: AsyncBitbucketClient) -> None:
+    # Arrange
+    media_url = "https://media.example.com/big.bin"
+    respx.get(f"{BASE_URL}/repositories/ws/repo/src/abc123/big.bin").mock(
+        return_value=Response(301, headers={"Location": media_url}),
+    )
+    media = respx.get(media_url).mock(return_value=Response(200, content=b"lfs-content"))
+    # Act
+    content = await _repository(aclient).source.read("abc123", "big.bin")
+    # Assert
+    assert content == b"lfs-content"
+    assert "Authorization" not in media.calls[0].request.headers
+
+
+@respx.mock
 async def test_source_create_commit_posts_files_and_message(aclient: AsyncBitbucketClient) -> None:
     # Arrange
     route = respx.post(f"{BASE_URL}/repositories/ws/repo/src").mock(return_value=Response(204))

@@ -31,7 +31,10 @@ class AsyncDownloadsResource:
 
     # GET {path}/{filename}
     async def get(self, filename: str) -> bytes:
-        return await self._transport.request_bytes("GET", f"{self._path}/{filename}", kind=CqsKind.QUERY)
+        # The spec declares only a 302 to the file in storage, so the redirect is followed.
+        return await self._transport.request_bytes(
+            "GET", f"{self._path}/{filename}", kind=CqsKind.QUERY, follow_redirects=True
+        )
 
     # GET {path} (auto-paginating)
     def list(self) -> AsyncIterator[Download]:

@@ -51,6 +51,21 @@ def test_download_get_returns_raw_bytes(client: BitbucketClient) -> None:
 
 
 @respx.mock
+def test_download_get_follows_the_redirect_to_the_file(client: BitbucketClient) -> None:
+    # Arrange
+    storage_url = "https://storage.example.com/release.zip"
+    respx.get(f"{BASE_URL}/repositories/ws/repo/downloads/release.zip").mock(
+        return_value=Response(302, headers={"Location": storage_url}),
+    )
+    storage = respx.get(storage_url).mock(return_value=Response(200, content=b"binary-content"))
+    # Act
+    content = _downloads(client).get("release.zip")
+    # Assert
+    assert content == b"binary-content"
+    assert "Authorization" not in storage.calls[0].request.headers
+
+
+@respx.mock
 def test_download_delete_returns_none(client: BitbucketClient) -> None:
     # Arrange
     route = respx.delete(f"{BASE_URL}/repositories/ws/repo/downloads/release.zip").mock(

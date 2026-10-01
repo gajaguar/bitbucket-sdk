@@ -94,5 +94,6 @@ class AsyncSourceResource:
 
     # GET .../src/{commit}/{path} — raw file content
     async def read(self, commit: CommitHash | str, path: str) -> bytes:
+        # A file managed by LFS answers 301 to the media platform, so the redirect is followed.
         request_path = f"{self._base_path}/src/{commit}/{path}"
-        return await self._transport.request_bytes("GET", request_path, kind=CqsKind.QUERY)
+        return await self._transport.request_bytes("GET", request_path, kind=CqsKind.QUERY, follow_redirects=True)

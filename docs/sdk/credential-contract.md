@@ -82,6 +82,11 @@ The client builds one authentication object and passes it to the transport.
 A new credential type arrives as another authentication class, and the
 transport does not change.
 
+A request that follows a redirect to another origin does not carry the
+authentication header there: the redirect target, such as a signed storage
+URL, is reachable without it, and the secret stays with the service that
+issued it.
+
 ## Logging
 
 The transport logs only the method, the path, the status and the elapsed
