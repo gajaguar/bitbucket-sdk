@@ -14,6 +14,7 @@ from bitbucket.ids import WorkspaceSlug
 from bitbucket.resources.hook_events import HookEventsResource
 from bitbucket.resources.user import UserResource
 from bitbucket.retry import RetryPolicy
+from bitbucket.user import UserClient
 from bitbucket.workspace import WorkspaceClient
 
 if TYPE_CHECKING:
@@ -66,3 +67,6 @@ class BitbucketClient:
 
     def workspace(self, slug: WorkspaceSlug | str) -> WorkspaceClient:
         return WorkspaceClient(self._transport, WorkspaceSlug(str(slug)))
+
+    def users(self, selected_user: str) -> UserClient:
+        return UserClient(self._transport, selected_user)

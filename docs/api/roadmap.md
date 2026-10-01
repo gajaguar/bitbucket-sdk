@@ -13,7 +13,7 @@ This SDK targets **Bitbucket Cloud REST API `2.0`**, checked against
 `x-revision: 6856b45887d7` (2026-09-30). Regenerate the numbers below against
 a newer revision whenever [endpoint coverage](endpoint-coverage.md) is re-verified.
 
-**Where we are today:** 143 / 294 operations (49%) — see the coverage summary
+**Where we are today:** 155 / 294 operations (53%) — see the coverage summary
 table in [endpoint coverage](endpoint-coverage.md) for the full breakdown by resource
 group. This document lays out the path from there to full parity, in phases
 tied to version milestones, plus two cross-cutting phases (0a and 0b) that
@@ -226,15 +226,19 @@ Workspace- and project-level administration surface:
 - `Branch restrictions` (5), `Branching model` (7) — **shipped in `0.7.0`**.
   The 3 project-level branching-model operations introduced `ProjectClient`
   (`ws.project(key)`), which the rest of `Projects` extends.
-- `Projects` (16) — **shipped on `main`, due in `0.8.0`**: project CRUD,
+- `Projects` (16) — **shipped in `0.8.0`**: project CRUD,
   default reviewers and permissions-config, plus the project listing that the
   spec first-tags `Workspaces`.
-- `Workspaces` (16) — **shipped on `main`, due in `0.8.0`**: members,
+- `Workspaces` (16) — **shipped in `0.8.0`**: members,
   permissions, hooks, GPG public key, plus the caller's own workspaces and
   permissions under `/user`. The 5 workspace hook operations
   (`/workspaces/{workspace}/hooks[/{uid}]`) shipped in `0.7.0`, pulled forward
   with `Webhooks` because they reuse `HooksResource` as-is.
-- `Users` (4), `SSH` (5), `GPG` (4), `Search` (3).
+- `Users` (4), `SSH` (5), `GPG` (4) — **shipped on `main`**: the caller's
+  profile and emails under `/user`, and a `client.users(selected_user)` handle
+  for the profile, SSH keys and GPG keys of any user.
+- `Search` (3) — still planned; it shares no resources or models with the
+  groups above.
 - Two operations the spec added since the first check:
   `GET .../pullrequests/{pull_request_id}/mergeability/checks` (a
   `Pullrequests` read) and
@@ -288,14 +292,15 @@ in the machine-readable spec — see the footnote in `endpoint-coverage.md`.
 | 0a    | 0.5.0   | +0 (async client)               | 97 (33%)            |
 | 0b    | 0.6.0   | +0 (bearer token auth, shipped) | 97 (33%)            |
 | 3a    | 0.7.0   | +19 (shipped)                   | 116 (39%)           |
-| 3b    | 0.8.0   | +46 (the rest of Phase 3)       | 162 (55%)           |
+| 3b    | 0.8.0   | +27 (shipped)                   | 143 (49%)           |
+| 3c    | next    | +19 (12 on `main`, 7 planned)   | 162 (55%)           |
 | 4     | 0.9.0   | +93                             | 255 (87%)           |
 | 5     | 1.0.0   | +39                             | 294 (100%)          |
 
 Phase 3 is split across two releases. `0.7.0` carries the 19 operations
 already done (the webhook groups, `Branch restrictions` and `Branching model`);
-`0.8.0` closes the rest of the phase. Each bump follows the
-[release checklist](../release/release-checklist.md).
+`0.8.0` adds 27 more, and the rest of the phase follows in the next
+release. Each bump follows the [release checklist](../release/release-checklist.md).
 
 Phases 1 and 2 were planned as `0.2.0` and `0.3.0` but never tagged; they
 shipped together in `0.4.0` with the credential contract. `0.4.1` changed

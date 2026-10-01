@@ -167,11 +167,28 @@ The full contract is in
 values that belong to Bitbucket are in
 [`docs/sdk/credentials.md`][sdk-credentials].
 
+### Users, SSH keys and GPG keys
+
+`client.user` acts for the authenticated user (`me()`, `emails()`,
+`email(address)`), while `client.users(selected_user)` returns a handle for
+any user, by Atlassian account id or `{uuid}`:
+
+```python
+user = client.users("{ed08f5e1-605b-4f4a-aee4-6c97628a673e}")
+profile = user.get()
+
+for key in user.ssh_keys.list():
+    print(key.label, key.fingerprint)
+
+user.ssh_keys.create(SshKeyCreate(key="ssh-ed25519 AAAA...", label="Work"), expires_on="2027-01-01")
+user.gpg_keys.delete("A1B2C3D4E5F6A7B8")
+```
+
 ### Async client
 
 `AsyncBitbucketClient` mirrors the sync client one-for-one — same
 `email`/`api_token`/`access_token`/`options`, same `workspace()`, `default_workspace()`,
-`.user`, same resource tree (`.pull_requests`, `.refs`, `.source`,
+`users()`, `.user`, same resource tree (`.pull_requests`, `.refs`, `.source`,
 `.commits`, ...), and the same `merge_and_wait` polling helper. Single-shot
 methods are `async def`; auto-paginating methods return `AsyncIterator`.
 

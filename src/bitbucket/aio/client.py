@@ -7,6 +7,7 @@ from bitbucket._auth import auth_for
 from bitbucket.aio._transport import AsyncTransport
 from bitbucket.aio.resources.hook_events import AsyncHookEventsResource
 from bitbucket.aio.resources.user import AsyncUserResource
+from bitbucket.aio.user import AsyncUserClient
 from bitbucket.aio.workspace import AsyncWorkspaceClient
 from bitbucket.client import _build_config
 from bitbucket.config import resolve_workspace
@@ -46,3 +47,6 @@ class AsyncBitbucketClient:
 
     def workspace(self, slug: WorkspaceSlug | str) -> AsyncWorkspaceClient:
         return AsyncWorkspaceClient(self._transport, WorkspaceSlug(str(slug)))
+
+    def users(self, selected_user: str) -> AsyncUserClient:
+        return AsyncUserClient(self._transport, selected_user)
