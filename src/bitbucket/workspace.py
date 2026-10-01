@@ -19,9 +19,11 @@ from bitbucket.resources.pipelines_config import WorkspacePipelinesConfig
 from bitbucket.resources.projects import ProjectsResource
 from bitbucket.resources.repositories import RepositoriesResource
 from bitbucket.resources.search import SearchResource
+from bitbucket.resources.snippets import SnippetsResource
 from bitbucket.resources.workspaces import WorkspaceMembersResource
 from bitbucket.resources.workspaces import WorkspacePermissionsResource
 from bitbucket.retry import CqsKind
+from bitbucket.snippet import SnippetClient
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -43,9 +45,13 @@ class WorkspaceClient:
         self.permissions = WorkspacePermissionsResource(transport, f"/workspaces/{slug}")
         self.search = SearchResource(transport, f"/workspaces/{slug}")
         self.pipelines_config = WorkspacePipelinesConfig(transport, f"/workspaces/{slug}")
+        self.snippets = SnippetsResource(transport, f"/snippets/{slug}")
 
     def repository(self, slug: RepositorySlug | str) -> RepositoryClient:
         return RepositoryClient(self._transport, self.slug, RepositorySlug(str(slug)))
+
+    def snippet(self, snippet_id: str) -> SnippetClient:
+        return SnippetClient(self._transport, self.slug, snippet_id)
 
     def project(self, key: ProjectKey | str) -> ProjectClient:
         return ProjectClient(self._transport, self.slug, ProjectKey(str(key)))

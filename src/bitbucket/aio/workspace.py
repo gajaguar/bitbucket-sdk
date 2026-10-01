@@ -12,8 +12,10 @@ from bitbucket.aio.resources.pipelines_config import AsyncWorkspacePipelinesConf
 from bitbucket.aio.resources.projects import AsyncProjectsResource
 from bitbucket.aio.resources.repositories import AsyncRepositoriesResource
 from bitbucket.aio.resources.search import AsyncSearchResource
+from bitbucket.aio.resources.snippets import AsyncSnippetsResource
 from bitbucket.aio.resources.workspaces import AsyncWorkspaceMembersResource
 from bitbucket.aio.resources.workspaces import AsyncWorkspacePermissionsResource
+from bitbucket.aio.snippet import AsyncSnippetClient
 from bitbucket.ids import ProjectKey
 from bitbucket.ids import RepositorySlug
 from bitbucket.models.permission import RepositoryPermission
@@ -43,9 +45,13 @@ class AsyncWorkspaceClient:
         self.permissions = AsyncWorkspacePermissionsResource(transport, f"/workspaces/{slug}")
         self.search = AsyncSearchResource(transport, f"/workspaces/{slug}")
         self.pipelines_config = AsyncWorkspacePipelinesConfig(transport, f"/workspaces/{slug}")
+        self.snippets = AsyncSnippetsResource(transport, f"/snippets/{slug}")
 
     def repository(self, slug: RepositorySlug | str) -> AsyncRepositoryClient:
         return AsyncRepositoryClient(self._transport, self.slug, RepositorySlug(str(slug)))
+
+    def snippet(self, snippet_id: str) -> AsyncSnippetClient:
+        return AsyncSnippetClient(self._transport, self.slug, snippet_id)
 
     def project(self, key: ProjectKey | str) -> AsyncProjectClient:
         return AsyncProjectClient(self._transport, self.slug, ProjectKey(str(key)))

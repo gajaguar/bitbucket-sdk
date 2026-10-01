@@ -14,6 +14,7 @@ from bitbucket.errors import error_for_response
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
+    from collections.abc import Sequence
 
     from bitbucket.config import ClientConfig
     from bitbucket.retry import CqsKind
@@ -26,6 +27,10 @@ _NO_CONTENT: Final = 204
 type JSONValue = (  # pylint: disable=gajaguar-module-const-naming
     bool | int | float | str | list[JSONValue] | dict[str, JSONValue] | None
 )
+
+# (filename, content, content type). A part with no filename is a plain form
+# field, which is how a multipart body carries a field when no file goes with it.
+type MultipartPart = tuple[str | None, bytes | str, str | None]  # pylint: disable=gajaguar-module-const-naming
 
 
 def _elapsed_ms(response: httpx.Response) -> float:
@@ -149,7 +154,7 @@ class Transport:
         path: str,
         *,
         kind: CqsKind,
-        files: Mapping[str, tuple[str, bytes, str] | bytes],
+        files: Mapping[str, MultipartPart | bytes] | Sequence[tuple[str, MultipartPart]],
         data: Mapping[str, str] | None = None,
     ) -> JSONValue:
         response = self._send_multipart(method, path, kind=kind, files=files, data=data)
@@ -220,7 +225,7 @@ class Transport:
         path: str,
         *,
         kind: CqsKind,
-        files: Mapping[str, tuple[str, bytes, str] | bytes],
+        files: Mapping[str, MultipartPart | bytes] | Sequence[tuple[str, MultipartPart]],
         data: Mapping[str, str] | None,
     ) -> httpx.Response:
         try:

@@ -62,6 +62,7 @@ unparseable
 unrequest
 unresolve
 unvalidated
+unwatch
 uv
 venv
 vocabulary

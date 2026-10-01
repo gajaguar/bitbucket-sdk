@@ -148,6 +148,14 @@ def test_deployments_and_reports_surface_is_public() -> None:
         "ReportResult",
         "ReportType",
         "ReportWrite",
+        "Snippet",
+        "SnippetComment",
+        "SnippetCommentCreate",
+        "SnippetCreate",
+        "SnippetFile",
+        "SnippetRole",
+        "SnippetScm",
+        "SnippetUpdate",
     }
     # Act
     missing = names - set(bitbucket.__all__)

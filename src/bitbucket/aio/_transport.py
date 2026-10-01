@@ -15,7 +15,9 @@ from bitbucket.errors import TransportError
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
+    from collections.abc import Sequence
 
+    from bitbucket._transport import MultipartPart
     from bitbucket.config import ClientConfig
     from bitbucket.retry import CqsKind
 
@@ -87,7 +89,7 @@ class AsyncTransport:
         path: str,
         *,
         kind: CqsKind,
-        files: Mapping[str, tuple[str, bytes, str] | bytes],
+        files: Mapping[str, MultipartPart | bytes] | Sequence[tuple[str, MultipartPart]],
         data: Mapping[str, str] | None = None,
     ) -> JSONValue:
         response = await self._send_multipart(method, path, kind=kind, files=files, data=data)
@@ -158,7 +160,7 @@ class AsyncTransport:
         path: str,
         *,
         kind: CqsKind,
-        files: Mapping[str, tuple[str, bytes, str] | bytes],
+        files: Mapping[str, MultipartPart | bytes] | Sequence[tuple[str, MultipartPart]],
         data: Mapping[str, str] | None,
     ) -> httpx.Response:
         try:

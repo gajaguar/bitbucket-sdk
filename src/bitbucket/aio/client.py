@@ -6,6 +6,7 @@ from typing import Self
 from bitbucket._auth import auth_for
 from bitbucket.aio._transport import AsyncTransport
 from bitbucket.aio.resources.hook_events import AsyncHookEventsResource
+from bitbucket.aio.resources.snippets import AsyncUserSnippetsResource
 from bitbucket.aio.resources.user import AsyncUserResource
 from bitbucket.aio.team import AsyncTeamClient
 from bitbucket.aio.user import AsyncUserClient
@@ -33,6 +34,7 @@ class AsyncBitbucketClient:
         self._transport = AsyncTransport(self._config, auth_for(self._config.credentials))
         self.user = AsyncUserResource(self._transport)
         self.hook_events = AsyncHookEventsResource(self._transport)
+        self.snippets = AsyncUserSnippetsResource(self._transport)
 
     async def __aenter__(self) -> Self:
         return self

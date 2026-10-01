@@ -214,6 +214,14 @@ from bitbucket.models import Scm
 from bitbucket.models import SearchContentMatch
 from bitbucket.models import SearchLine
 from bitbucket.models import SearchSegment
+from bitbucket.models import Snippet
+from bitbucket.models import SnippetComment
+from bitbucket.models import SnippetCommentCreate
+from bitbucket.models import SnippetCreate
+from bitbucket.models import SnippetFile
+from bitbucket.models import SnippetRole
+from bitbucket.models import SnippetScm
+from bitbucket.models import SnippetUpdate
 from bitbucket.models import SshKey
 from bitbucket.models import SshKeyCreate
 from bitbucket.models import SshKeyUpdate
@@ -459,6 +467,14 @@ __all__ = [
     "SearchLine",
     "SearchSegment",
     "ServerError",
+    "Snippet",
+    "SnippetComment",
+    "SnippetCommentCreate",
+    "SnippetCreate",
+    "SnippetFile",
+    "SnippetRole",
+    "SnippetScm",
+    "SnippetUpdate",
     "SshKey",
     "SshKeyCreate",
     "SshKeyUpdate",
