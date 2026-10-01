@@ -42,6 +42,9 @@ from bitbucket.models import AccountStatus
 from bitbucket.models import Activity
 from bitbucket.models import ActivityApproval
 from bitbucket.models import ActivityUpdate
+from bitbucket.models import AnnotationResult
+from bitbucket.models import AnnotationSeverity
+from bitbucket.models import AnnotationType
 from bitbucket.models import AuthorRef
 from bitbucket.models import Branch
 from bitbucket.models import BranchCreate
@@ -75,10 +78,22 @@ from bitbucket.models import CommitRef
 from bitbucket.models import CommitStatusCreate
 from bitbucket.models import CommitStatusUpdate
 from bitbucket.models import DefaultReviewer
+from bitbucket.models import DeployKey
+from bitbucket.models import DeployKeyCreate
+from bitbucket.models import DeployKeyUpdate
+from bitbucket.models import Deployment
+from bitbucket.models import DeploymentRelease
+from bitbucket.models import DeploymentState
+from bitbucket.models import DeploymentStateName
+from bitbucket.models import DeploymentStatus
+from bitbucket.models import DeploymentStatusName
 from bitbucket.models import DiffStat
 from bitbucket.models import DiffStatEndpoint
 from bitbucket.models import Download
 from bitbucket.models import EndpointSpec
+from bitbucket.models import Environment
+from bitbucket.models import EnvironmentCreate
+from bitbucket.models import EnvironmentUpdate
 from bitbucket.models import FileConflict
 from bitbucket.models import FileConflictScenario
 from bitbucket.models import FileHistoryEntry
@@ -157,6 +172,7 @@ from bitbucket.models import PipelineVariableUpdate
 from bitbucket.models import PipelinesConfig
 from bitbucket.models import PipelinesConfigUpdate
 from bitbucket.models import Project
+from bitbucket.models import ProjectDeployKey
 from bitbucket.models import ProjectSpec
 from bitbucket.models import PullRequest
 from bitbucket.models import PullRequestComment
@@ -172,6 +188,14 @@ from bitbucket.models import Ref
 from bitbucket.models import RefTarget
 from bitbucket.models import RefTargetSpec
 from bitbucket.models import RenderedField
+from bitbucket.models import Report
+from bitbucket.models import ReportAnnotation
+from bitbucket.models import ReportAnnotationWrite
+from bitbucket.models import ReportData
+from bitbucket.models import ReportDataType
+from bitbucket.models import ReportResult
+from bitbucket.models import ReportType
+from bitbucket.models import ReportWrite
 from bitbucket.models import Repository
 from bitbucket.models import RepositoryCreate
 from bitbucket.models import RepositoryInheritanceState
@@ -233,6 +257,9 @@ __all__ = [
     "Activity",
     "ActivityApproval",
     "ActivityUpdate",
+    "AnnotationResult",
+    "AnnotationSeverity",
+    "AnnotationType",
     "ApiTokenProvider",
     "AsyncBitbucketClient",
     "AsyncProjectClient",
@@ -283,10 +310,22 @@ __all__ = [
     "ConflictError",
     "CqsKind",
     "DefaultReviewer",
+    "DeployKey",
+    "DeployKeyCreate",
+    "DeployKeyUpdate",
+    "Deployment",
+    "DeploymentRelease",
+    "DeploymentState",
+    "DeploymentStateName",
+    "DeploymentStatus",
+    "DeploymentStatusName",
     "DiffStat",
     "DiffStatEndpoint",
     "Download",
     "EndpointSpec",
+    "Environment",
+    "EnvironmentCreate",
+    "EnvironmentUpdate",
     "ErrorBody",
     "FileConflict",
     "FileConflictScenario",
@@ -371,6 +410,7 @@ __all__ = [
     "PollTimeoutError",
     "Project",
     "ProjectClient",
+    "ProjectDeployKey",
     "ProjectKey",
     "ProjectSpec",
     "PullRequest",
@@ -389,6 +429,14 @@ __all__ = [
     "RefTarget",
     "RefTargetSpec",
     "RenderedField",
+    "Report",
+    "ReportAnnotation",
+    "ReportAnnotationWrite",
+    "ReportData",
+    "ReportDataType",
+    "ReportResult",
+    "ReportType",
+    "ReportWrite",
     "Repository",
     "RepositoryClient",
     "RepositoryCreate",

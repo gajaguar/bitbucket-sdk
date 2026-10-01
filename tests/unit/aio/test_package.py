@@ -119,3 +119,37 @@ def test_pipelines_surface_is_public() -> None:
     missing = names - set(bitbucket.__all__)
     # Assert
     assert not missing
+
+
+def test_deployments_and_reports_surface_is_public() -> None:
+    # Arrange
+    names = {
+        "AnnotationResult",
+        "AnnotationSeverity",
+        "AnnotationType",
+        "DeployKey",
+        "DeployKeyCreate",
+        "DeployKeyUpdate",
+        "Deployment",
+        "DeploymentRelease",
+        "DeploymentState",
+        "DeploymentStateName",
+        "DeploymentStatus",
+        "DeploymentStatusName",
+        "Environment",
+        "EnvironmentCreate",
+        "EnvironmentUpdate",
+        "ProjectDeployKey",
+        "Report",
+        "ReportAnnotation",
+        "ReportAnnotationWrite",
+        "ReportData",
+        "ReportDataType",
+        "ReportResult",
+        "ReportType",
+        "ReportWrite",
+    }
+    # Act
+    missing = names - set(bitbucket.__all__)
+    # Assert
+    assert not missing

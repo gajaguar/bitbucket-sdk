@@ -10,6 +10,7 @@ from bitbucket.models.conflict import FileConflict
 from bitbucket.models.diffstat import DiffStat
 from bitbucket.resources.base import page_from_payload
 from bitbucket.resources.comments import CommitCommentsResource
+from bitbucket.resources.reports import ReportsResource
 from bitbucket.retry import CqsKind
 
 if TYPE_CHECKING:
@@ -40,6 +41,9 @@ class CommitsResource:
 
     def comments(self, commit: CommitHash | str) -> CommitCommentsResource:
         return CommitCommentsResource(self._transport, f"{self._base_path}/commit/{commit}")
+
+    def reports(self, commit: CommitHash | str) -> ReportsResource:
+        return ReportsResource(self._transport, f"{self._base_path}/commit/{commit}")
 
     # GET .../diff/{spec}
     def diff(self, spec: str) -> str:
