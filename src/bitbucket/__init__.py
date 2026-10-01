@@ -1,5 +1,6 @@
 from bitbucket._version import __version__
 from bitbucket.aio.client import AsyncBitbucketClient
+from bitbucket.aio.project import AsyncProjectClient
 from bitbucket.aio.repository import AsyncRepositoryClient
 from bitbucket.aio.workspace import AsyncWorkspaceClient
 from bitbucket.client import BitbucketClient
@@ -27,6 +28,7 @@ from bitbucket.errors import ValidationError
 from bitbucket.ids import AccountId
 from bitbucket.ids import CommentId
 from bitbucket.ids import CommitHash
+from bitbucket.ids import ProjectKey
 from bitbucket.ids import PullRequestId
 from bitbucket.ids import RepositorySlug
 from bitbucket.ids import TaskId
@@ -40,7 +42,22 @@ from bitbucket.models import ActivityUpdate
 from bitbucket.models import AuthorRef
 from bitbucket.models import Branch
 from bitbucket.models import BranchCreate
+from bitbucket.models import BranchMatchKind
+from bitbucket.models import BranchRestriction
+from bitbucket.models import BranchRestrictionCreate
+from bitbucket.models import BranchRestrictionKind
+from bitbucket.models import BranchRestrictionUpdate
 from bitbucket.models import BranchSpec
+from bitbucket.models import BranchTargetSetting
+from bitbucket.models import BranchTargetSettingUpdate
+from bitbucket.models import BranchType
+from bitbucket.models import BranchTypeSetting
+from bitbucket.models import BranchingModel
+from bitbucket.models import BranchingModelBranchType
+from bitbucket.models import BranchingModelKind
+from bitbucket.models import BranchingModelSettings
+from bitbucket.models import BranchingModelSettingsUpdate
+from bitbucket.models import BranchingModelTarget
 from bitbucket.models import Comment
 from bitbucket.models import CommentContentCreate
 from bitbucket.models import CommentCreate
@@ -117,6 +134,7 @@ from bitbucket.models import Webhook
 from bitbucket.models import WebhookCreate
 from bitbucket.models import WebhookUpdate
 from bitbucket.models import WorkspaceSpec
+from bitbucket.project import ProjectClient
 from bitbucket.repository import RepositoryClient
 from bitbucket.retry import NO_RETRY
 from bitbucket.retry import CqsKind
@@ -138,6 +156,7 @@ __all__ = [
     "ActivityUpdate",
     "ApiTokenProvider",
     "AsyncBitbucketClient",
+    "AsyncProjectClient",
     "AsyncRepositoryClient",
     "AsyncWorkspaceClient",
     "AuthenticationError",
@@ -147,7 +166,22 @@ __all__ = [
     "BitbucketError",
     "Branch",
     "BranchCreate",
+    "BranchMatchKind",
+    "BranchRestriction",
+    "BranchRestrictionCreate",
+    "BranchRestrictionKind",
+    "BranchRestrictionUpdate",
     "BranchSpec",
+    "BranchTargetSetting",
+    "BranchTargetSettingUpdate",
+    "BranchType",
+    "BranchTypeSetting",
+    "BranchingModel",
+    "BranchingModelBranchType",
+    "BranchingModelKind",
+    "BranchingModelSettings",
+    "BranchingModelSettingsUpdate",
+    "BranchingModelTarget",
     "ClientOptions",
     "Comment",
     "CommentContentCreate",
@@ -198,6 +232,8 @@ __all__ = [
     "PermissionLevel",
     "PollTimeoutError",
     "Project",
+    "ProjectClient",
+    "ProjectKey",
     "ProjectSpec",
     "PullRequest",
     "PullRequestComment",

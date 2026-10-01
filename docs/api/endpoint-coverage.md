@@ -48,8 +48,8 @@ once, under its first tag, to sum to 294 without double-counting).
 | properties          |         12 |       0 |      0% |
 | Reports             |          9 |       0 |      0% |
 | Refs                |          9 |       9 |    100% |
-| Branching model     |          7 |       0 |      0% |
-| Branch restrictions |          5 |       0 |      0% |
+| Branching model     |          7 |       7 |    100% |
+| Branch restrictions |          5 |       5 |    100% |
 | SSH                 |          5 |       0 |      0% |
 | Commit statuses     |          4 |       4 |    100% |
 | Downloads           |          4 |       4 |    100% |
@@ -59,7 +59,7 @@ once, under its first tag, to sum to 294 without double-counting).
 | Addon               |          3 |       0 |      0% |
 | Search              |          3 |       0 |      0% |
 | Webhooks            |          2 |       2 |    100% |
-| **Total**           |    **294** | **104** | **35%** |
+| **Total**           |    **294** | **116** | **39%** |
 
 The spec also declares `Issue tracker` and `Wiki` tags with zero operations
 attached to any path — Bitbucket's issue-tracker and wiki REST endpoints are
@@ -266,3 +266,34 @@ counted once, under `Repositories`.
 
 Note: these five operations are first-tagged `Workspaces`, so they count under
 that group in the summary above, not under `Webhooks`.
+
+## Branch restrictions
+
+| Endpoint                              | SDK method                                             | Status |
+| ------------------------------------- | ------------------------------------------------------ | ------ |
+| `GET .../branch-restrictions`         | `repo.branch_restrictions.list(kind=..., pattern=...)` | done   |
+| `POST .../branch-restrictions`        | `repo.branch_restrictions.create(payload)`             | done   |
+| `GET .../branch-restrictions/{id}`    | `repo.branch_restrictions.get(id)`                     | done   |
+| `PUT .../branch-restrictions/{id}`    | `repo.branch_restrictions.update(id, payload)`         | done   |
+| `DELETE .../branch-restrictions/{id}` | `repo.branch_restrictions.delete(id)`                  | done   |
+
+Note: `{id}` is the integer restriction id. `kind` and `branch_match_kind` are
+enums that map an unrecognized value to `UNKNOWN` instead of failing, so a kind
+Bitbucket adds later still parses.
+
+## Branching model
+
+| Endpoint                                                  | SDK method                                                 | Status |
+| --------------------------------------------------------- | ---------------------------------------------------------- | ------ |
+| `GET .../branching-model`                                 | `repo.branching_model.get()`                               | done   |
+| `GET .../branching-model/settings`                        | `repo.branching_model.settings()`                          | done   |
+| `PUT .../branching-model/settings`                        | `repo.branching_model.update_settings(payload)`            | done   |
+| `GET .../effective-branching-model`                       | `repo.branching_model.effective()`                         | done   |
+| `GET .../projects/{project_key}/branching-model`          | `ws.project(key).branching_model.get()`                    | done   |
+| `GET .../projects/{project_key}/branching-model/settings` | `ws.project(key).branching_model.settings()`               | done   |
+| `PUT .../projects/{project_key}/branching-model/settings` | `ws.project(key).branching_model.update_settings(payload)` | done   |
+
+Note: the repository paths are under `/repositories/{workspace}/{repo_slug}`
+and the project paths under `/workspaces/{workspace}`. `effective()` exists
+only on a repository; a project has no effective model. `ws.project(key)`
+returns a `ProjectClient` that will grow as the `Projects` group lands.

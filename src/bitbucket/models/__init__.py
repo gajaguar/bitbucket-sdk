@@ -12,6 +12,21 @@ from bitbucket.models.branch import BranchCreate
 from bitbucket.models.branch import MergeStrategy
 from bitbucket.models.branch import RefTarget
 from bitbucket.models.branch import RefTargetSpec
+from bitbucket.models.branch_restriction import BranchMatchKind
+from bitbucket.models.branch_restriction import BranchRestriction
+from bitbucket.models.branch_restriction import BranchRestrictionCreate
+from bitbucket.models.branch_restriction import BranchRestrictionKind
+from bitbucket.models.branch_restriction import BranchRestrictionUpdate
+from bitbucket.models.branch_restriction import BranchType
+from bitbucket.models.branching_model import BranchTargetSetting
+from bitbucket.models.branching_model import BranchTargetSettingUpdate
+from bitbucket.models.branching_model import BranchTypeSetting
+from bitbucket.models.branching_model import BranchingModel
+from bitbucket.models.branching_model import BranchingModelBranchType
+from bitbucket.models.branching_model import BranchingModelKind
+from bitbucket.models.branching_model import BranchingModelSettings
+from bitbucket.models.branching_model import BranchingModelSettingsUpdate
+from bitbucket.models.branching_model import BranchingModelTarget
 from bitbucket.models.comment import Comment
 from bitbucket.models.comment import CommentContentCreate
 from bitbucket.models.comment import CommentCreate
@@ -97,7 +112,22 @@ __all__ = [
     "BitbucketModel",
     "Branch",
     "BranchCreate",
+    "BranchMatchKind",
+    "BranchRestriction",
+    "BranchRestrictionCreate",
+    "BranchRestrictionKind",
+    "BranchRestrictionUpdate",
     "BranchSpec",
+    "BranchTargetSetting",
+    "BranchTargetSettingUpdate",
+    "BranchType",
+    "BranchTypeSetting",
+    "BranchingModel",
+    "BranchingModelBranchType",
+    "BranchingModelKind",
+    "BranchingModelSettings",
+    "BranchingModelSettingsUpdate",
+    "BranchingModelTarget",
     "Comment",
     "CommentContentCreate",
     "CommentCreate",

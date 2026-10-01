@@ -5,9 +5,11 @@ from typing import Any
 from typing import cast
 
 from bitbucket._pagination import apaginate
+from bitbucket.aio.project import AsyncProjectClient
 from bitbucket.aio.repository import AsyncRepositoryClient
 from bitbucket.aio.resources.hooks import AsyncHooksResource
 from bitbucket.aio.resources.repositories import AsyncRepositoriesResource
+from bitbucket.ids import ProjectKey
 from bitbucket.ids import RepositorySlug
 from bitbucket.models.pull_request import PullRequest
 from bitbucket.resources.base import page_from_payload
@@ -31,6 +33,9 @@ class AsyncWorkspaceClient:
 
     def repository(self, slug: RepositorySlug | str) -> AsyncRepositoryClient:
         return AsyncRepositoryClient(self._transport, self.slug, RepositorySlug(str(slug)))
+
+    def project(self, key: ProjectKey | str) -> AsyncProjectClient:
+        return AsyncProjectClient(self._transport, self.slug, ProjectKey(str(key)))
 
     # GET .../workspaces/{workspace}/pullrequests/{user} (auto-paginating)
     def pull_requests_by_author(
