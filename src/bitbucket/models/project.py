@@ -13,6 +13,23 @@ class Project(BitbucketModel):
     name: str | None = None
     description: str | None = None
     is_private: bool | None = None
+    has_publicly_visible_repos: bool | None = None
     created_on: BitbucketInstant | None = None
     updated_on: BitbucketInstant | None = None
     links: Links | None = None
+
+
+class ProjectCreate(BitbucketModel):
+    key: str
+    name: str
+    description: str | None = None
+    is_private: bool | None = None
+    has_publicly_visible_repos: bool | None = None
+
+
+class ProjectUpdate(BitbucketModel):
+    key: str | None = None
+    name: str | None = None
+    description: str | None = None
+    is_private: bool | None = None
+    has_publicly_visible_repos: bool | None = None
