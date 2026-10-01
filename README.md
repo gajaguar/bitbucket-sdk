@@ -261,10 +261,6 @@ See [`CONTRIBUTING.md`][contributing].
   [`docs/api/endpoint-coverage.md`][api-endpoint-coverage] for the
   full endpoint matrix and [`docs/api/roadmap.md`][api-roadmap] for
   the phased plan to full API parity.
-- A handful of `Commits` operations from the original Phase 2 estimate
-  (a "file-conflicts" endpoint and up to 2 others) couldn't be confidently
-  mapped to a real spec path without re-checking the live spec — see the
-  note in `docs/api/endpoint-coverage.md`'s `Commits` section.
 
 ## License
 

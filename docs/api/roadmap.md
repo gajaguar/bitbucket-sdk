@@ -13,7 +13,7 @@ This SDK targets **Bitbucket Cloud REST API `2.0`**, checked against
 `x-revision: 6856b45887d7` (2026-09-30). Regenerate the numbers below against
 a newer revision whenever [endpoint coverage](endpoint-coverage.md) is re-verified.
 
-**Where we are today:** 158 / 294 operations (54%) — see the coverage summary
+**Where we are today:** 162 / 294 operations (55%) — see the coverage summary
 table in [endpoint coverage](endpoint-coverage.md) for the full breakdown by resource
 group. This document lays out the path from there to full parity, in phases
 tied to version milestones, plus two cross-cutting phases (0a and 0b) that
@@ -138,13 +138,10 @@ terminal), the first pattern of its kind in the SDK.
   (exposed as two SDK methods — `list_path`/`read` — since the endpoint is
   polymorphic between a directory listing and raw file content),
   `GET .../filehistory/{commit}/{path}`. All 4 shipped.
-- `Commits` (17, 14 shipped): commit list/get, commit comments, commit
-  approve, diff, diffstat, patch, merge-base all shipped; a "file-conflicts"
-  endpoint from this phase's original estimate could not be confidently
-  mapped to a real, documented Bitbucket Cloud path without re-checking the
-  live spec (see `endpoint-coverage.md`'s note on this group) and is left `planned`,
-  along with up to 2 further unverified operations against the original
-  17-op estimate.
+- `Commits` (17, all shipped): commit list/get, commit comments, commit
+  approve, diff, diffstat, patch and merge-base shipped here; the last 3
+  (`file-conflicts` and the two `POST` listings) shipped in Phase 3 once the
+  live spec confirmed them (see `endpoint-coverage.md`'s note on this group).
 - `Commit statuses` (4) — delivered as part of Phase 1's spillover; no
   remaining work here beyond `endpoint-coverage.md` bookkeeping.
 - `Downloads` (4): repository downloads CRUD. All 4 shipped.
@@ -215,8 +212,8 @@ variable) were settled before the code landed, following the
 
 ## Phase 3 — governance (`0.7.0` and `0.8.0`)
 
-Also closes Phase 2's 3 `planned` `Commits` rows (see that phase's
-follow-up note), whose shape the live spec now confirms.
+Also closed Phase 2's 3 `Commits` rows (see that phase's follow-up note),
+whose shape the live spec confirmed.
 
 Workspace- and project-level administration surface:
 
@@ -243,7 +240,7 @@ Workspace- and project-level administration surface:
   on 2026-11-01.
 - Two operations the spec added since the first check:
   `GET .../pullrequests/{pull_request_id}/mergeability/checks` (a
-  `Pullrequests` read) and
+  `Pullrequests` read, **shipped on `main`**) and
   `GET /user/workspaces/{workspace}/permissions/repositories` (counted under
   `Repositories`, shipped with `Workspaces`).
 
@@ -252,6 +249,10 @@ every remaining operation fits `NestedResource` or a hand-written method
 following the existing pattern. The one non-JSON response,
 `GET /workspaces/{workspace}/settings/gpg/public-key`, is plain text and uses
 the existing `Transport.request_text`.
+
+The one exception is the two `POST .../commits` listings: they send
+`include`/`exclude` as a form body, so `Transport` and `AsyncTransport` grew a
+`request_form` seam beside `request_multipart`.
 
 The table was re-verified against that revision: the total is still 294, and
 the per-first-tag counts are `Repositories` 24 and `Pullrequests` 38.
@@ -295,7 +296,7 @@ in the machine-readable spec — see the footnote in `endpoint-coverage.md`.
 | 0b    | 0.6.0   | +0 (bearer token auth, shipped) | 97 (33%)            |
 | 3a    | 0.7.0   | +19 (shipped)                   | 116 (39%)           |
 | 3b    | 0.8.0   | +27 (shipped)                   | 143 (49%)           |
-| 3c    | next    | +19 (15 on `main`, 4 planned)   | 162 (55%)           |
+| 3c    | next    | +19 (all on `main`)             | 162 (55%)           |
 | 4     | 0.9.0   | +93                             | 255 (87%)           |
 | 5     | 1.0.0   | +39                             | 294 (100%)          |
 

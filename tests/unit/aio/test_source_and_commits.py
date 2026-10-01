@@ -216,3 +216,52 @@ async def test_commit_comment_list_returns_comments(aclient: AsyncBitbucketClien
     comments = [item async for item in _repository(aclient).commits.comments("abc123").list()]
     # Assert
     assert [comment.id for comment in comments] == [5]
+
+
+@respx.mock
+async def test_commits_file_conflicts_follows_next(aclient: AsyncBitbucketClient) -> None:
+    # Arrange
+    first = f"{BASE_URL}/repositories/ws/repo/file-conflicts/a..b"
+    respx.get(first).mock(
+        return_value=Response(200, json={"values": [{"path": "a.py"}], "next": f"{first}-page-2"}),
+    )
+    respx.get(f"{first}-page-2").mock(return_value=Response(200, json={"values": [{"path": "b.py"}]}))
+    # Act
+    conflicts = [item async for item in _repository(aclient).commits.file_conflicts("a..b")]
+    # Assert
+    assert [conflict.path for conflict in conflicts] == ["a.py", "b.py"]
+
+
+@respx.mock
+async def test_commits_list_by_post_sends_form_and_posts_again_to_next(aclient: AsyncBitbucketClient) -> None:
+    # Arrange
+    url = f"{BASE_URL}/repositories/ws/repo/commits"
+    first = respx.post(url).mock(
+        return_value=Response(200, json={"values": [{"hash": "a1"}], "next": f"{url}/page-2"}),
+    )
+    second = respx.post(f"{url}/page-2").mock(return_value=Response(200, json={"values": [{"hash": "b2"}]}))
+    # Act
+    commits = [
+        item async for item in _repository(aclient).commits.list_by_post(include=["main", "dev"], exclude=["old"])
+    ]
+    # Assert
+    assert [commit.hash for commit in commits] == ["a1", "b2"]
+    for route in (first, second):
+        request = route.calls[0].request
+        assert request.headers["content-type"] == "application/x-www-form-urlencoded"
+        assert request.content == b"include=main&include=dev&exclude=old"
+
+
+@respx.mock
+async def test_commits_list_from_by_post_targets_revision_and_omits_empty_filters(
+    aclient: AsyncBitbucketClient,
+) -> None:
+    # Arrange
+    route = respx.post(f"{BASE_URL}/repositories/ws/repo/commits/main").mock(
+        return_value=Response(200, json={"values": [{"hash": "a1"}]}),
+    )
+    # Act
+    commits = [item async for item in _repository(aclient).commits.list_from_by_post("main")]
+    # Assert
+    assert [commit.hash for commit in commits] == ["a1"]
+    assert route.calls[0].request.content == b""

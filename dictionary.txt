@@ -8,6 +8,7 @@ asciinema
 astroid
 atransport
 attribution
+bbql
 bitbucket
 capsys
 commitizen
@@ -50,6 +51,7 @@ respx
 ruff
 sdk
 smol
+subrepo
 tmpl
 tolineno
 toptal

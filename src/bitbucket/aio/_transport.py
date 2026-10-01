@@ -69,6 +69,17 @@ class AsyncTransport:
         response = await self._send(method, path, kind=kind, params=params, json=None)
         return _bytes_or_error(response)
 
+    async def request_form(
+        self,
+        method: str,
+        path: str,
+        *,
+        kind: CqsKind,
+        data: Mapping[str, list[str]],
+    ) -> JSONValue:
+        response = await self._send_form(method, path, kind=kind, data=data)
+        return _json_or_error(response)
+
     async def request_multipart(
         self,
         method: str,
@@ -98,6 +109,21 @@ class AsyncTransport:
                 json=json,
                 extensions={"bitbucket_cqs": kind},
             )
+        except httpx.TransportError as error:
+            raise TransportError(str(error)) from error
+        _log(method, path, response)
+        return response
+
+    async def _send_form(
+        self,
+        method: str,
+        path: str,
+        *,
+        kind: CqsKind,
+        data: Mapping[str, list[str]],
+    ) -> httpx.Response:
+        try:
+            response = await self._client.request(method, path, data=data, extensions={"bitbucket_cqs": kind})
         except httpx.TransportError as error:
             raise TransportError(str(error)) from error
         _log(method, path, response)

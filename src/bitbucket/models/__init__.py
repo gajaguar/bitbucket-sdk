@@ -43,6 +43,7 @@ from bitbucket.models.commit import AuthorRef
 from bitbucket.models.commit import Commit
 from bitbucket.models.commit import CommitRef
 from bitbucket.models.conflict import FileConflict
+from bitbucket.models.conflict import FileConflictScenario
 from bitbucket.models.diffstat import DiffStat
 from bitbucket.models.diffstat import DiffStatEndpoint
 from bitbucket.models.download import Download
@@ -60,6 +61,13 @@ from bitbucket.models.merge import MergeParameters
 from bitbucket.models.merge import MergeTask
 from bitbucket.models.merge import MergeTaskState
 from bitbucket.models.merge import MergeTaskStatus
+from bitbucket.models.mergeability import GitMergeabilityReason
+from bitbucket.models.mergeability import MergeCheckDefinition
+from bitbucket.models.mergeability import MergeQueue
+from bitbucket.models.mergeability import MergeabilityCheck
+from bitbucket.models.mergeability import MergeabilityCheckStatus
+from bitbucket.models.mergeability import MergeabilityCheckType
+from bitbucket.models.mergeability import MergeabilityPullRequestState
 from bitbucket.models.permission import GroupPermission
 from bitbucket.models.permission import GroupPermissionUpdate
 from bitbucket.models.permission import GroupRef
@@ -175,9 +183,11 @@ __all__ = [
     "Download",
     "EndpointSpec",
     "FileConflict",
+    "FileConflictScenario",
     "FileHistoryEntry",
     "ForkCreate",
     "ForkPolicy",
+    "GitMergeabilityReason",
     "GpgKey",
     "GpgKeyCreate",
     "GroupPermission",
@@ -188,11 +198,17 @@ __all__ = [
     "Link",
     "Links",
     "Markup",
+    "MergeCheckDefinition",
     "MergeParameters",
+    "MergeQueue",
     "MergeStrategy",
     "MergeTask",
     "MergeTaskState",
     "MergeTaskStatus",
+    "MergeabilityCheck",
+    "MergeabilityCheckStatus",
+    "MergeabilityCheckType",
+    "MergeabilityPullRequestState",
     "Participant",
     "ParticipantRole",
     "ParticipantState",
