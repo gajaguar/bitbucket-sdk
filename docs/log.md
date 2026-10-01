@@ -2,6 +2,9 @@
 
 ## 2026-09-30
 
+* **Updated**: `api/endpoint-coverage.md` and `api/roadmap.md` for the
+  `Projects` group (133 of 294 operations); re-checked against spec
+  `x-revision` `6856b45887d7`, which is unchanged.
 * **Updated**: `api/endpoint-coverage.md` and `api/roadmap.md`, re-verified
   against spec `x-revision` `6856b45887d7`: corrected the per-tag counts,
   the override-settings path, the `Commits` rows and the milestone totals.

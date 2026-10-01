@@ -13,7 +13,7 @@ This SDK targets **Bitbucket Cloud REST API `2.0`**, checked against
 `x-revision: 6856b45887d7` (2026-09-30). Regenerate the numbers below against
 a newer revision whenever [endpoint coverage](endpoint-coverage.md) is re-verified.
 
-**Where we are today:** 116 / 294 operations (39%) — see the coverage summary
+**Where we are today:** 133 / 294 operations (45%) — see the coverage summary
 table in [endpoint coverage](endpoint-coverage.md) for the full breakdown by resource
 group. This document lays out the path from there to full parity, in phases
 tied to version milestones, plus two cross-cutting phases (0a and 0b) that
@@ -226,7 +226,9 @@ Workspace- and project-level administration surface:
 - `Branch restrictions` (5), `Branching model` (7) — **shipped in `0.7.0`**.
   The 3 project-level branching-model operations introduced `ProjectClient`
   (`ws.project(key)`), which the rest of `Projects` extends.
-- `Projects` (16): project CRUD, default reviewers, permissions-config.
+- `Projects` (16) — **shipped on `main`, due in `0.8.0`**: project CRUD,
+  default reviewers and permissions-config, plus the project listing that the
+  spec first-tags `Workspaces`.
 - `Workspaces` (16): members, permissions, hooks, GPG public key. The 5
   workspace hook operations (`/workspaces/{workspace}/hooks[/{uid}]`) are
   **shipped in `0.7.0`**, pulled forward with `Webhooks` because they reuse

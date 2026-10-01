@@ -14,7 +14,8 @@ status: stable
 repository, exposing `.pull_requests`, `.default_reviewers`,
 `.branch_restrictions`, `.branching_model` and more.
 `WorkspaceClient.project(key)` returns a `ProjectClient`, exposing
-`.branching_model`. Resource
+`.branching_model`, `.default_reviewers` and `.permissions`; the project
+collection itself is `WorkspaceClient.projects`. Resource
 objects never touch `httpx` directly — every request goes through
 `_transport.Transport`, which owns auth, retries, and error mapping.
 `models/` (pydantic) is used by every layer above transport to validate and

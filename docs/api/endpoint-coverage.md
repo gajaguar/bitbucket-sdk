@@ -43,8 +43,8 @@ once, under its first tag, to sum to 294 without double-counting).
 | Snippets            |         24 |       0 |      0% |
 | Commits             |         17 |      14 |     82% |
 | Deployments         |         16 |       0 |      0% |
-| Workspaces          |         16 |       6 |     38% |
-| Projects            |         16 |       0 |      0% |
+| Workspaces          |         16 |       7 |     44% |
+| Projects            |         16 |      16 |    100% |
 | properties          |         12 |       0 |      0% |
 | Reports             |          9 |       0 |      0% |
 | Refs                |          9 |       9 |    100% |
@@ -59,7 +59,7 @@ once, under its first tag, to sum to 294 without double-counting).
 | Addon               |          3 |       0 |      0% |
 | Search              |          3 |       0 |      0% |
 | Webhooks            |          2 |       2 |    100% |
-| **Total**           |    **294** | **116** | **39%** |
+| **Total**           |    **294** | **133** | **45%** |
 
 The spec also declares `Issue tracker` and `Wiki` tags with zero operations
 attached to any path — Bitbucket's issue-tracker and wiki REST endpoints are
@@ -304,3 +304,42 @@ Note: the repository paths are under `/repositories/{workspace}/{repo_slug}`
 and the project paths under `/workspaces/{workspace}`. `effective()` exists
 only on a repository; a project has no effective model. `ws.project(key)`
 returns a `ProjectClient` that will grow as the `Projects` group lands.
+
+## Projects
+
+| Endpoint                                                                        | SDK method                                                       | Status |
+| ------------------------------------------------------------------------------- | ---------------------------------------------------------------- | ------ |
+| `GET /workspaces/{workspace}/projects`                                          | `ws.projects.list()`                                             | done   |
+| `POST /workspaces/{workspace}/projects`                                         | `ws.projects.create(payload)`                                    | done   |
+| `GET .../projects/{project_key}`                                                | `ws.projects.get(key)`                                           | done   |
+| `PUT .../projects/{project_key}`                                                | `ws.projects.update(key, payload)`                               | done   |
+| `DELETE .../projects/{project_key}`                                             | `ws.projects.delete(key)`                                        | done   |
+| `GET .../projects/{project_key}/default-reviewers`                              | `ws.project(key).default_reviewers.list()`                       | done   |
+| `GET .../projects/{project_key}/default-reviewers/{selected_user}`              | `ws.project(key).default_reviewers.get(selected_user)`           | done   |
+| `PUT .../projects/{project_key}/default-reviewers/{selected_user}`              | `ws.project(key).default_reviewers.add(selected_user)`           | done   |
+| `DELETE .../projects/{project_key}/default-reviewers/{selected_user}`           | `ws.project(key).default_reviewers.remove(selected_user)`        | done   |
+| `GET .../projects/{project_key}/permissions-config/groups`                      | `ws.project(key).permissions.groups.list()`                      | done   |
+| `GET .../projects/{project_key}/permissions-config/groups/{group_slug}`         | `ws.project(key).permissions.groups.get(group_slug)`             | done   |
+| `PUT .../projects/{project_key}/permissions-config/groups/{group_slug}`         | `ws.project(key).permissions.groups.update(group_slug, payload)` | done   |
+| `DELETE .../projects/{project_key}/permissions-config/groups/{group_slug}`      | `ws.project(key).permissions.groups.delete(group_slug)`          | done   |
+| `GET .../projects/{project_key}/permissions-config/users`                       | `ws.project(key).permissions.users.list()`                       | done   |
+| `GET .../projects/{project_key}/permissions-config/users/{selected_user_id}`    | `ws.project(key).permissions.users.get(account_id)`              | done   |
+| `PUT .../projects/{project_key}/permissions-config/users/{selected_user_id}`    | `ws.project(key).permissions.users.update(account_id, payload)`  | done   |
+| `DELETE .../projects/{project_key}/permissions-config/users/{selected_user_id}` | `ws.project(key).permissions.users.delete(account_id)`           | done   |
+
+Note: the project listing is first-tagged `Workspaces`, so it counts under
+that group in the summary above, not under `Projects`; the project
+branching-model operations are under [Branching model](#branching-model).
+
+Note: `PUT .../projects/{project_key}` creates or updates (the spec answers
+`200` or `201`), while `POST .../projects` creates only.
+
+Note: project permissions accept and return `read`, `write`, `create-repo`
+and `admin` (a response can also carry `none`), so they use their own
+`ProjectPermissionLevel` rather than the repository `PermissionLevel`, which
+has no `create-repo`. An unrecognized value maps to `UNKNOWN`.
+
+Note: the default-reviewers list returns `{type, reviewer_type, user}`
+wrappers (`DefaultReviewerAndType`), while an item path returns a bare user;
+a project has no effective-default-reviewers path. The `{selected_user}`
+segment is a username or account id, as the spec declares it.
