@@ -66,6 +66,7 @@ from bitbucket.models.permission import ProjectPermissionUpdate
 from bitbucket.models.permission import ProjectUserPermission
 from bitbucket.models.permission import RepositoryInheritanceState
 from bitbucket.models.permission import RepositoryOverrideSettings
+from bitbucket.models.permission import RepositoryPermission
 from bitbucket.models.permission import UserPermission
 from bitbucket.models.permission import UserPermissionUpdate
 from bitbucket.models.project import Project
@@ -109,6 +110,11 @@ from bitbucket.models.task import TaskContentCreate
 from bitbucket.models.task import TaskCreate
 from bitbucket.models.task import TaskState
 from bitbucket.models.task import TaskUpdate
+from bitbucket.models.workspace import Workspace
+from bitbucket.models.workspace import WorkspaceAccess
+from bitbucket.models.workspace import WorkspaceForkingMode
+from bitbucket.models.workspace import WorkspaceMembership
+from bitbucket.models.workspace import WorkspacePermissionLevel
 
 __all__ = [
     "Account",
@@ -201,6 +207,7 @@ __all__ = [
     "RepositoryCreate",
     "RepositoryInheritanceState",
     "RepositoryOverrideSettings",
+    "RepositoryPermission",
     "RepositorySpec",
     "RepositoryUpdate",
     "ReviewerSpec",
@@ -219,5 +226,10 @@ __all__ = [
     "Webhook",
     "WebhookCreate",
     "WebhookUpdate",
+    "Workspace",
+    "WorkspaceAccess",
+    "WorkspaceForkingMode",
+    "WorkspaceMembership",
+    "WorkspacePermissionLevel",
     "WorkspaceSpec",
 ]

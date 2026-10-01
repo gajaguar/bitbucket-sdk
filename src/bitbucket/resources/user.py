@@ -1,11 +1,19 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from typing import cast
 
+from bitbucket._pagination import paginate
 from bitbucket.models.account import Account
+from bitbucket.models.workspace import WorkspaceAccess
+from bitbucket.resources.base import page_from_payload
 from bitbucket.retry import CqsKind
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from typing import Any
+
+    from bitbucket._pagination import Page
     from bitbucket._transport import Transport
 
 
@@ -19,3 +27,31 @@ class UserResource:
     def me(self) -> Account:
         data = self._transport.request("GET", "/user", kind=CqsKind.QUERY)
         return Account.model_validate(data)
+
+    # GET .../user/workspaces (auto-paginating)
+    def workspaces(
+        self,
+        *,
+        administrator: bool | None = None,
+        sort: str | None = None,
+        q: str | None = None,
+    ) -> Iterator[WorkspaceAccess]:
+        return paginate(
+            lambda cursor: self.workspaces_page(administrator=administrator, sort=sort, q=q, cursor=cursor)
+        )
+
+    # GET .../user/workspaces
+    def workspaces_page(
+        self,
+        *,
+        administrator: bool | None = None,
+        sort: str | None = None,
+        q: str | None = None,
+        cursor: str | None = None,
+    ) -> Page[WorkspaceAccess]:
+        if cursor:
+            data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)
+        else:
+            params = {"administrator": administrator, "sort": sort, "q": q}
+            data = self._transport.request("GET", "/user/workspaces", kind=CqsKind.QUERY, params=params)
+        return page_from_payload(cast("dict[str, Any]", data), WorkspaceAccess)
