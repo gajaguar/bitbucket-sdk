@@ -57,9 +57,9 @@ once, under its first tag, to sum to 294 without double-counting).
 | Users               |          4 |       4 |    100% |
 | GPG                 |          4 |       4 |    100% |
 | Addon               |          3 |       0 |      0% |
-| Search              |          3 |       0 |      0% |
+| Search              |          3 |       3 |    100% |
 | Webhooks            |          2 |       2 |    100% |
-| **Total**           |    **294** | **155** | **53%** |
+| **Total**           |    **294** | **158** | **54%** |
 
 The spec also declares `Issue tracker` and `Wiki` tags with zero operations
 attached to any path — Bitbucket's issue-tracker and wiki REST endpoints are
@@ -122,6 +122,36 @@ Note: a GPG key is addressed by its fingerprint, and there is no `PUT`, so
 `subkeys` are only returned when requested through `fields`, so every `GpgKey`
 field is optional. `GpgKeyCreate` sends `key` and `name`; the spec reuses the
 read schema for the body.
+
+## Search
+
+| Endpoint                                  | SDK method                | Status |
+| ----------------------------------------- | ------------------------- | ------ |
+| `GET /workspaces/{workspace}/search/code` | `ws.search.code(query)`   | done   |
+| `GET /users/{selected_user}/search/code`  | `user.search.code(query)` | done   |
+| `GET /teams/{username}/search/code`       | `team.search.code(query)` | done   |
+
+Note: the spec marks all three operations `deprecated: true` and says "This
+API will be deprecated on November 1, 2026." The SDK keeps them and raises no
+runtime warning.
+
+Note: `team = client.teams(username)` is a handle whose only resource is
+`search`; `{username}` is the team's name or a `{uuid}`. Each route answers
+`404` (`NotFoundError`) until code search is turned on for the account at
+<https://bitbucket.org/search>. A `429` is retried like on any other request,
+honouring `Retry-After`, and raises `RateLimitError` once the retries run out.
+
+Note: `search_query` is required and positional, and uses the UI's syntax
+(`foo repo:demo`). `fields` (for example `+values.file.commit.repository`) and
+`pagelen` (the spec's default is 10) are sent only when given. Pagination is the
+standard `next` link, which already carries the query, so `code()` follows it
+and `code_page(..., cursor=...)` takes it; `Page` does not surface the
+response's `query_substituted`, `page` or `pagelen`.
+
+Note: the result's `file` is the spec's `commit_file`, parsed as the existing
+`TreeEntry`. The spec types `commit_file.attributes` as a single string enum,
+while `TreeEntry.attributes` is `list[str]`, as the SDK already models it for
+the source listing; this change leaves it as is.
 
 ## Repositories
 
