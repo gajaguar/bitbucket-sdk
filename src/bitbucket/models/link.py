@@ -28,6 +28,7 @@ class Links(BitbucketModel):
     statuses: Link | None = None
     branches: Link | None = None
     tags: Link | None = None
+    details: Link | None = None
     watchers: Link | None = None
     forks: Link | None = None
     downloads: Link | None = None

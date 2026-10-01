@@ -80,9 +80,11 @@ from bitbucket.models import DiffStatEndpoint
 from bitbucket.models import Download
 from bitbucket.models import EndpointSpec
 from bitbucket.models import FileConflict
+from bitbucket.models import FileConflictScenario
 from bitbucket.models import FileHistoryEntry
 from bitbucket.models import ForkCreate
 from bitbucket.models import ForkPolicy
+from bitbucket.models import GitMergeabilityReason
 from bitbucket.models import GpgKey
 from bitbucket.models import GpgKeyCreate
 from bitbucket.models import GroupPermission
@@ -93,11 +95,17 @@ from bitbucket.models import HookSubjectType
 from bitbucket.models import Link
 from bitbucket.models import Links
 from bitbucket.models import Markup
+from bitbucket.models import MergeCheckDefinition
 from bitbucket.models import MergeParameters
+from bitbucket.models import MergeQueue
 from bitbucket.models import MergeStrategy
 from bitbucket.models import MergeTask
 from bitbucket.models import MergeTaskState
 from bitbucket.models import MergeTaskStatus
+from bitbucket.models import MergeabilityCheck
+from bitbucket.models import MergeabilityCheckStatus
+from bitbucket.models import MergeabilityCheckType
+from bitbucket.models import MergeabilityPullRequestState
 from bitbucket.models import Participant
 from bitbucket.models import ParticipantRole
 from bitbucket.models import ParticipantState
@@ -228,10 +236,12 @@ __all__ = [
     "EndpointSpec",
     "ErrorBody",
     "FileConflict",
+    "FileConflictScenario",
     "FileHistoryEntry",
     "ForbiddenError",
     "ForkCreate",
     "ForkPolicy",
+    "GitMergeabilityReason",
     "GpgKey",
     "GpgKeyCreate",
     "GroupPermission",
@@ -242,11 +252,17 @@ __all__ = [
     "Link",
     "Links",
     "Markup",
+    "MergeCheckDefinition",
     "MergeParameters",
+    "MergeQueue",
     "MergeStrategy",
     "MergeTask",
     "MergeTaskState",
     "MergeTaskStatus",
+    "MergeabilityCheck",
+    "MergeabilityCheckStatus",
+    "MergeabilityCheckType",
+    "MergeabilityPullRequestState",
     "MissingCredentialsError",
     "NotFoundError",
     "Participant",

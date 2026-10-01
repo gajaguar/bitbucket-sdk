@@ -50,6 +50,7 @@ respx
 ruff
 sdk
 smol
+subrepo
 tmpl
 tolineno
 toptal

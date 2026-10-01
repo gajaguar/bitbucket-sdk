@@ -7,12 +7,14 @@ from bitbucket._pagination import apaginate
 from bitbucket.aio.resources.comments import AsyncCommitCommentsResource
 from bitbucket.models.account import Account
 from bitbucket.models.commit import Commit
+from bitbucket.models.conflict import FileConflict
 from bitbucket.models.diffstat import DiffStat
 from bitbucket.resources.base import page_from_payload
 from bitbucket.retry import CqsKind
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
+    from collections.abc import Sequence
     from typing import Any
 
     from bitbucket._pagination import Page
@@ -90,6 +92,37 @@ class AsyncCommitsResource:
             data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY)
         else:
             data = await self._transport.request("GET", f"{self._base_path}/commits/{revision}", kind=CqsKind.QUERY)
+        return page_from_payload(cast("dict[str, Any]", data), Commit)
+
+    # GET .../file-conflicts/{spec} (auto-paginating)
+    def file_conflicts(self, spec: str) -> AsyncIterator[FileConflict]:
+        return apaginate(lambda cursor: self._file_conflicts_page(spec, cursor=cursor))
+
+    async def _file_conflicts_page(self, spec: str, *, cursor: str | None) -> Page[FileConflict]:
+        if cursor:
+            data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY)
+        else:
+            data = await self._transport.request("GET", f"{self._base_path}/file-conflicts/{spec}", kind=CqsKind.QUERY)
+        return page_from_payload(cast("dict[str, Any]", data), FileConflict)
+
+    # POST .../commits (auto-paginating) — include/exclude in the form body
+    def list_by_post(self, *, include: Sequence[str] = (), exclude: Sequence[str] = ()) -> AsyncIterator[Commit]:
+        path = f"{self._base_path}/commits"
+        return apaginate(lambda cursor: self._post_page(path, include, exclude, cursor=cursor))
+
+    # POST .../commits/{revision} (auto-paginating) — include/exclude in the form body
+    def list_from_by_post(
+        self, revision: str, *, include: Sequence[str] = (), exclude: Sequence[str] = ()
+    ) -> AsyncIterator[Commit]:
+        path = f"{self._base_path}/commits/{revision}"
+        return apaginate(lambda cursor: self._post_page(path, include, exclude, cursor=cursor))
+
+    # Later pages re-POST the same form to `next`, so the filter survives whatever the URL encodes.
+    async def _post_page(
+        self, path: str, include: Sequence[str], exclude: Sequence[str], *, cursor: str | None
+    ) -> Page[Commit]:
+        form = {key: list(values) for key, values in (("include", include), ("exclude", exclude)) if values}
+        data = await self._transport.request_form("POST", cursor or path, kind=CqsKind.QUERY, data=form)
         return page_from_payload(cast("dict[str, Any]", data), Commit)
 
     # GET .../merge-base/{spec}

@@ -131,6 +131,17 @@ class Transport:
         response = self._send(method, path, kind=kind, params=params, json=None)
         return _bytes_or_error(response)
 
+    def request_form(
+        self,
+        method: str,
+        path: str,
+        *,
+        kind: CqsKind,
+        data: Mapping[str, list[str]],
+    ) -> JSONValue:
+        response = self._send_form(method, path, kind=kind, data=data)
+        return _json_or_error(response)
+
     def request_multipart(
         self,
         method: str,
@@ -160,6 +171,21 @@ class Transport:
                 json=json,
                 extensions={"bitbucket_cqs": kind},
             )
+        except httpx.TransportError as error:
+            raise TransportError(str(error)) from error
+        _log(method, path, response)
+        return response
+
+    def _send_form(
+        self,
+        method: str,
+        path: str,
+        *,
+        kind: CqsKind,
+        data: Mapping[str, list[str]],
+    ) -> httpx.Response:
+        try:
+            response = self._client.request(method, path, data=data, extensions={"bitbucket_cqs": kind})
         except httpx.TransportError as error:
             raise TransportError(str(error)) from error
         _log(method, path, response)

@@ -12,6 +12,11 @@ from bitbucket.errors import TransportError
 from bitbucket.models.comment import CommentContentCreate
 from bitbucket.models.comment import CommentCreate
 from bitbucket.models.comment import CommentUpdate
+from bitbucket.models.conflict import FileConflictScenario
+from bitbucket.models.mergeability import GitMergeabilityReason
+from bitbucket.models.mergeability import MergeabilityCheckStatus
+from bitbucket.models.mergeability import MergeabilityCheckType
+from bitbucket.models.mergeability import MergeabilityPullRequestState
 from bitbucket.models.pull_request import BranchSpec
 from bitbucket.models.pull_request import EndpointSpec
 from bitbucket.models.pull_request import PullRequestCreate
@@ -572,3 +577,96 @@ def test_commit_status_update_puts_new_state(client: BitbucketClient) -> None:
     # Assert
     assert result.state == "SUCCESSFUL"
     assert route.calls[0].request.content == b'{"state":"SUCCESSFUL"}'
+
+
+@respx.mock
+def test_pull_request_conflicts_parse_scenario_and_message(client: BitbucketClient) -> None:
+    # Arrange
+    respx.get(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/conflicts").mock(
+        return_value=Response(
+            200,
+            json={
+                "values": [{"path": "a.py", "scenario": "content", "message": "both"}, {"scenario": "new"}],
+                "next": None,
+            },
+        ),
+    )
+    # Act
+    conflicts = list(_pull_requests(client).conflicts(5))
+    # Assert
+    assert [conflict.scenario for conflict in conflicts] == [
+        FileConflictScenario.CONTENT,
+        FileConflictScenario.UNKNOWN,
+    ]
+    assert conflicts[0].message == "both"
+
+
+@respx.mock
+def test_pull_request_mergeability_checks_returns_parsed_checks(client: BitbucketClient) -> None:
+    # Arrange
+    route = respx.get(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/mergeability/checks").mock(
+        return_value=Response(
+            200,
+            json={
+                "size": 4,
+                "values": [
+                    {
+                        "type": "pullrequest_state_check",
+                        "status": "PASSED",
+                        "required": True,
+                        "blocking": False,
+                        "state": "OPEN",
+                    },
+                    {
+                        "type": "git_mergeability_check",
+                        "status": "FAILED",
+                        "required": True,
+                        "blocking": True,
+                        "reason": "conflicts",
+                        "links": {"details": {"href": "https://x/conflicts"}},
+                    },
+                    {
+                        "type": "merge_queue_check",
+                        "status": "PASSED",
+                        "queued": False,
+                        "merge_queue": {"uuid": "{q}", "name": "main", "state": "ACTIVE"},
+                    },
+                    {"type": "brand_new_check", "status": "WEIRD", "check": {"kind": "minimum_approvals"}},
+                ],
+            },
+        ),
+    )
+    # Act
+    checks = _pull_requests(client).mergeability_checks(5)
+    # Assert
+    assert [check.type for check in checks][:3] == [
+        MergeabilityCheckType.PULLREQUEST_STATE_CHECK,
+        MergeabilityCheckType.GIT_MERGEABILITY_CHECK,
+        MergeabilityCheckType.MERGE_QUEUE_CHECK,
+    ]
+    assert checks[0].state is MergeabilityPullRequestState.OPEN
+    assert checks[1].reason is GitMergeabilityReason.CONFLICTS
+    assert checks[1].blocking is True
+    assert checks[1].links is not None
+    assert checks[1].links.details is not None
+    assert checks[1].links.details.href == "https://x/conflicts"
+    assert checks[2].merge_queue is not None
+    assert checks[2].merge_queue.state == "ACTIVE"
+    assert checks[3].type is MergeabilityCheckType.UNKNOWN
+    assert checks[3].status is MergeabilityCheckStatus.UNKNOWN
+    assert checks[3].check is not None
+    assert checks[3].check.kind == "minimum_approvals"
+    assert route.calls[0].request.url.query == b""
+
+
+@respx.mock
+def test_pull_request_mergeability_checks_sends_q_filter(client: BitbucketClient) -> None:
+    # Arrange
+    route = respx.get(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/mergeability/checks").mock(
+        return_value=Response(200, json={"values": []}),
+    )
+    # Act
+    checks = _pull_requests(client).mergeability_checks(5, q='type!="git_mergeability_check"')
+    # Assert
+    assert checks == []
+    assert route.calls[0].request.url.params["q"] == 'type!="git_mergeability_check"'

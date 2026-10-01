@@ -40,3 +40,21 @@ def test_search_surface_is_public() -> None:
     missing = names - set(bitbucket.__all__)
     # Assert
     assert not missing
+
+
+def test_mergeability_surface_is_public() -> None:
+    # Arrange
+    names = {
+        "FileConflictScenario",
+        "GitMergeabilityReason",
+        "MergeCheckDefinition",
+        "MergeQueue",
+        "MergeabilityCheck",
+        "MergeabilityCheckStatus",
+        "MergeabilityCheckType",
+        "MergeabilityPullRequestState",
+    }
+    # Act
+    missing = names - set(bitbucket.__all__)
+    # Assert
+    assert not missing

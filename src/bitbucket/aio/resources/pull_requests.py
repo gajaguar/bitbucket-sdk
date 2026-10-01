@@ -20,6 +20,7 @@ from bitbucket.models.merge import MergeParameters
 from bitbucket.models.merge import MergeTask
 from bitbucket.models.merge import MergeTaskState
 from bitbucket.models.merge import MergeTaskStatus
+from bitbucket.models.mergeability import MergeabilityCheck
 from bitbucket.models.pull_request import PullRequest
 from bitbucket.models.pull_request import PullRequestCreate
 from bitbucket.models.pull_request import PullRequestUpdate
@@ -156,6 +157,14 @@ class AsyncPullRequestsResource(
             interval=interval,
             **poll_kwargs,
         )
+
+    # GET {path}/{id}/mergeability/checks
+    async def mergeability_checks(
+        self, pull_request_id: PullRequestId | int, *, q: str | None = None
+    ) -> list[MergeabilityCheck]:
+        path = f"{self._item_path(pull_request_id)}/mergeability/checks"
+        data = await self._transport.request("GET", path, kind=CqsKind.QUERY, params={"q": q})
+        return page_from_payload(cast("dict[str, Any]", data), MergeabilityCheck).items
 
     # GET {path}/{id}/patch
     async def patch(self, pull_request_id: PullRequestId | int) -> str:
