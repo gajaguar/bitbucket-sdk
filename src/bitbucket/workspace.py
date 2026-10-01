@@ -17,6 +17,7 @@ from bitbucket.resources.base import page_from_payload
 from bitbucket.resources.hooks import HooksResource
 from bitbucket.resources.projects import ProjectsResource
 from bitbucket.resources.repositories import RepositoriesResource
+from bitbucket.resources.search import SearchResource
 from bitbucket.resources.workspaces import WorkspaceMembersResource
 from bitbucket.resources.workspaces import WorkspacePermissionsResource
 from bitbucket.retry import CqsKind
@@ -39,6 +40,7 @@ class WorkspaceClient:
         self.projects = ProjectsResource(transport, f"/workspaces/{slug}")
         self.members = WorkspaceMembersResource(transport, f"/workspaces/{slug}")
         self.permissions = WorkspacePermissionsResource(transport, f"/workspaces/{slug}")
+        self.search = SearchResource(transport, f"/workspaces/{slug}")
 
     def repository(self, slug: RepositorySlug | str) -> RepositoryClient:
         return RepositoryClient(self._transport, self.slug, RepositorySlug(str(slug)))

@@ -10,6 +10,7 @@ from bitbucket.aio.repository import AsyncRepositoryClient
 from bitbucket.aio.resources.hooks import AsyncHooksResource
 from bitbucket.aio.resources.projects import AsyncProjectsResource
 from bitbucket.aio.resources.repositories import AsyncRepositoriesResource
+from bitbucket.aio.resources.search import AsyncSearchResource
 from bitbucket.aio.resources.workspaces import AsyncWorkspaceMembersResource
 from bitbucket.aio.resources.workspaces import AsyncWorkspacePermissionsResource
 from bitbucket.ids import ProjectKey
@@ -39,6 +40,7 @@ class AsyncWorkspaceClient:
         self.projects = AsyncProjectsResource(transport, f"/workspaces/{slug}")
         self.members = AsyncWorkspaceMembersResource(transport, f"/workspaces/{slug}")
         self.permissions = AsyncWorkspacePermissionsResource(transport, f"/workspaces/{slug}")
+        self.search = AsyncSearchResource(transport, f"/workspaces/{slug}")
 
     def repository(self, slug: RepositorySlug | str) -> AsyncRepositoryClient:
         return AsyncRepositoryClient(self._transport, self.slug, RepositorySlug(str(slug)))

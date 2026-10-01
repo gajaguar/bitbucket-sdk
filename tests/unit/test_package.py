@@ -31,3 +31,12 @@ def test_credential_surface_is_public() -> None:
     missing = names - set(bitbucket.__all__)
     # Assert
     assert not missing
+
+
+def test_search_surface_is_public() -> None:
+    # Arrange
+    names = {"TeamClient", "CodeSearchResult", "SearchContentMatch", "SearchLine", "SearchSegment"}
+    # Act
+    missing = names - set(bitbucket.__all__)
+    # Assert
+    assert not missing

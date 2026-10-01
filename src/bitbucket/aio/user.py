@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from bitbucket.aio.resources.gpg_keys import AsyncGpgKeysResource
+from bitbucket.aio.resources.search import AsyncSearchResource
 from bitbucket.aio.resources.ssh_keys import AsyncSshKeysResource
 from bitbucket.models.account import User
 from bitbucket.retry import CqsKind
@@ -19,6 +20,7 @@ class AsyncUserClient:
         self._path = f"/users/{selected_user}"
         self.ssh_keys = AsyncSshKeysResource(transport, self._path)
         self.gpg_keys = AsyncGpgKeysResource(transport, self._path)
+        self.search = AsyncSearchResource(transport, self._path)
 
     # GET .../users/{selected_user}
     async def get(self) -> User:

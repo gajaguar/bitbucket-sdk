@@ -100,6 +100,10 @@ from bitbucket.models.repository import RepositoryCreate
 from bitbucket.models.repository import RepositoryUpdate
 from bitbucket.models.repository import Scm
 from bitbucket.models.repository import WorkspaceSpec
+from bitbucket.models.search import CodeSearchResult
+from bitbucket.models.search import SearchContentMatch
+from bitbucket.models.search import SearchLine
+from bitbucket.models.search import SearchSegment
 from bitbucket.models.source import FileHistoryEntry
 from bitbucket.models.source import TreeEntry
 from bitbucket.models.ssh_key import SshKey
@@ -151,6 +155,7 @@ __all__ = [
     "BranchingModelSettings",
     "BranchingModelSettingsUpdate",
     "BranchingModelTarget",
+    "CodeSearchResult",
     "Comment",
     "CommentContentCreate",
     "CommentCreate",
@@ -223,6 +228,9 @@ __all__ = [
     "RepositoryUpdate",
     "ReviewerSpec",
     "Scm",
+    "SearchContentMatch",
+    "SearchLine",
+    "SearchSegment",
     "SshKey",
     "SshKeyCreate",
     "SshKeyUpdate",
