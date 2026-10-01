@@ -58,6 +58,17 @@ async def test_properties_put_sends_the_value_as_the_body(aclient: AsyncBitbucke
 
 @pytest.mark.parametrize("scope", sorted(SCOPES))
 @respx.mock
+async def test_properties_put_returns_none(aclient: AsyncBitbucketClient, scope: str) -> None:
+    # Arrange
+    respx.put(SCOPES[scope]).mock(return_value=Response(204))
+    # Act
+    result = await _properties(aclient, scope).put("my-app", "state", VALUE)
+    # Assert
+    assert result is None
+
+
+@pytest.mark.parametrize("scope", sorted(SCOPES))
+@respx.mock
 async def test_properties_delete_returns_none(aclient: AsyncBitbucketClient, scope: str) -> None:
     # Arrange
     route = respx.delete(SCOPES[scope]).mock(return_value=Response(204))

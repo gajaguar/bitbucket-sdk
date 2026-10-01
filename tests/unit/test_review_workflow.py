@@ -456,12 +456,12 @@ def test_pull_request_properties_get_returns_stored_value(client: BitbucketClien
 def test_pull_request_properties_put_sends_value_as_body(client: BitbucketClient) -> None:
     # Arrange
     route = respx.put(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/properties/my-app/state").mock(
-        return_value=Response(200, json={"stage": "done"}),
+        return_value=Response(204),
     )
     # Act
     result = _pull_requests(client).properties(5).put("my-app", "state", {"stage": "done"})
     # Assert
-    assert result == {"stage": "done"}
+    assert result is None
     assert route.calls[0].request.content == b'{"stage":"done"}'
 
 

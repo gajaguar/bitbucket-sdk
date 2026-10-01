@@ -23,8 +23,8 @@ class PropertiesResource:
         return self._transport.request("GET", self._item_path(app_key, property_name), kind=CqsKind.QUERY)
 
     # PUT {path}/{app_key}/{property_name}
-    def put(self, app_key: str, property_name: str, value: JSONValue) -> JSONValue:
-        return self._transport.request(
+    def put(self, app_key: str, property_name: str, value: JSONValue) -> None:
+        self._transport.request(
             "PUT", self._item_path(app_key, property_name), kind=CqsKind.IDEMPOTENT_COMMAND, json=value
         )
 
