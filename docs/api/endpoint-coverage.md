@@ -13,6 +13,11 @@ supports to its method and implementation status. This table is the
 verifiable definition of "covers the pull-request surface" — an endpoint with
 no row, or a row not marked `done`, is not yet supported.
 
+Every operation marked auto-paginating in the notes also has a
+`<method>_page(..., cursor=None)` that returns one `Page`; the table lists only
+the iterator. See
+[Public API conventions](../architecture/public-api-conventions.md).
+
 Status values: `planned`, `in-progress`, `done`, `unsupported` (the spec
 declares the operation but the SDK cannot call it; the row says why).
 
@@ -887,9 +892,10 @@ pull-request paths, which use `{pull_request_id}`; the table now follows it.
 Note: The stored value is whatever JSON the app wrote. The spec's
 `application_property` allows any keys and declares only `_attributes`
 (`public`, `read_only`), so `get` returns and `put` takes a JSON value, not a
-model. The spec declares `204` for every `PUT` and `DELETE`; `put` returns the
-body when the server sends one, otherwise `None`. A `PUT` is
-`IDEMPOTENT_COMMAND` (the same value leaves the same state), a `DELETE` too.
+model. The spec declares `204` for every `PUT` and `DELETE`, so both return
+`None` (before 1.0.0, `put` returned the body when the server sent one). A
+`PUT` is `IDEMPOTENT_COMMAND` (the same value leaves the same state), a
+`DELETE` too.
 
 Note: All 12 operations are marked `deprecated: true`: the spec says "This API
 will be deprecated on January 31, 2027 as part of end of support for Connect

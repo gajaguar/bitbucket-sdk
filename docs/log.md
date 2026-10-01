@@ -2,6 +2,16 @@
 
 ## 2026-10-01
 
+* **Added**: `architecture/public-api-conventions.md`, the rules the public
+  surface follows from `1.0.0`: a `*_page` for every paginated iterator, `None`
+  for a `204`, and `put` as create-or-replace. It lists the asymmetries that
+  stay on purpose.
+* **Updated**: `api/endpoint-coverage.md` and `README.md` for the public
+  surface review before `1.0.0`: the properties `put` returns `None`, because
+  the spec declares only `204`, and the 18 iterators that had no page method
+  now have one. `x-revision` `6856b45887d7` is unchanged and the summary still
+  adds up to 294.
+
 * **Updated**: `api/endpoint-coverage.md`, `api/roadmap.md` and `README.md` for
   the rest of the `Snippets` group (291 of 294 operations): commits,
   revisions, raw files, diff and patch. The new notes record the `405` on a
