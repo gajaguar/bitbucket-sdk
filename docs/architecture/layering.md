@@ -11,7 +11,10 @@ status: stable
 `BitbucketClient` owns one `httpx.Client` and exposes `.user` (root-level) and
 `.workspace(slug)`, which returns a `WorkspaceClient` bound to that workspace.
 `WorkspaceClient.repository(slug)` returns a `RepositoryClient` bound to that
-repository, exposing `.pull_requests` and `.default_reviewers`. Resource
+repository, exposing `.pull_requests`, `.default_reviewers`,
+`.branch_restrictions`, `.branching_model` and more.
+`WorkspaceClient.project(key)` returns a `ProjectClient`, exposing
+`.branching_model`. Resource
 objects never touch `httpx` directly — every request goes through
 `_transport.Transport`, which owns auth, retries, and error mapping.
 `models/` (pydantic) is used by every layer above transport to validate and
@@ -22,6 +25,7 @@ flowchart TD
     Caller["Caller code"] --> Client["BitbucketClient"]
     Client --> WSClient["WorkspaceClient"]
     WSClient --> RepoClient["RepositoryClient"]
+    WSClient --> ProjectClient["ProjectClient"]
     Client --> UserRes["UserResource"]
     WSClient --> ReposRes["RepositoriesResource"]
     RepoClient --> PRRes["PullRequestsResource"]

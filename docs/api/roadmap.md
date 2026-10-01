@@ -13,7 +13,7 @@ This SDK targets **Bitbucket Cloud REST API `2.0`**, checked against
 `x-revision: 167b2dc51ec8` (2026-09-16). Regenerate the numbers below against
 a newer revision whenever [endpoint coverage](endpoint-coverage.md) is re-verified.
 
-**Where we are today:** 104 / 294 operations (35%) — see the coverage summary
+**Where we are today:** 116 / 294 operations (39%) — see the coverage summary
 table in [endpoint coverage](endpoint-coverage.md) for the full breakdown by resource
 group. This document lays out the path from there to full parity, in phases
 tied to version milestones, plus two cross-cutting phases (0a and 0b) that
@@ -213,21 +213,23 @@ credential kinds, which one wins when both are supplied, the new environment
 variable) were settled before the code landed, following the
 [credential contract](../sdk/credential-contract.md).
 
-## Phase 3 — governance (`0.7.0`)
+## Phase 3 — governance (`0.7.0` and `0.8.0`)
 
 Also closes Phase 2's 3 `planned` `Commits` rows (see that phase's
 follow-up note) once the live spec confirms their exact shape.
 
 Workspace- and project-level administration surface:
 
-- `Webhooks` (2) — **landed, unreleased**: the hook-event catalogue
+- `Webhooks` (2) — **shipped in `0.7.0`**: the hook-event catalogue
   (`GET /hook_events`, `GET /hook_events/{subject_type}`). Repository-level
   hooks shipped in `0.4.0`.
-- `Branch restrictions` (5), `Branching model` (7).
+- `Branch restrictions` (5), `Branching model` (7) — **shipped in `0.7.0`**.
+  The 3 project-level branching-model operations introduced `ProjectClient`
+  (`ws.project(key)`), which the rest of `Projects` extends.
 - `Projects` (16): project CRUD, default reviewers, permissions-config.
 - `Workspaces` (16): members, permissions, hooks, GPG public key. The 5
   workspace hook operations (`/workspaces/{workspace}/hooks[/{uid}]`) are
-  **landed, unreleased**, pulled forward with `Webhooks` because they reuse
+  **shipped in `0.7.0`**, pulled forward with `Webhooks` because they reuse
   `HooksResource` as-is.
 - `Users` (4), `SSH` (5), `GPG` (4), `Search` (3).
 
@@ -240,7 +242,7 @@ operations, but the per-first-tag counts differ (the live spec has
 `Repositories` 24 and `Pullrequests` 38, where the table has 25 and 37).
 Re-verify the table against the new revision before the next phase closes.
 
-## Phase 4 — CI/CD (`0.8.0`)
+## Phase 4 — CI/CD (`0.9.0`)
 
 - `Pipelines` (68): pipeline trigger/list/get/stop, steps, logs, test reports,
   pipelines-config (caches, runners, variables, schedules, SSH key pair,
@@ -275,13 +277,15 @@ in the machine-readable spec — see the footnote in `endpoint-coverage.md`.
 | 1, 2  | 0.4.0   | +80 (shipped, 3 planned)        | 97 (33%)            |
 | 0a    | 0.5.0   | +0 (async client)               | 97 (33%)            |
 | 0b    | 0.6.0   | +0 (bearer token auth, shipped) | 97 (33%)            |
-| 3     | 0.7.0   | +49 (46 + the 3 above)          | 146 (50%)           |
-| 4     | 0.8.0   | +93                             | 239 (81%)           |
+| 3a    | 0.7.0   | +19 (shipped)                   | 116 (39%)           |
+| 3b    | 0.8.0   | +30 (the rest of Phase 3)       | 146 (50%)           |
+| 4     | 0.9.0   | +93                             | 239 (81%)           |
 | 5     | 1.0.0   | +55                             | 294 (100%)          |
 
-Phase 3's `0.7.0` is not tagged yet: 7 of its operations (the webhook groups
-above) are on `main`, and the version is bumped when the phase is complete,
-per the [release checklist](../release/release-checklist.md).
+Phase 3 is split across two releases. `0.7.0` carries the 19 operations
+already done (the webhook groups, `Branch restrictions` and `Branching model`);
+`0.8.0` closes the rest of the phase. Each bump follows the
+[release checklist](../release/release-checklist.md).
 
 Phases 1 and 2 were planned as `0.2.0` and `0.3.0` but never tagged; they
 shipped together in `0.4.0` with the credential contract. `0.4.1` changed

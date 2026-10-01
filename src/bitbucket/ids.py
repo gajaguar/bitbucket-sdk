@@ -4,6 +4,7 @@ from typing import NewType
 
 WorkspaceSlug = NewType("WorkspaceSlug", str)  # pylint: disable=gajaguar-module-const-naming,gajaguar-require-final
 RepositorySlug = NewType("RepositorySlug", str)  # pylint: disable=gajaguar-module-const-naming,gajaguar-require-final
+ProjectKey = NewType("ProjectKey", str)  # pylint: disable=gajaguar-module-const-naming,gajaguar-require-final
 PullRequestId = NewType("PullRequestId", int)  # pylint: disable=gajaguar-module-const-naming,gajaguar-require-final
 CommentId = NewType("CommentId", int)  # pylint: disable=gajaguar-module-const-naming,gajaguar-require-final
 AccountId = NewType("AccountId", str)  # pylint: disable=gajaguar-module-const-naming,gajaguar-require-final

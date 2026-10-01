@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from bitbucket.aio.resources.branch_restrictions import AsyncBranchRestrictionsResource
+from bitbucket.aio.resources.branching_model import AsyncRepositoryBranchingModelResource
 from bitbucket.aio.resources.commit_statuses import AsyncCommitStatusesResource
 from bitbucket.aio.resources.commits import AsyncCommitsResource
 from bitbucket.aio.resources.default_reviewers import AsyncDefaultReviewersResource
@@ -33,3 +35,5 @@ class AsyncRepositoryClient:  # pylint: disable=too-many-instance-attributes
         self.source = AsyncSourceResource(transport, base_path)
         self.commits = AsyncCommitsResource(transport, base_path)
         self.downloads = AsyncDownloadsResource(transport, base_path)
+        self.branch_restrictions = AsyncBranchRestrictionsResource(transport, base_path)
+        self.branching_model = AsyncRepositoryBranchingModelResource(transport, base_path)

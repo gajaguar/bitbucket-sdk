@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from bitbucket.resources.branch_restrictions import BranchRestrictionsResource
+from bitbucket.resources.branching_model import RepositoryBranchingModelResource
 from bitbucket.resources.commit_statuses import CommitStatusesResource
 from bitbucket.resources.commits import CommitsResource
 from bitbucket.resources.default_reviewers import DefaultReviewersResource
@@ -33,3 +35,5 @@ class RepositoryClient:  # pylint: disable=too-many-instance-attributes
         self.source = SourceResource(transport, base_path)
         self.commits = CommitsResource(transport, base_path)
         self.downloads = DownloadsResource(transport, base_path)
+        self.branch_restrictions = BranchRestrictionsResource(transport, base_path)
+        self.branching_model = RepositoryBranchingModelResource(transport, base_path)
