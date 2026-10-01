@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from bitbucket.aio.resources.pipelines_config import AsyncAccountPipelinesConfig
 from bitbucket.aio.resources.search import AsyncSearchResource
 
 if TYPE_CHECKING:
@@ -10,7 +11,8 @@ if TYPE_CHECKING:
 
 class AsyncTeamClient:
     # A thin wiring class like AsyncUserClient, for /teams/{username}; code
-    # search is the only operation the spec still has under it.
+    # search and pipeline variables are what the spec still has under it.
     def __init__(self, transport: AsyncTransport, username: str) -> None:
         self.username = username
         self.search = AsyncSearchResource(transport, f"/teams/{username}")
+        self.pipelines_config = AsyncAccountPipelinesConfig(transport, f"/teams/{username}")

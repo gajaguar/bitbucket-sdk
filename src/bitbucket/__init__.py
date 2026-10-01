@@ -110,6 +110,52 @@ from bitbucket.models import Participant
 from bitbucket.models import ParticipantRole
 from bitbucket.models import ParticipantState
 from bitbucket.models import PermissionLevel
+from bitbucket.models import Pipeline
+from bitbucket.models import PipelineBuildNumber
+from bitbucket.models import PipelineBuildNumberUpdate
+from bitbucket.models import PipelineCache
+from bitbucket.models import PipelineCacheContentUri
+from bitbucket.models import PipelineCommand
+from bitbucket.models import PipelineCommitRef
+from bitbucket.models import PipelineCommitTargetCreate
+from bitbucket.models import PipelineConfigurationSource
+from bitbucket.models import PipelineCreate
+from bitbucket.models import PipelineError
+from bitbucket.models import PipelineImage
+from bitbucket.models import PipelineKnownHost
+from bitbucket.models import PipelineKnownHostCreate
+from bitbucket.models import PipelineKnownHostUpdate
+from bitbucket.models import PipelineLinks
+from bitbucket.models import PipelineRefTargetCreate
+from bitbucket.models import PipelineRefType
+from bitbucket.models import PipelineResultName
+from bitbucket.models import PipelineSchedule
+from bitbucket.models import PipelineScheduleCreate
+from bitbucket.models import PipelineScheduleExecution
+from bitbucket.models import PipelineScheduleTargetCreate
+from bitbucket.models import PipelineScheduleUpdate
+from bitbucket.models import PipelineSelector
+from bitbucket.models import PipelineSelectorType
+from bitbucket.models import PipelineSshKeyPair
+from bitbucket.models import PipelineSshKeyPairUpdate
+from bitbucket.models import PipelineSshPublicKey
+from bitbucket.models import PipelineStageName
+from bitbucket.models import PipelineState
+from bitbucket.models import PipelineStateName
+from bitbucket.models import PipelineStateResult
+from bitbucket.models import PipelineStateStage
+from bitbucket.models import PipelineStep
+from bitbucket.models import PipelineStepResult
+from bitbucket.models import PipelineStepResultName
+from bitbucket.models import PipelineStepState
+from bitbucket.models import PipelineStepStateName
+from bitbucket.models import PipelineTarget
+from bitbucket.models import PipelineTrigger
+from bitbucket.models import PipelineVariable
+from bitbucket.models import PipelineVariableCreate
+from bitbucket.models import PipelineVariableUpdate
+from bitbucket.models import PipelinesConfig
+from bitbucket.models import PipelinesConfigUpdate
 from bitbucket.models import Project
 from bitbucket.models import ProjectSpec
 from bitbucket.models import PullRequest
@@ -133,6 +179,13 @@ from bitbucket.models import RepositoryOverrideSettings
 from bitbucket.models import RepositorySpec
 from bitbucket.models import RepositoryUpdate
 from bitbucket.models import ReviewerSpec
+from bitbucket.models import Runner
+from bitbucket.models import RunnerCreate
+from bitbucket.models import RunnerOAuthClient
+from bitbucket.models import RunnerState
+from bitbucket.models import RunnerStatus
+from bitbucket.models import RunnerUpdate
+from bitbucket.models import RunnerVersion
 from bitbucket.models import Scm
 from bitbucket.models import SearchContentMatch
 from bitbucket.models import SearchLine
@@ -269,6 +322,52 @@ __all__ = [
     "ParticipantRole",
     "ParticipantState",
     "PermissionLevel",
+    "Pipeline",
+    "PipelineBuildNumber",
+    "PipelineBuildNumberUpdate",
+    "PipelineCache",
+    "PipelineCacheContentUri",
+    "PipelineCommand",
+    "PipelineCommitRef",
+    "PipelineCommitTargetCreate",
+    "PipelineConfigurationSource",
+    "PipelineCreate",
+    "PipelineError",
+    "PipelineImage",
+    "PipelineKnownHost",
+    "PipelineKnownHostCreate",
+    "PipelineKnownHostUpdate",
+    "PipelineLinks",
+    "PipelineRefTargetCreate",
+    "PipelineRefType",
+    "PipelineResultName",
+    "PipelineSchedule",
+    "PipelineScheduleCreate",
+    "PipelineScheduleExecution",
+    "PipelineScheduleTargetCreate",
+    "PipelineScheduleUpdate",
+    "PipelineSelector",
+    "PipelineSelectorType",
+    "PipelineSshKeyPair",
+    "PipelineSshKeyPairUpdate",
+    "PipelineSshPublicKey",
+    "PipelineStageName",
+    "PipelineState",
+    "PipelineStateName",
+    "PipelineStateResult",
+    "PipelineStateStage",
+    "PipelineStep",
+    "PipelineStepResult",
+    "PipelineStepResultName",
+    "PipelineStepState",
+    "PipelineStepStateName",
+    "PipelineTarget",
+    "PipelineTrigger",
+    "PipelineVariable",
+    "PipelineVariableCreate",
+    "PipelineVariableUpdate",
+    "PipelinesConfig",
+    "PipelinesConfigUpdate",
     "PollTimeoutError",
     "Project",
     "ProjectClient",
@@ -300,6 +399,13 @@ __all__ = [
     "RepositoryUpdate",
     "RetryPolicy",
     "ReviewerSpec",
+    "Runner",
+    "RunnerCreate",
+    "RunnerOAuthClient",
+    "RunnerState",
+    "RunnerStatus",
+    "RunnerUpdate",
+    "RunnerVersion",
     "Scm",
     "SearchContentMatch",
     "SearchLine",

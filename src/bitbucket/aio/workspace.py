@@ -8,6 +8,7 @@ from bitbucket._pagination import apaginate
 from bitbucket.aio.project import AsyncProjectClient
 from bitbucket.aio.repository import AsyncRepositoryClient
 from bitbucket.aio.resources.hooks import AsyncHooksResource
+from bitbucket.aio.resources.pipelines_config import AsyncWorkspacePipelinesConfig
 from bitbucket.aio.resources.projects import AsyncProjectsResource
 from bitbucket.aio.resources.repositories import AsyncRepositoriesResource
 from bitbucket.aio.resources.search import AsyncSearchResource
@@ -41,6 +42,7 @@ class AsyncWorkspaceClient:
         self.members = AsyncWorkspaceMembersResource(transport, f"/workspaces/{slug}")
         self.permissions = AsyncWorkspacePermissionsResource(transport, f"/workspaces/{slug}")
         self.search = AsyncSearchResource(transport, f"/workspaces/{slug}")
+        self.pipelines_config = AsyncWorkspacePipelinesConfig(transport, f"/workspaces/{slug}")
 
     def repository(self, slug: RepositorySlug | str) -> AsyncRepositoryClient:
         return AsyncRepositoryClient(self._transport, self.slug, RepositorySlug(str(slug)))

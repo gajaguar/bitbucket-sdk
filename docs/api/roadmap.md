@@ -10,10 +10,10 @@ status: stable
 
 This SDK targets **Bitbucket Cloud REST API `2.0`**, checked against
 `https://dac-static.atlassian.com/cloud/bitbucket/swagger.v3.json`,
-`x-revision: 6856b45887d7` (2026-09-30). Regenerate the numbers below against
+`x-revision: 6856b45887d7` (2026-10-01). Regenerate the numbers below against
 a newer revision whenever [endpoint coverage](endpoint-coverage.md) is re-verified.
 
-**Where we are today:** 162 / 294 operations (55%) — see the coverage summary
+**Where we are today:** 230 / 294 operations (78%) — see the coverage summary
 table in [endpoint coverage](endpoint-coverage.md) for the full breakdown by resource
 group. This document lays out the path from there to full parity, in phases
 tied to version milestones, plus two cross-cutting phases (0a and 0b) that
@@ -259,19 +259,38 @@ the per-first-tag counts are `Repositories` 24 and `Pullrequests` 38.
 Re-verifying also found the repository override-settings path wrong in the
 SDK; the fix is noted in [endpoint coverage](endpoint-coverage.md).
 
-## Phase 4 — CI/CD (`0.9.0`)
+## Phase 4 — CI/CD (`4a` and `4b`)
 
-- `Pipelines` (68): pipeline trigger/list/get/stop, steps, logs, test reports,
-  pipelines-config (caches, runners, variables, schedules, SSH key pair,
-  known hosts, OIDC discovery).
-- `Deployments` (16): deploy keys, deployments, environments,
-  environment variables.
+Phase 4 is split in two, counting each operation under its first tag. The four
+`.../deployments_config/environments/{environment_uuid}/variables` operations
+are first-tagged `Pipelines`, so they count in 4a although they are about
+deployment environments.
+
+### 4a — `Pipelines` (68) — shipped on `main`
+
+Pipelines trigger, list, get and stop; steps, step and container logs, test
+reports; pipelines-config (settings, build number, schedules, SSH key pair,
+known hosts, caches, runners, variables for the repository, workspace, team
+and user scopes); the two OIDC operations; and the four environment variables,
+reached through `repo.environments.variables(environment_uuid)`. Coverage goes
+from 162 to 230 (78%).
+
+**Architecture note:** one new seam. Step logs are bytes, can be large, accept
+a `Range` header and answer `307` to long-term storage when a step finishes,
+so `request_bytes` now takes per-request `headers` and `follow_redirects`.
+Test reports, test cases, test-case reasons and the OIDC operations declare no
+response schema and return the JSON as is. Everything else fits
+`NestedResource` (one `PipelineVariablesResource` for four scopes, one
+`RunnersResource` for two) or a hand-written method. Secrets (variable values,
+the SSH private key, a runner's OAuth secret) are `SecretStr`.
+
+### 4b — `Deployments` (16) and `Reports` (9)
+
+- `Deployments` (16): deploy keys, deployments, environments. 4b extends the
+  `EnvironmentsResource` that 4a introduced for the environment variables.
 - `Reports` (9): code-insight reports and annotations on commits.
 
-**Architecture note:** step logs (`GET .../steps/{step_uuid}/log`) are
-streamed/large text bodies, closer to `request_text` than `request`; test
-reports and schedule executions are ordinary paginated JSON and fit the
-existing `NestedResource` pattern.
+Coverage goes from 230 to 255 (87%).
 
 ## Phase 5 — remainder (`1.0.0`)
 
@@ -288,17 +307,18 @@ in the machine-readable spec — see the footnote in `endpoint-coverage.md`.
 
 ## Milestone summary
 
-| Phase | Version | Adds                            | Cumulative coverage |
-| ----- | ------- | ------------------------------- | ------------------- |
-| —     | 0.1.0   | (shipped)                       | 17 (6%)             |
-| 1, 2  | 0.4.0   | +80 (shipped, 3 planned)        | 97 (33%)            |
-| 0a    | 0.5.0   | +0 (async client)               | 97 (33%)            |
-| 0b    | 0.6.0   | +0 (bearer token auth, shipped) | 97 (33%)            |
-| 3a    | 0.7.0   | +19 (shipped)                   | 116 (39%)           |
-| 3b    | 0.8.0   | +27 (shipped)                   | 143 (49%)           |
-| 3c    | next    | +19 (all on `main`)             | 162 (55%)           |
-| 4     | 0.9.0   | +93                             | 255 (87%)           |
-| 5     | 1.0.0   | +39                             | 294 (100%)          |
+| Phase | Version  | Adds                            | Cumulative coverage |
+| ----- | -------- | ------------------------------- | ------------------- |
+| —     | 0.1.0    | (shipped)                       | 17 (6%)             |
+| 1, 2  | 0.4.0    | +80 (shipped, 3 planned)        | 97 (33%)            |
+| 0a    | 0.5.0    | +0 (async client)               | 97 (33%)            |
+| 0b    | 0.6.0    | +0 (bearer token auth, shipped) | 97 (33%)            |
+| 3a    | 0.7.0    | +19 (shipped)                   | 116 (39%)           |
+| 3b    | 0.8.0    | +27 (shipped)                   | 143 (49%)           |
+| 3c    | next     | +19 (all on `main`)             | 162 (55%)           |
+| 4a    | next     | +68 (all on `main`)             | 230 (78%)           |
+| 4b    | after 4a | +25                             | 255 (87%)           |
+| 5     | 1.0.0    | +39                             | 294 (100%)          |
 
 Phase 3 is split across two releases. `0.7.0` carries the 19 operations
 already done (the webhook groups, `Branch restrictions` and `Branching model`);

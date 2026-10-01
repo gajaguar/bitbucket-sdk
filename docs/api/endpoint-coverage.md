@@ -21,7 +21,7 @@ Status values: `planned`, `in-progress`, `done`.
   version at `/2.0`; there is no header-negotiated or dated version scheme to
   pin beyond that.
 - **Spec checked:** `https://dac-static.atlassian.com/cloud/bitbucket/swagger.v3.json`
-  (OpenAPI 3.0.0), `x-revision: 6856b45887d7`, checked 2026-09-30.
+  (OpenAPI 3.0.0), `x-revision: 6856b45887d7`, checked 2026-10-01.
 - **SDK base URL:** `https://api.bitbucket.org/2.0` — see
   `src/bitbucket/config.py`'s `DEFAULT_BASE_URL`.
 
@@ -37,7 +37,7 @@ once, under its first tag, to sum to 294 without double-counting).
 
 | Group               | Operations |    Done |       % |
 | ------------------- | ---------: | ------: | ------: |
-| Pipelines           |         68 |       0 |      0% |
+| Pipelines           |         68 |      68 |    100% |
 | Pullrequests        |         38 |      38 |    100% |
 | Repositories        |         24 |      24 |    100% |
 | Snippets            |         24 |       0 |      0% |
@@ -59,7 +59,7 @@ once, under its first tag, to sum to 294 without double-counting).
 | Addon               |          3 |       0 |      0% |
 | Search              |          3 |       3 |    100% |
 | Webhooks            |          2 |       2 |    100% |
-| **Total**           |    **294** | **162** | **55%** |
+| **Total**           |    **294** | **230** | **78%** |
 
 The spec also declares `Issue tracker` and `Wiki` tags with zero operations
 attached to any path — Bitbucket's issue-tracker and wiki REST endpoints are
@@ -472,3 +472,259 @@ Note: the default-reviewers list returns `{type, reviewer_type, user}`
 wrappers (`DefaultReviewerAndType`), while an item path returns a bare user;
 a project has no effective-default-reviewers path. The `{selected_user}`
 segment is a username or account id, as the spec declares it.
+
+## Pipelines
+
+Note: `Pipelines` is the spec's first tag on 68 operations, so all of them are
+counted here, including four under
+`.../deployments_config/environments/{environment_uuid}/variables` that are
+about deployment environments (see [Environment
+variables](#environment-variables)). The handles are `repo =
+ws.repository(slug)`, `ws`, `team = client.teams(username)` and `user =
+client.users(selected_user)`; `repo.pipelines_config`, `ws.pipelines_config`
+and the team and user ones send no request until a method is called. Checked
+against `x-revision` `6856b45887d7`, unchanged.
+
+The spec spells the config segment two ways, and each path is copied as is:
+`pipelines_config` (underscore) for the repository settings, schedules, SSH
+and variables and for the team and user variables, and `pipelines-config`
+(hyphen) for caches, runners and everything under `/workspaces/{workspace}`.
+
+### Pipelines and steps
+
+| Endpoint                                                                                                         | SDK method                                                                        | Status |
+| ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------ |
+| `GET .../pipelines`                                                                                              | `repo.pipelines.list(**filters)`                                                  | done   |
+| `POST .../pipelines`                                                                                             | `repo.pipelines.create(payload, merge_defaults=..., target_branch_to_create=...)` | done   |
+| `GET .../pipelines/{pipeline_uuid}`                                                                              | `repo.pipelines.get(pipeline_uuid)`                                               | done   |
+| `POST .../pipelines/{pipeline_uuid}/stopPipeline`                                                                | `repo.pipelines.stop(pipeline_uuid)`                                              | done   |
+| `GET .../pipelines/{pipeline_uuid}/steps`                                                                        | `repo.pipelines.steps(pipeline_uuid)`                                             | done   |
+| `GET .../pipelines/{pipeline_uuid}/steps/{step_uuid}`                                                            | `repo.pipelines.step(pipeline_uuid, step_uuid)`                                   | done   |
+| `GET .../pipelines/{pipeline_uuid}/steps/{step_uuid}/log`                                                        | `repo.pipelines.step_log(pipeline_uuid, step_uuid, start=..., end=...)`           | done   |
+| `GET .../pipelines/{pipeline_uuid}/steps/{step_uuid}/logs/{log_uuid}`                                            | `repo.pipelines.container_log(pipeline_uuid, step_uuid, log_uuid)`                | done   |
+| `GET .../pipelines/{pipeline_uuid}/steps/{step_uuid}/test_reports`                                               | `repo.pipelines.test_reports(pipeline_uuid, step_uuid)`                           | done   |
+| `GET .../pipelines/{pipeline_uuid}/steps/{step_uuid}/test_reports/test_cases`                                    | `repo.pipelines.test_cases(pipeline_uuid, step_uuid)`                             | done   |
+| `GET .../pipelines/{pipeline_uuid}/steps/{step_uuid}/test_reports/test_cases/{test_case_uuid}/test_case_reasons` | `repo.pipelines.test_case_reasons(pipeline_uuid, step_uuid, test_case_uuid)`      | done   |
+
+Note: `list()` follows `next` and takes the spec's filters as keyword
+arguments under their own names, for example
+`repo.pipelines.list(**{"target.branch": "main"}, status="COMPLETED",
+sort="-created_on")`; `pagelen` and `page` are query parameters too. `steps()`
+follows `next` as well.
+
+Note: `create` posts `PipelineCreate`: a `target` that is either
+`PipelineRefTargetCreate` (`ref_type`, `ref_name`, `selector`, optional
+`commit`) or `PipelineCommitTargetCreate` (`commit`, `selector`), plus
+optional `variables`. These are the only two subtypes the spec defines for the
+polymorphic `pipeline_target`; each sends its fixed `type`. `merge_defaults`
+and `target_branch_to_create` are query parameters, sent only when given. A
+pipeline's `target`, `state` and step `state` are each one model with the
+subtype's fields optional, and `type` tells the subtype apart; `name` values
+(`PENDING`, `COMPLETED`, `SUCCESSFUL`, `NOT_RUN` and the rest) are enums that
+map an unknown value to `UNKNOWN`.
+
+Note: The step log and the container log answer `application/octet-stream` for
+errors and declare no content type on success, so they go through
+`request_bytes` and return `bytes`: a log may not be valid UTF-8, and the spec
+says it can be very large. The spec says `GET .../log` supports (and
+encourages) HTTP Range requests, though it lists no `Range` parameter, only a
+`416` response. `step_log(start=..., end=...)` sends `Range: bytes=start-end`
+(open-ended when only `start` is given), and `request_bytes` now takes
+per-request `headers` to carry it. Both log operations answer `307` once the
+step finishes, with a redirect to long-term storage; they are sent with
+`follow_redirects=True`, and httpx drops `Authorization` when the redirect
+goes to another origin. `container_log` declares no `304`/`416`, and neither
+operation is conditional in the SDK (no `If-None-Match`).
+
+Note: `test_reports`, `test_cases` and `test_case_reasons` declare a `200`
+with no content and no schema. The SDK returns the decoded JSON as is
+(`JSONValue`) and does not page them, since nothing in the spec says they
+carry `next`; model them when Atlassian publishes the schemas.
+
+Note: `stop` answers `204`, and `400` when the pipeline already completed.
+
+### Repository pipelines configuration
+
+| Endpoint                                | SDK method                                           | Status |
+| --------------------------------------- | ---------------------------------------------------- | ------ |
+| `GET .../pipelines_config`              | `repo.pipelines_config.get()`                        | done   |
+| `PUT .../pipelines_config`              | `repo.pipelines_config.update(payload)`              | done   |
+| `PUT .../pipelines_config/build_number` | `repo.pipelines_config.update_build_number(payload)` | done   |
+
+Note: `PUT .../pipelines_config` takes `pipelines_config` (`enabled`,
+`repository`) and the SDK sends only `enabled`, through
+`PipelinesConfigUpdate`. `build_number` takes `next`, which must be higher
+than the current number (else `400`).
+
+### Schedules
+
+| Endpoint                                                        | SDK method                                                       | Status |
+| --------------------------------------------------------------- | ---------------------------------------------------------------- | ------ |
+| `POST .../pipelines_config/schedules`                           | `repo.pipelines_config.schedules.create(payload)`                | done   |
+| `GET .../pipelines_config/schedules`                            | `repo.pipelines_config.schedules.list()`                         | done   |
+| `GET .../pipelines_config/schedules/{schedule_uuid}`            | `repo.pipelines_config.schedules.get(schedule_uuid)`             | done   |
+| `PUT .../pipelines_config/schedules/{schedule_uuid}`            | `repo.pipelines_config.schedules.update(schedule_uuid, payload)` | done   |
+| `DELETE .../pipelines_config/schedules/{schedule_uuid}`         | `repo.pipelines_config.schedules.delete(schedule_uuid)`          | done   |
+| `GET .../pipelines_config/schedules/{schedule_uuid}/executions` | `repo.pipelines_config.schedules.executions(schedule_uuid)`      | done   |
+
+Note: `schedules.list()` and `executions()` follow `next`. The `POST` body is
+`pipeline_schedule_post_request_body`: `target` (`ref_type`, `ref_name`,
+`selector`), `cron_pattern` and `enabled`, where `target` and `cron_pattern`
+are required. The spec's only `ref_type` for it is `branch`. The `PUT` body,
+`pipeline_schedule_put_request_body`, has only `enabled`. A schedule execution
+is either `executed` (a `pipeline`) or `errored` (an `error` with `key` and
+`message`); `PipelineScheduleExecution` holds both. The spec documents a `401`
+for the schedule limit, and the SDK raises it as the `AuthenticationError`
+that every `401` maps to.
+
+### SSH key pair and known hosts
+
+| Endpoint                                                        | SDK method                                                           | Status |
+| --------------------------------------------------------------- | -------------------------------------------------------------------- | ------ |
+| `GET .../pipelines_config/ssh/key_pair`                         | `repo.pipelines_config.ssh_key_pair.get()`                           | done   |
+| `PUT .../pipelines_config/ssh/key_pair`                         | `repo.pipelines_config.ssh_key_pair.update(payload)`                 | done   |
+| `DELETE .../pipelines_config/ssh/key_pair`                      | `repo.pipelines_config.ssh_key_pair.delete()`                        | done   |
+| `GET .../pipelines_config/ssh/known_hosts`                      | `repo.pipelines_config.known_hosts.list()`                           | done   |
+| `POST .../pipelines_config/ssh/known_hosts`                     | `repo.pipelines_config.known_hosts.create(payload)`                  | done   |
+| `GET .../pipelines_config/ssh/known_hosts/{known_host_uuid}`    | `repo.pipelines_config.known_hosts.get(known_host_uuid)`             | done   |
+| `PUT .../pipelines_config/ssh/known_hosts/{known_host_uuid}`    | `repo.pipelines_config.known_hosts.update(known_host_uuid, payload)` | done   |
+| `DELETE .../pipelines_config/ssh/known_hosts/{known_host_uuid}` | `repo.pipelines_config.known_hosts.delete(known_host_uuid)`          | done   |
+
+Note: `pipeline_ssh_key_pair` has `private_key` and `public_key`; Bitbucket
+returns only the public key. `private_key` is a `SecretStr`. A `known_hosts`
+entry has a `hostname` and a `public_key` (`key_type`, `key`, and the two
+fingerprints). `known_hosts.list()` follows `next`.
+
+### Caches
+
+| Endpoint                                                   | SDK method                                             | Status |
+| ---------------------------------------------------------- | ------------------------------------------------------ | ------ |
+| `GET .../pipelines-config/caches`                          | `repo.pipelines_config.caches.list()`                  | done   |
+| `DELETE .../pipelines-config/caches`                       | `repo.pipelines_config.caches.delete_by_name(name)`    | done   |
+| `DELETE .../pipelines-config/caches/{cache_uuid}`          | `repo.pipelines_config.caches.delete(cache_uuid)`      | done   |
+| `GET .../pipelines-config/caches/{cache_uuid}/content-uri` | `repo.pipelines_config.caches.content_uri(cache_uuid)` | done   |
+
+Note: `caches.list()` follows `next`. `DELETE .../caches` takes a required
+`name` query parameter and deletes every cache with that name; `DELETE
+.../caches/{cache_uuid}` deletes one. `content-uri` returns a `uri`.
+
+### Variables
+
+| Endpoint                                                                    | SDK method                                                       | Status |
+| --------------------------------------------------------------------------- | ---------------------------------------------------------------- | ------ |
+| `GET .../pipelines_config/variables`                                        | `repo.pipelines_config.variables.list()`                         | done   |
+| `POST .../pipelines_config/variables`                                       | `repo.pipelines_config.variables.create(payload)`                | done   |
+| `GET .../pipelines_config/variables/{variable_uuid}`                        | `repo.pipelines_config.variables.get(variable_uuid)`             | done   |
+| `PUT .../pipelines_config/variables/{variable_uuid}`                        | `repo.pipelines_config.variables.update(variable_uuid, payload)` | done   |
+| `DELETE .../pipelines_config/variables/{variable_uuid}`                     | `repo.pipelines_config.variables.delete(variable_uuid)`          | done   |
+| `GET /workspaces/{workspace}/pipelines-config/variables`                    | `ws.pipelines_config.variables.list()`                           | done   |
+| `POST /workspaces/{workspace}/pipelines-config/variables`                   | `ws.pipelines_config.variables.create(payload)`                  | done   |
+| `GET /workspaces/{workspace}/pipelines-config/variables/{variable_uuid}`    | `ws.pipelines_config.variables.get(variable_uuid)`               | done   |
+| `PUT /workspaces/{workspace}/pipelines-config/variables/{variable_uuid}`    | `ws.pipelines_config.variables.update(variable_uuid, payload)`   | done   |
+| `DELETE /workspaces/{workspace}/pipelines-config/variables/{variable_uuid}` | `ws.pipelines_config.variables.delete(variable_uuid)`            | done   |
+| `GET /teams/{username}/pipelines_config/variables`                          | `team.pipelines_config.variables.list()`                         | done   |
+| `POST /teams/{username}/pipelines_config/variables`                         | `team.pipelines_config.variables.create(payload)`                | done   |
+| `GET /teams/{username}/pipelines_config/variables/{variable_uuid}`          | `team.pipelines_config.variables.get(variable_uuid)`             | done   |
+| `PUT /teams/{username}/pipelines_config/variables/{variable_uuid}`          | `team.pipelines_config.variables.update(variable_uuid, payload)` | done   |
+| `DELETE /teams/{username}/pipelines_config/variables/{variable_uuid}`       | `team.pipelines_config.variables.delete(variable_uuid)`          | done   |
+| `GET /users/{selected_user}/pipelines_config/variables`                     | `user.pipelines_config.variables.list()`                         | done   |
+| `POST /users/{selected_user}/pipelines_config/variables`                    | `user.pipelines_config.variables.create(payload)`                | done   |
+| `GET /users/{selected_user}/pipelines_config/variables/{variable_uuid}`     | `user.pipelines_config.variables.get(variable_uuid)`             | done   |
+| `PUT /users/{selected_user}/pipelines_config/variables/{variable_uuid}`     | `user.pipelines_config.variables.update(variable_uuid, payload)` | done   |
+| `DELETE /users/{selected_user}/pipelines_config/variables/{variable_uuid}`  | `user.pipelines_config.variables.delete(variable_uuid)`          | done   |
+
+Note: The same `pipeline_variable` (`uuid`, `key`, `value`, `secured`) serves
+four scopes through one `PipelineVariablesResource`. Each list follows `next`.
+The team, user and workspace `POST` and `PUT` bodies come from
+`components/requestBodies` (`pipeline_variable2` for `POST`,
+`pipeline_variable` for `PUT`), not from an inline schema, and the `POST` one
+is not marked required; the SDK sends `PipelineVariableCreate` (`key`,
+`value`, `secured`) and `PipelineVariableUpdate` either way.
+
+Note: A `409` on `POST` means the key already exists. For a secured variable
+the spec says the value is empty in every response.
+
+### Runners
+
+| Endpoint                                                                | SDK method                                                   | Status |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------ | ------ |
+| `GET .../pipelines-config/runners`                                      | `repo.pipelines_config.runners.list()`                       | done   |
+| `POST .../pipelines-config/runners`                                     | `repo.pipelines_config.runners.create(payload)`              | done   |
+| `GET .../pipelines-config/runners/{runner_uuid}`                        | `repo.pipelines_config.runners.get(runner_uuid)`             | done   |
+| `PUT .../pipelines-config/runners/{runner_uuid}`                        | `repo.pipelines_config.runners.update(runner_uuid, payload)` | done   |
+| `DELETE .../pipelines-config/runners/{runner_uuid}`                     | `repo.pipelines_config.runners.delete(runner_uuid)`          | done   |
+| `GET /workspaces/{workspace}/pipelines-config/runners`                  | `ws.pipelines_config.runners.list()`                         | done   |
+| `POST /workspaces/{workspace}/pipelines-config/runners`                 | `ws.pipelines_config.runners.create(payload)`                | done   |
+| `GET /workspaces/{workspace}/pipelines-config/runners/{runner_uuid}`    | `ws.pipelines_config.runners.get(runner_uuid)`               | done   |
+| `PUT /workspaces/{workspace}/pipelines-config/runners/{runner_uuid}`    | `ws.pipelines_config.runners.update(runner_uuid, payload)`   | done   |
+| `DELETE /workspaces/{workspace}/pipelines-config/runners/{runner_uuid}` | `ws.pipelines_config.runners.delete(runner_uuid)`            | done   |
+
+Note: The `POST` and `PUT` of repository and workspace runners declare no
+request body, and `POST` answers `200`, not `201`. `RunnerCreate` and
+`RunnerUpdate` therefore carry `name` and `labels`, the writable-looking
+fields of `pipeline_runner`; nothing else is documented, and the models accept
+extra fields. The list follows `next`; the runner list declares `next` and
+`previous` as plain strings, not URIs. A runner's `oauth_client.secret` is a
+`SecretStr`.
+
+### OpenID Connect
+
+| Endpoint                                                                                      | SDK method                                 | Status |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------ | ------ |
+| `GET /workspaces/{workspace}/pipelines-config/identity/oidc/.well-known/openid-configuration` | `ws.pipelines_config.oidc_configuration()` | done   |
+| `GET /workspaces/{workspace}/pipelines-config/identity/oidc/keys.json`                        | `ws.pipelines_config.oidc_keys()`          | done   |
+
+Note: Both operations declare `200` with no schema, and no scope (`oauth2:
+[]`). They return the decoded JSON as is. They are workspace-level and sit
+under `ws.pipelines_config`.
+
+### Environment variables
+
+| Endpoint                                                                                  | SDK method                                                                     | Status |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ------ |
+| `GET .../deployments_config/environments/{environment_uuid}/variables`                    | `repo.environments.variables(environment_uuid).list()`                         | done   |
+| `POST .../deployments_config/environments/{environment_uuid}/variables`                   | `repo.environments.variables(environment_uuid).create(payload)`                | done   |
+| `PUT .../deployments_config/environments/{environment_uuid}/variables/{variable_uuid}`    | `repo.environments.variables(environment_uuid).update(variable_uuid, payload)` | done   |
+| `DELETE .../deployments_config/environments/{environment_uuid}/variables/{variable_uuid}` | `repo.environments.variables(environment_uuid).delete(variable_uuid)`          | done   |
+
+Note: These four operations are first-tagged `Pipelines`, so they count in
+this group, but they belong to deployment environments. They live at
+`repo.environments.variables(environment_uuid)`, on an `EnvironmentsResource`
+that Phase 4b extends with the `Deployments` operations. The spec has no `GET`
+for a single deployment variable, so the resource has no `get`. Variables use
+the same models as the pipeline ones (the `deployment_variable` schema is the
+same shape). `list()` follows `next`.
+
+### Pipelines notes
+
+Note: Pagination, operation by operation: the `next` and `values` envelope is
+declared by the pipelines list, steps, schedules, schedule executions, known
+hosts, repository, workspace, team, user and environment variables, caches and
+the repository and workspace runners lists (all auto-paginating). Every other
+operation returns one object, no content (`204`), bytes, or, for test reports,
+test cases, test-case reasons and the two OIDC operations, JSON with no
+declared schema.
+
+Note: CQS kinds: every `GET` is a `QUERY`. `PUT` and `DELETE` are
+`IDEMPOTENT_COMMAND`, since they replace or remove by id and a repeat has no
+second effect. `POST` that creates (a pipeline, a variable, a runner, a
+schedule, a known host) is `NON_IDEMPOTENT_COMMAND`, so a `5xx` is never
+retried and cannot start a second pipeline or hit a `409`. `stopPipeline` is
+`IDEMPOTENT_COMMAND`: it only signals a stop, and a repeat answers `400`
+already completed. Both `DELETE .../caches` forms are `IDEMPOTENT_COMMAND`.
+
+Note: Secrets: a variable's `value`, the SSH `private_key`, a runner's
+`oauth_client.secret` and a step image's `password` are `SecretStr`, so
+`repr`, `str`, logs and error messages never show them. The write models send
+the real value in the request body, which is the only place it goes. The tests
+cover `repr`, the debug log and a `409` error.
+
+Note: Rate limits: none of the 68 operations declares a `429`. The retry
+policy is unchanged, so a `429` is retried like on any other request,
+honouring `Retry-After`, and raises `RateLimitError` once the retries run out.
+
+Note: Scopes: reads need `pipeline` (runners: `runner`); `stopPipeline`,
+schedules, caches and cache deletion need `pipeline:write`; variables, SSH key
+pair, known hosts, build number and environment variables need
+`pipeline:variable`; runner writes need `runner:write`; the repository
+configuration needs `repository:admin`. The OIDC operations declare none.

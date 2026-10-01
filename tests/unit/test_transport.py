@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from logging import DEBUG
-from typing import TYPE_CHECKING
 
+import pytest
 import respx
 from httpx import Response
 
@@ -10,11 +10,9 @@ from bitbucket._auth import auth_for  # ruff: ignore[import-private-name]
 from bitbucket._transport import Transport  # ruff: ignore[import-private-name]
 from bitbucket.config import BearerCredentials
 from bitbucket.config import ClientConfig
+from bitbucket.errors import BitbucketAPIError
 from bitbucket.retry import CqsKind
 from tests.conftest import BASE_URL
-
-if TYPE_CHECKING:
-    import pytest
 
 
 @respx.mock
@@ -95,3 +93,40 @@ def test_debug_log_never_contains_the_bearer_token(caplog: pytest.LogCaptureFixt
     # Assert
     assert caplog.records
     assert secret not in caplog.text
+
+
+@respx.mock
+def test_request_bytes_sends_the_given_headers(transport: Transport) -> None:
+    # Arrange
+    route = respx.get(f"{BASE_URL}/log").mock(return_value=Response(206, content=b"abc"))
+    # Act
+    content = transport.request_bytes("GET", "/log", kind=CqsKind.QUERY, headers={"Range": "bytes=0-2"})
+    # Assert
+    assert content == b"abc"
+    assert route.calls[0].request.headers["Range"] == "bytes=0-2"
+
+
+@respx.mock
+def test_request_bytes_follows_a_redirect_without_leaking_authorization(transport: Transport) -> None:
+    # Arrange
+    storage_url = "https://storage.example.com/log.txt"
+    respx.get(f"{BASE_URL}/log").mock(return_value=Response(307, headers={"Location": storage_url}))
+    storage = respx.get(storage_url).mock(return_value=Response(200, content=b"archived"))
+    # Act
+    content = transport.request_bytes("GET", "/log", kind=CqsKind.QUERY, follow_redirects=True)
+    # Assert
+    assert content == b"archived"
+    assert "Authorization" not in storage.calls[0].request.headers
+
+
+@respx.mock
+def test_request_bytes_does_not_follow_a_redirect_by_default(transport: Transport) -> None:
+    # Arrange
+    respx.get(f"{BASE_URL}/log").mock(
+        return_value=Response(307, headers={"Location": "https://storage.example.com/log.txt"}),
+    )
+    # Act
+    with pytest.raises(BitbucketAPIError) as raised:
+        transport.request_bytes("GET", "/log", kind=CqsKind.QUERY)
+    # Assert
+    assert raised.value.status_code == 307
