@@ -257,8 +257,9 @@ See [`CONTRIBUTING.md`][contributing].
 
 ## Open items
 
-- Snippets, `properties` and the Connect `Addon` operations are not yet
-  modeled — see [`docs/api/endpoint-coverage.md`][api-endpoint-coverage] for
+- Snippets are not yet modeled, and the three Connect `Addon` operations
+  cannot be called with Basic or Bearer credentials (they need JWT or a Forge
+  app) — see [`docs/api/endpoint-coverage.md`][api-endpoint-coverage] for
   the full endpoint matrix and [`docs/api/roadmap.md`][api-roadmap] for the
   phased plan to full API parity.
 

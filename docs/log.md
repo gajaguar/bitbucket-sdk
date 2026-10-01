@@ -2,6 +2,13 @@
 
 ## 2026-10-01
 
+* **Updated**: `api/endpoint-coverage.md`, `api/roadmap.md` and `README.md` for
+  the `properties` group (267 of 294 operations): application properties on
+  repositories, commits and users, reusing `PropertiesResource`. The summary
+  now counts the three pull-request property operations, which already shipped
+  but were left out (it said 255 when the tables held 258). The new `Addon`
+  section marks its three operations `unsupported`: they need JWT or a Forge
+  app. `x-revision` `6856b45887d7` is unchanged.
 * **Updated**: `api/roadmap.md` and the version files for release `0.9.0`: the
   rows `3c`, `4a` and `4b` (255 of 294 operations) now name the release that
   ships them, and the phase sections say `shipped in 0.9.0` instead of

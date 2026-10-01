@@ -5,6 +5,7 @@ from typing import cast
 
 from bitbucket._pagination import apaginate
 from bitbucket.aio.resources.comments import AsyncCommitCommentsResource
+from bitbucket.aio.resources.properties import AsyncPropertiesResource
 from bitbucket.aio.resources.reports import AsyncReportsResource
 from bitbucket.models.account import Account
 from bitbucket.models.commit import Commit
@@ -41,6 +42,9 @@ class AsyncCommitsResource:
 
     def comments(self, commit: CommitHash | str) -> AsyncCommitCommentsResource:
         return AsyncCommitCommentsResource(self._transport, f"{self._base_path}/commit/{commit}")
+
+    def properties(self, commit: CommitHash | str) -> AsyncPropertiesResource:
+        return AsyncPropertiesResource(self._transport, f"{self._base_path}/commit/{commit}")
 
     def reports(self, commit: CommitHash | str) -> AsyncReportsResource:
         return AsyncReportsResource(self._transport, f"{self._base_path}/commit/{commit}")

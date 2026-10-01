@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from bitbucket.models.account import User
 from bitbucket.resources.gpg_keys import GpgKeysResource
 from bitbucket.resources.pipelines_config import AccountPipelinesConfig
+from bitbucket.resources.properties import PropertiesResource
 from bitbucket.resources.search import SearchResource
 from bitbucket.resources.ssh_keys import SshKeysResource
 from bitbucket.retry import CqsKind
@@ -23,6 +24,7 @@ class UserClient:
         self.gpg_keys = GpgKeysResource(transport, self._path)
         self.search = SearchResource(transport, self._path)
         self.pipelines_config = AccountPipelinesConfig(transport, self._path)
+        self.properties = PropertiesResource(transport, self._path)
 
     # GET .../users/{selected_user}
     def get(self) -> User:

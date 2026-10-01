@@ -15,6 +15,7 @@ from bitbucket.resources.hooks import HooksResource
 from bitbucket.resources.permissions import RepositoryPermissionsResource
 from bitbucket.resources.pipelines import PipelinesResource
 from bitbucket.resources.pipelines_config import RepositoryPipelinesConfig
+from bitbucket.resources.properties import PropertiesResource
 from bitbucket.resources.pull_requests import PullRequestsResource
 from bitbucket.resources.refs import RefsResource
 from bitbucket.resources.source import SourceResource
@@ -47,3 +48,4 @@ class RepositoryClient:  # pylint: disable=too-many-instance-attributes
         self.environments = EnvironmentsResource(transport, base_path)
         self.deployments = DeploymentsResource(transport, base_path)
         self.deploy_keys = DeployKeysResource(transport, base_path)
+        self.properties = PropertiesResource(transport, base_path)

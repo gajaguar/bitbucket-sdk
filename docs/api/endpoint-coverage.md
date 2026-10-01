@@ -13,7 +13,8 @@ supports to its method and implementation status. This table is the
 verifiable definition of "covers the pull-request surface" — an endpoint with
 no row, or a row not marked `done`, is not yet supported.
 
-Status values: `planned`, `in-progress`, `done`.
+Status values: `planned`, `in-progress`, `done`, `unsupported` (the spec
+declares the operation but the SDK cannot call it; the row says why).
 
 ## Target API version
 
@@ -45,7 +46,7 @@ once, under its first tag, to sum to 294 without double-counting).
 | Deployments         |         16 |      16 |    100% |
 | Workspaces          |         16 |      16 |    100% |
 | Projects            |         16 |      16 |    100% |
-| properties          |         12 |       0 |      0% |
+| properties          |         12 |      12 |    100% |
 | Reports             |          9 |       9 |    100% |
 | Refs                |          9 |       9 |    100% |
 | Branching model     |          7 |       7 |    100% |
@@ -59,7 +60,7 @@ once, under its first tag, to sum to 294 without double-counting).
 | Addon               |          3 |       0 |      0% |
 | Search              |          3 |       3 |    100% |
 | Webhooks            |          2 |       2 |    100% |
-| **Total**           |    **294** | **255** | **87%** |
+| **Total**           |    **294** | **267** | **91%** |
 
 The spec also declares `Issue tracker` and `Wiki` tags with zero operations
 attached to any path — Bitbucket's issue-tracker and wiki REST endpoints are
@@ -67,6 +68,11 @@ not in this machine-readable spec even though Atlassian's HTML docs still
 describe them, so the 294 total above is the spec's surface, not necessarily
 the full historical API. See the [roadmap](roadmap.md) for the phased plan
 to close this gap.
+
+The three pull-request property operations were `done` before this count was
+last corrected: their first tag is `properties`, but the summary kept them
+out, so it said 255 when the tables held 258 `done` rows. The summary now
+counts them under `properties`.
 
 ## Users
 
@@ -221,9 +227,9 @@ same way the Pull requests section abbreviates `.../pullrequests`.
 | `GET .../pullrequests/{pull_request_id}/tasks/{task_id}`                         | `repo.pull_requests.tasks(id).get(task_id)`                | done   |
 | `PUT .../pullrequests/{pull_request_id}/tasks/{task_id}`                         | `repo.pull_requests.tasks(id).update(task_id, payload)`    | done   |
 | `DELETE .../pullrequests/{pull_request_id}/tasks/{task_id}`                      | `repo.pull_requests.tasks(id).delete(task_id)`             | done   |
-| `GET .../pullrequests/{pull_request_id}/properties/{app_key}/{property_name}`    | `repo.pull_requests.properties(id).get(key, name)`         | done   |
-| `PUT .../pullrequests/{pull_request_id}/properties/{app_key}/{property_name}`    | `repo.pull_requests.properties(id).put(key, name, value)`  | done   |
-| `DELETE .../pullrequests/{pull_request_id}/properties/{app_key}/{property_name}` | `repo.pull_requests.properties(id).delete(key, name)`      | done   |
+| `GET .../pullrequests/{pullrequest_id}/properties/{app_key}/{property_name}`     | `repo.pull_requests.properties(id).get(key, name)`         | done   |
+| `PUT .../pullrequests/{pullrequest_id}/properties/{app_key}/{property_name}`     | `repo.pull_requests.properties(id).put(key, name, value)`  | done   |
+| `DELETE .../pullrequests/{pullrequest_id}/properties/{app_key}/{property_name}`  | `repo.pull_requests.properties(id).delete(key, name)`      | done   |
 | `GET .../commit/{commit}/pullrequests`                                           | `ws.repositories.commit_pull_requests(slug, commit)`       | done   |
 | `GET .../pullrequests/{pull_request_id}/mergeability/checks`                     | `repo.pull_requests.mergeability_checks(id, q=...)`        | done   |
 | `GET /workspaces/{workspace}/pullrequests/{selected_user}`                       | `ws.pull_requests_by_author(user, states=..., fields=...)` | done   |
@@ -857,3 +863,62 @@ the retry policy is unchanged.
 Note: Scopes: all nine declare only the read scope (`repository`,
 `read:repository:bitbucket`), writes included; the spec is likely wrong, so a
 write may need more at runtime.
+
+## Properties
+
+| Endpoint                                                             | SDK method                                                  | Status |
+| -------------------------------------------------------------------- | ----------------------------------------------------------- | ------ |
+| `GET .../properties/{app_key}/{property_name}` (repository)          | `repo.properties.get(app_key, name)`                        | done   |
+| `PUT .../properties/{app_key}/{property_name}` (repository)          | `repo.properties.put(app_key, name, value)`                 | done   |
+| `DELETE .../properties/{app_key}/{property_name}` (repository)       | `repo.properties.delete(app_key, name)`                     | done   |
+| `GET .../commit/{commit}/properties/{app_key}/{property_name}`       | `repo.commits.properties(commit).get(app_key, name)`        | done   |
+| `PUT .../commit/{commit}/properties/{app_key}/{property_name}`       | `repo.commits.properties(commit).put(app_key, name, value)` | done   |
+| `DELETE .../commit/{commit}/properties/{app_key}/{property_name}`    | `repo.commits.properties(commit).delete(app_key, name)`     | done   |
+| `GET /users/{selected_user}/properties/{app_key}/{property_name}`    | `user.properties.get(app_key, name)`                        | done   |
+| `PUT /users/{selected_user}/properties/{app_key}/{property_name}`    | `user.properties.put(app_key, name, value)`                 | done   |
+| `DELETE /users/{selected_user}/properties/{app_key}/{property_name}` | `user.properties.delete(app_key, name)`                     | done   |
+
+Note: The three pull-request property operations are listed in the
+[Pull requests](#pull-requests) table (`repo.pull_requests.properties(id)`);
+all 12 operations of the group share one `PropertiesResource`.
+The spec names their path parameter `{pullrequest_id}`, unlike the other
+pull-request paths, which use `{pull_request_id}`; the table now follows it.
+
+Note: The stored value is whatever JSON the app wrote. The spec's
+`application_property` allows any keys and declares only `_attributes`
+(`public`, `read_only`), so `get` returns and `put` takes a JSON value, not a
+model. The spec declares `204` for every `PUT` and `DELETE`; `put` returns the
+body when the server sends one, otherwise `None`. A `PUT` is
+`IDEMPOTENT_COMMAND` (the same value leaves the same state), a `DELETE` too.
+
+Note: All 12 operations are marked `deprecated: true`: the spec says "This API
+will be deprecated on January 31, 2027 as part of end of support for Connect
+app". The SDK keeps them and raises no runtime warning. Only the `GET`
+operations declare a scope (`admin:workspace:bitbucket`); the `PUT` and
+`DELETE` operations declare none. No operation is paginated or declares a
+`429`; the retry policy is unchanged.
+
+Note: Secrets: the SDK holds none here. A property value is opaque JSON owned
+by the caller, so it is not a `SecretStr`. The transport logs only the method,
+path and status, never a body, and a test checks that a `PUT` value does not
+reach the log.
+
+## Addon
+
+| Endpoint                            | SDK method | Status      |
+| ----------------------------------- | ---------- | ----------- |
+| `PUT /addon`                        | —          | unsupported |
+| `DELETE /addon`                     | —          | unsupported |
+| `GET /addon/{addon_key}/client-key` | —          | unsupported |
+
+Note: Not callable with this SDK's credentials. `PUT /addon` and
+`DELETE /addon` say they are for Bitbucket Connect apps and "only support JWT
+authentication", which is how Bitbucket identifies the installation; the SDK
+sends only Basic or Bearer credentials. `GET /addon/{addon_key}/client-key`
+is "intended to be used by a Forge app using `asApp().requestBitbucket()`
+only". Connect end of support is announced for 2027, so these three operations
+count in the 294 but are `unsupported`, not `done`. The spec lists
+`oauth2`, `basic` and `api_key` as accepted schemes for all three, which
+contradicts the descriptions; the SDK follows the descriptions. `PUT /addon`
+declares no request body, though its description allows `{}`, a
+`descriptor` or a `descriptor_url`.
