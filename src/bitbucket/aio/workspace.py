@@ -8,6 +8,7 @@ from bitbucket._pagination import apaginate
 from bitbucket.aio.project import AsyncProjectClient
 from bitbucket.aio.repository import AsyncRepositoryClient
 from bitbucket.aio.resources.hooks import AsyncHooksResource
+from bitbucket.aio.resources.projects import AsyncProjectsResource
 from bitbucket.aio.resources.repositories import AsyncRepositoriesResource
 from bitbucket.ids import ProjectKey
 from bitbucket.ids import RepositorySlug
@@ -30,6 +31,7 @@ class AsyncWorkspaceClient:
         self._transport = transport
         self.repositories = AsyncRepositoriesResource(transport, slug)
         self.hooks = AsyncHooksResource(transport, f"/workspaces/{slug}")
+        self.projects = AsyncProjectsResource(transport, f"/workspaces/{slug}")
 
     def repository(self, slug: RepositorySlug | str) -> AsyncRepositoryClient:
         return AsyncRepositoryClient(self._transport, self.slug, RepositorySlug(str(slug)))

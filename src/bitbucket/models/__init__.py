@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from bitbucket.models.account import Account
 from bitbucket.models.account import DefaultReviewer
+from bitbucket.models.account import DefaultReviewerAndType
 from bitbucket.models.account import UserType
 from bitbucket.models.activity import Activity
 from bitbucket.models.activity import ActivityApproval
@@ -59,11 +60,17 @@ from bitbucket.models.permission import GroupPermission
 from bitbucket.models.permission import GroupPermissionUpdate
 from bitbucket.models.permission import GroupRef
 from bitbucket.models.permission import PermissionLevel
+from bitbucket.models.permission import ProjectGroupPermission
+from bitbucket.models.permission import ProjectPermissionLevel
+from bitbucket.models.permission import ProjectPermissionUpdate
+from bitbucket.models.permission import ProjectUserPermission
 from bitbucket.models.permission import RepositoryInheritanceState
 from bitbucket.models.permission import RepositoryOverrideSettings
 from bitbucket.models.permission import UserPermission
 from bitbucket.models.permission import UserPermissionUpdate
 from bitbucket.models.project import Project
+from bitbucket.models.project import ProjectCreate
+from bitbucket.models.project import ProjectUpdate
 from bitbucket.models.pull_request import BranchSpec
 from bitbucket.models.pull_request import EndpointSpec
 from bitbucket.models.pull_request import Markup
@@ -142,6 +149,7 @@ __all__ = [
     "CommitStatusCreate",
     "CommitStatusUpdate",
     "DefaultReviewer",
+    "DefaultReviewerAndType",
     "DiffStat",
     "DiffStatEndpoint",
     "Download",
@@ -168,7 +176,13 @@ __all__ = [
     "ParticipantState",
     "PermissionLevel",
     "Project",
+    "ProjectCreate",
+    "ProjectGroupPermission",
+    "ProjectPermissionLevel",
+    "ProjectPermissionUpdate",
     "ProjectSpec",
+    "ProjectUpdate",
+    "ProjectUserPermission",
     "PullRequest",
     "PullRequestComment",
     "PullRequestCreate",

@@ -4,6 +4,7 @@ from enum import StrEnum
 
 from bitbucket.models.account import Account
 from bitbucket.models.base import BitbucketModel
+from bitbucket.models.project import Project
 
 
 class PermissionLevel(StrEnum):
@@ -52,3 +53,35 @@ class RepositoryOverrideSettings(BitbucketModel):
 class RepositoryInheritanceState(BitbucketModel):
     type: str
     override_settings: RepositoryOverrideSettings | None = None
+
+
+class ProjectPermissionLevel(StrEnum):
+    READ = "read"
+    WRITE = "write"
+    CREATE_REPO = "create-repo"
+    ADMIN = "admin"
+    NONE = "none"
+    UNKNOWN = "unknown"
+
+    @classmethod
+    def _missing_(cls, value: object) -> ProjectPermissionLevel:
+        del value
+        return cls.UNKNOWN
+
+
+class ProjectGroupPermission(BitbucketModel):
+    type: str | None = None
+    permission: ProjectPermissionLevel | None = None
+    group: GroupRef | None = None
+    project: Project | None = None
+
+
+class ProjectUserPermission(BitbucketModel):
+    type: str | None = None
+    permission: ProjectPermissionLevel | None = None
+    user: Account | None = None
+    project: Project | None = None
+
+
+class ProjectPermissionUpdate(BitbucketModel):
+    permission: ProjectPermissionLevel

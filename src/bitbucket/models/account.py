@@ -33,3 +33,9 @@ class Account(BitbucketModel):
 
 class DefaultReviewer(Account):
     reviewer_type: Literal["repository", "project"] | None = None
+
+
+class DefaultReviewerAndType(BitbucketModel):
+    type: str | None = None
+    reviewer_type: str | None = None
+    user: Account | None = None
