@@ -11,6 +11,7 @@ from bitbucket.config import ClientOptions
 from bitbucket.config import resolve_credentials
 from bitbucket.config import resolve_workspace
 from bitbucket.ids import WorkspaceSlug
+from bitbucket.resources.hook_events import HookEventsResource
 from bitbucket.resources.user import UserResource
 from bitbucket.retry import RetryPolicy
 from bitbucket.workspace import WorkspaceClient
@@ -49,6 +50,7 @@ class BitbucketClient:
         self._config = _build_config(email, api_token, access_token, options)
         self._transport = Transport(self._config, auth_for(self._config.credentials))
         self.user = UserResource(self._transport)
+        self.hook_events = HookEventsResource(self._transport)
 
     def __enter__(self) -> Self:
         return self

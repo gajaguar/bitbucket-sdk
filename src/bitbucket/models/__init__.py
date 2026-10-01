@@ -28,6 +28,8 @@ from bitbucket.models.conflict import FileConflict
 from bitbucket.models.diffstat import DiffStat
 from bitbucket.models.diffstat import DiffStatEndpoint
 from bitbucket.models.download import Download
+from bitbucket.models.hook import HookEvent
+from bitbucket.models.hook import HookSubjectType
 from bitbucket.models.hook import Webhook
 from bitbucket.models.hook import WebhookCreate
 from bitbucket.models.hook import WebhookUpdate
@@ -120,6 +122,8 @@ __all__ = [
     "GroupPermission",
     "GroupPermissionUpdate",
     "GroupRef",
+    "HookEvent",
+    "HookSubjectType",
     "Link",
     "Links",
     "Markup",
