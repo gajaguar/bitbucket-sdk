@@ -41,7 +41,7 @@ once, under its first tag, to sum to 294 without double-counting).
 | Pipelines           |         68 |      68 |    100% |
 | Pullrequests        |         38 |      38 |    100% |
 | Repositories        |         24 |      24 |    100% |
-| Snippets            |         24 |      15 |     62% |
+| Snippets            |         24 |      24 |    100% |
 | Commits             |         17 |      17 |    100% |
 | Deployments         |         16 |      16 |    100% |
 | Workspaces          |         16 |      16 |    100% |
@@ -60,7 +60,7 @@ once, under its first tag, to sum to 294 without double-counting).
 | Addon               |          3 |       0 |      0% |
 | Search              |          3 |       3 |    100% |
 | Webhooks            |          2 |       2 |    100% |
-| **Total**           |    **294** | **282** | **96%** |
+| **Total**           |    **294** | **291** | **99%** |
 
 The spec also declares `Issue tracker` and `Wiki` tags with zero operations
 attached to any path — Bitbucket's issue-tracker and wiki REST endpoints are
@@ -925,26 +925,34 @@ declares no request body, though its description allows `{}`, a
 
 ## Snippets
 
-| Endpoint                                                          | SDK method                                                             | Status |
-| ----------------------------------------------------------------- | ---------------------------------------------------------------------- | ------ |
-| `POST /snippets`                                                  | `client.snippets.create(payload, files=...)`                           | done   |
-| `GET /snippets/{workspace}`                                       | `ws.snippets.list(role=...)`                                           | done   |
-| `POST /snippets/{workspace}`                                      | `ws.snippets.create(payload, files=...)`                               | done   |
-| `GET /snippets/{workspace}/{encoded_id}`                          | `ws.snippets.get(snippet_id)`                                          | done   |
-| `PUT /snippets/{workspace}/{encoded_id}`                          | `ws.snippets.update(snippet_id, payload, files=..., delete_files=...)` | done   |
-| `DELETE /snippets/{workspace}/{encoded_id}`                       | `ws.snippets.delete(snippet_id)`                                       | done   |
-| `GET /snippets/{workspace}/{encoded_id}/comments`                 | `ws.snippet(id).comments.list()`                                       | done   |
-| `POST /snippets/{workspace}/{encoded_id}/comments`                | `ws.snippet(id).comments.create(payload)`                              | done   |
-| `GET /snippets/{workspace}/{encoded_id}/comments/{comment_id}`    | `ws.snippet(id).comments.get(comment_id)`                              | done   |
-| `PUT /snippets/{workspace}/{encoded_id}/comments/{comment_id}`    | `ws.snippet(id).comments.update(comment_id, payload)`                  | done   |
-| `DELETE /snippets/{workspace}/{encoded_id}/comments/{comment_id}` | `ws.snippet(id).comments.delete(comment_id)`                           | done   |
-| `GET /snippets/{workspace}/{encoded_id}/watch`                    | `ws.snippet(id).is_watching()`                                         | done   |
-| `PUT /snippets/{workspace}/{encoded_id}/watch`                    | `ws.snippet(id).watch()`                                               | done   |
-| `DELETE /snippets/{workspace}/{encoded_id}/watch`                 | `ws.snippet(id).unwatch()`                                             | done   |
-| `GET /snippets/{workspace}/{encoded_id}/watchers`                 | `ws.snippet(id).watchers()`                                            | done   |
+| Endpoint                                                          | SDK method                                                                      | Status |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------ |
+| `POST /snippets`                                                  | `client.snippets.create(payload, files=...)`                                    | done   |
+| `GET /snippets/{workspace}`                                       | `ws.snippets.list(role=...)`                                                    | done   |
+| `POST /snippets/{workspace}`                                      | `ws.snippets.create(payload, files=...)`                                        | done   |
+| `GET /snippets/{workspace}/{encoded_id}`                          | `ws.snippets.get(snippet_id)`                                                   | done   |
+| `PUT /snippets/{workspace}/{encoded_id}`                          | `ws.snippets.update(snippet_id, payload, files=..., delete_files=...)`          | done   |
+| `DELETE /snippets/{workspace}/{encoded_id}`                       | `ws.snippets.delete(snippet_id)`                                                | done   |
+| `GET /snippets/{workspace}/{encoded_id}/comments`                 | `ws.snippet(id).comments.list()`                                                | done   |
+| `POST /snippets/{workspace}/{encoded_id}/comments`                | `ws.snippet(id).comments.create(payload)`                                       | done   |
+| `GET /snippets/{workspace}/{encoded_id}/comments/{comment_id}`    | `ws.snippet(id).comments.get(comment_id)`                                       | done   |
+| `PUT /snippets/{workspace}/{encoded_id}/comments/{comment_id}`    | `ws.snippet(id).comments.update(comment_id, payload)`                           | done   |
+| `DELETE /snippets/{workspace}/{encoded_id}/comments/{comment_id}` | `ws.snippet(id).comments.delete(comment_id)`                                    | done   |
+| `GET /snippets/{workspace}/{encoded_id}/watch`                    | `ws.snippet(id).is_watching()`                                                  | done   |
+| `PUT /snippets/{workspace}/{encoded_id}/watch`                    | `ws.snippet(id).watch()`                                                        | done   |
+| `DELETE /snippets/{workspace}/{encoded_id}/watch`                 | `ws.snippet(id).unwatch()`                                                      | done   |
+| `GET /snippets/{workspace}/{encoded_id}/watchers`                 | `ws.snippet(id).watchers()`                                                     | done   |
+| `GET /snippets/{workspace}/{encoded_id}/commits`                  | `ws.snippet(id).commits()`                                                      | done   |
+| `GET /snippets/{workspace}/{encoded_id}/commits/{revision}`       | `ws.snippet(id).commit(revision)`                                               | done   |
+| `GET /snippets/{workspace}/{encoded_id}/files/{path}`             | `ws.snippet(id).file(path)`                                                     | done   |
+| `GET /snippets/{workspace}/{encoded_id}/{node_id}`                | `ws.snippet(id).revision(node_id).get()`                                        | done   |
+| `PUT /snippets/{workspace}/{encoded_id}/{node_id}`                | `ws.snippet(id).revision(node_id).update(payload, files=..., delete_files=...)` | done   |
+| `DELETE /snippets/{workspace}/{encoded_id}/{node_id}`             | `ws.snippet(id).revision(node_id).delete()`                                     | done   |
+| `GET /snippets/{workspace}/{encoded_id}/{node_id}/files/{path}`   | `ws.snippet(id).revision(node_id).file(path)`                                   | done   |
+| `GET /snippets/{workspace}/{encoded_id}/{revision}/diff`          | `ws.snippet(id).diff(revision, path=...)`                                       | done   |
+| `GET /snippets/{workspace}/{encoded_id}/{revision}/patch`         | `ws.snippet(id).patch(revision)`                                                | done   |
 
-Note: The group has 24 operations; these 15 are done. The other 9 (commits,
-revisions, raw files, diff and patch) are planned.
+Note: All 24 operations are done.
 
 Note: `ws.snippets` is the workspace collection and `ws.snippet(id)` a handle
 for one snippet, like `ws.repositories` and `ws.repository(slug)`; the handle
@@ -992,3 +1000,28 @@ none of the 15 declares a `429`; the retry policy is unchanged.
 Note: Scopes: the spec lists `snippet` and `snippet:write` for OAuth, and the
 `x-atlassian-oauth2-scopes` `read:snippet:bitbucket`, `write:snippet:bitbucket`
 and `delete:snippet:bitbucket`. `GET .../watchers` declares none.
+
+Note: History. `{node_id}` and `{revision}` are commit hashes of the snippet's
+own repository. `ws.snippet(id).revision(node_id)` addresses
+`/snippets/{workspace}/{encoded_id}/{node_id}`: `get` reads that revision,
+and `update` and `delete` act only on the latest one, so an older `node_id`
+answers `405` (raised as `BitbucketAPIError`). The spec calls this a
+compare-and-swap guard. A retry cannot duplicate anything, so both are
+`IDEMPOTENT_COMMAND`, like the unversioned `PUT` and `DELETE`, and `update`
+takes the same `files` and `delete_files` arguments.
+
+Note: Bodies that are not JSON. `file(path)` on the snippet answers `302` to
+the file at the latest revision; the SDK follows it and returns the bytes
+(`revision(node_id).file(path)` answers `200` with the bytes directly). The
+spec declares no response schema for either, only `Content-Type` and
+`Content-Disposition` headers, which the SDK does not surface. `diff` and
+`patch` return the raw text; the spec says the character encoding of a diff is
+unspecified. `diff` sends `?path=` only when given, and the spec says `patch`
+does not support it. `GET .../commits` is paginated with `next` and `values`;
+the other eight operations are not.
+
+Note: `snippet_commit` extends `base_commit` with `links` and `snippet`.
+`SnippetCommit` keeps `hash` as text and reuses `AuthorRef`, `CommitRef` and
+`RenderedField`, like `Commit`. None of the nine declares a `429` or a secret.
+Scopes: the reads declare `read:snippet:bitbucket`; the revision `PUT` adds
+`write:snippet:bitbucket` and the revision `DELETE` declares only that.
