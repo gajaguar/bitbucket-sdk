@@ -114,6 +114,7 @@ from bitbucket.models import RefTargetSpec
 from bitbucket.models import RenderedField
 from bitbucket.models import Repository
 from bitbucket.models import RepositoryCreate
+from bitbucket.models import RepositoryInheritanceState
 from bitbucket.models import RepositoryOverrideSettings
 from bitbucket.models import RepositorySpec
 from bitbucket.models import RepositoryUpdate
@@ -254,6 +255,7 @@ __all__ = [
     "Repository",
     "RepositoryClient",
     "RepositoryCreate",
+    "RepositoryInheritanceState",
     "RepositoryOverrideSettings",
     "RepositorySlug",
     "RepositorySpec",
