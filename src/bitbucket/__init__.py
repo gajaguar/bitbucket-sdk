@@ -65,6 +65,8 @@ from bitbucket.models import ForkPolicy
 from bitbucket.models import GroupPermission
 from bitbucket.models import GroupPermissionUpdate
 from bitbucket.models import GroupRef
+from bitbucket.models import HookEvent
+from bitbucket.models import HookSubjectType
 from bitbucket.models import Link
 from bitbucket.models import Links
 from bitbucket.models import Markup
@@ -178,6 +180,8 @@ __all__ = [
     "GroupPermission",
     "GroupPermissionUpdate",
     "GroupRef",
+    "HookEvent",
+    "HookSubjectType",
     "Link",
     "Links",
     "Markup",

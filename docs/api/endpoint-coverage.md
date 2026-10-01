@@ -35,31 +35,31 @@ and re-check every path/parameter name against `paths` verbatim.
 endpoints are also tagged `Webhooks` — so this table counts each operation
 once, under its first tag, to sum to 294 without double-counting).
 
-| Group               | Operations |   Done |       % |
-| ------------------- | ---------: | -----: | ------: |
-| Pipelines           |         68 |      0 |      0% |
-| Pullrequests        |         37 |     37 |    100% |
-| Repositories        |         25 |     23 |     92% |
-| Snippets            |         24 |      0 |      0% |
-| Commits             |         17 |     14 |     82% |
-| Deployments         |         16 |      0 |      0% |
-| Workspaces          |         16 |      1 |      6% |
-| Projects            |         16 |      0 |      0% |
-| properties          |         12 |      0 |      0% |
-| Reports             |          9 |      0 |      0% |
-| Refs                |          9 |      9 |    100% |
-| Branching model     |          7 |      0 |      0% |
-| Branch restrictions |          5 |      0 |      0% |
-| SSH                 |          5 |      0 |      0% |
-| Commit statuses     |          4 |      4 |    100% |
-| Downloads           |          4 |      4 |    100% |
-| Source              |          4 |      4 |    100% |
-| Users               |          4 |      1 |     25% |
-| GPG                 |          4 |      0 |      0% |
-| Addon               |          3 |      0 |      0% |
-| Search              |          3 |      0 |      0% |
-| Webhooks            |          2 |      0 |      0% |
-| **Total**           |    **294** | **97** | **33%** |
+| Group               | Operations |    Done |       % |
+| ------------------- | ---------: | ------: | ------: |
+| Pipelines           |         68 |       0 |      0% |
+| Pullrequests        |         37 |      37 |    100% |
+| Repositories        |         25 |      23 |     92% |
+| Snippets            |         24 |       0 |      0% |
+| Commits             |         17 |      14 |     82% |
+| Deployments         |         16 |       0 |      0% |
+| Workspaces          |         16 |       6 |     38% |
+| Projects            |         16 |       0 |      0% |
+| properties          |         12 |       0 |      0% |
+| Reports             |          9 |       0 |      0% |
+| Refs                |          9 |       9 |    100% |
+| Branching model     |          7 |       0 |      0% |
+| Branch restrictions |          5 |       0 |      0% |
+| SSH                 |          5 |       0 |      0% |
+| Commit statuses     |          4 |       4 |    100% |
+| Downloads           |          4 |       4 |    100% |
+| Source              |          4 |       4 |    100% |
+| Users               |          4 |       1 |     25% |
+| GPG                 |          4 |       0 |      0% |
+| Addon               |          3 |       0 |      0% |
+| Search              |          3 |       0 |      0% |
+| Webhooks            |          2 |       2 |    100% |
+| **Total**           |    **294** | **104** | **35%** |
 
 The spec also declares `Issue tracker` and `Wiki` tags with zero operations
 attached to any path — Bitbucket's issue-tracker and wiki REST endpoints are
@@ -240,3 +240,29 @@ against the endpoint shapes documented in Bitbucket's public API reference.
 | `POST .../downloads`                     | `repo.downloads.upload(name, content)`   | done   |
 | `GET .../downloads/{filename}`           | `repo.downloads.get(filename)`           | done   |
 | `DELETE .../downloads/{filename}`        | `repo.downloads.delete(filename)`        | done   |
+
+## Webhooks
+
+| Endpoint                              | SDK method                                 | Status |
+| ------------------------------------- | ------------------------------------------ | ------ |
+| `GET /hook_events`                    | `client.hook_events.subject_types()`       | done   |
+| `GET /hook_events/{subject_type}`     | `client.hook_events.list(subject_type)`    | done   |
+
+Note: `subject_type` is `repository` or `workspace`; the spec rejects any other
+value with a `404`. Both endpoints are public, but the SDK still sends its
+credentials. The repository-level hook endpoints are under
+[Repositories](#repositories) — they carry the `Webhooks` tag too, but are
+counted once, under `Repositories`.
+
+## Workspace webhooks
+
+| Endpoint                                  | SDK method                           | Status |
+| ----------------------------------------- | ------------------------------------ | ------ |
+| `GET /workspaces/{workspace}/hooks`       | `ws.hooks.list()`                    | done   |
+| `POST /workspaces/{workspace}/hooks`      | `ws.hooks.create(payload)`           | done   |
+| `GET .../hooks/{uid}`                     | `ws.hooks.get(uid)`                  | done   |
+| `PUT .../hooks/{uid}`                     | `ws.hooks.update(uid, payload)`      | done   |
+| `DELETE .../hooks/{uid}`                  | `ws.hooks.delete(uid)`               | done   |
+
+Note: these five operations are first-tagged `Workspaces`, so they count under
+that group in the summary above, not under `Webhooks`.

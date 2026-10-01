@@ -9,6 +9,7 @@ from bitbucket.ids import RepositorySlug
 from bitbucket.models.pull_request import PullRequest
 from bitbucket.repository import RepositoryClient
 from bitbucket.resources.base import page_from_payload
+from bitbucket.resources.hooks import HooksResource
 from bitbucket.resources.repositories import RepositoriesResource
 from bitbucket.retry import CqsKind
 
@@ -26,6 +27,7 @@ class WorkspaceClient:
         self.slug = slug
         self._transport = transport
         self.repositories = RepositoriesResource(transport, slug)
+        self.hooks = HooksResource(transport, f"/workspaces/{slug}")
 
     def repository(self, slug: RepositorySlug | str) -> RepositoryClient:
         return RepositoryClient(self._transport, self.slug, RepositorySlug(str(slug)))

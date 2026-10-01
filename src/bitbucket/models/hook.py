@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from bitbucket._time import BitbucketInstant
 from bitbucket.models.base import BitbucketModel
+from bitbucket.models.link import Link
 from bitbucket.models.link import Links
 
 
@@ -14,6 +15,23 @@ class Webhook(BitbucketModel):
     created_at: BitbucketInstant | None = None
     events: list[str] | None = None
     links: Links | None = None
+
+
+class HookEvent(BitbucketModel):
+    # `event` stays a plain string: Bitbucket adds events over time, and an enum
+    # would reject a new one at validation.
+    event: str | None = None
+    category: str | None = None
+    label: str | None = None
+    description: str | None = None
+
+
+class HookSubjectTypeLinks(BitbucketModel):
+    events: Link | None = None
+
+
+class HookSubjectType(BitbucketModel):
+    links: HookSubjectTypeLinks | None = None
 
 
 class WebhookCreate(BitbucketModel):

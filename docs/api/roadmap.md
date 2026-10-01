@@ -13,7 +13,7 @@ This SDK targets **Bitbucket Cloud REST API `2.0`**, checked against
 `x-revision: 167b2dc51ec8` (2026-09-16). Regenerate the numbers below against
 a newer revision whenever [endpoint coverage](endpoint-coverage.md) is re-verified.
 
-**Where we are today:** 97 / 294 operations (33%) — see the coverage summary
+**Where we are today:** 104 / 294 operations (35%) — see the coverage summary
 table in [endpoint coverage](endpoint-coverage.md) for the full breakdown by resource
 group. This document lays out the path from there to full parity, in phases
 tied to version milestones, plus two cross-cutting phases (0a and 0b) that
@@ -220,14 +220,25 @@ follow-up note) once the live spec confirms their exact shape.
 
 Workspace- and project-level administration surface:
 
-- `Webhooks` (2, repo-level; workspace-level hooks live under `Workspaces`).
+- `Webhooks` (2) — **landed, unreleased**: the hook-event catalogue
+  (`GET /hook_events`, `GET /hook_events/{subject_type}`). Repository-level
+  hooks shipped in `0.4.0`.
 - `Branch restrictions` (5), `Branching model` (7).
 - `Projects` (16): project CRUD, default reviewers, permissions-config.
-- `Workspaces` (16): members, permissions, hooks, GPG public key.
+- `Workspaces` (16): members, permissions, hooks, GPG public key. The 5
+  workspace hook operations (`/workspaces/{workspace}/hooks[/{uid}]`) are
+  **landed, unreleased**, pulled forward with `Webhooks` because they reuse
+  `HooksResource` as-is.
 - `Users` (4), `SSH` (5), `GPG` (4), `Search` (3).
 
 No new architectural seams — all fit `NestedResource` or hand-written methods
 following the existing pattern.
+
+**Follow-up:** the spec's `x-revision` is now `6856b45887d7`, not the
+`167b2dc51ec8` this document was checked against. The total is still 294
+operations, but the per-first-tag counts differ (the live spec has
+`Repositories` 24 and `Pullrequests` 38, where the table has 25 and 37).
+Re-verify the table against the new revision before the next phase closes.
 
 ## Phase 4 — CI/CD (`0.8.0`)
 
@@ -267,6 +278,10 @@ in the machine-readable spec — see the footnote in `endpoint-coverage.md`.
 | 3     | 0.7.0   | +49 (46 + the 3 above)          | 146 (50%)           |
 | 4     | 0.8.0   | +93                             | 239 (81%)           |
 | 5     | 1.0.0   | +55                             | 294 (100%)          |
+
+Phase 3's `0.7.0` is not tagged yet: 7 of its operations (the webhook groups
+above) are on `main`, and the version is bumped when the phase is complete,
+per the [release checklist](../release/release-checklist.md).
 
 Phases 1 and 2 were planned as `0.2.0` and `0.3.0` but never tagged; they
 shipped together in `0.4.0` with the credential contract. `0.4.1` changed

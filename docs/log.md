@@ -2,6 +2,9 @@
 
 ## 2026-09-30
 
+* **Updated**: `api/endpoint-coverage.md` and `api/roadmap.md` for the
+  hook-event catalogue and the workspace webhooks (104 of 294 operations),
+  and the roadmap's note on the newer spec revision.
 * **Added**: `sdk/sdk-differences.md` — the differences from `clockify-sdk`
   that remain by design.
 * **Updated**: `sdk/credential-contract.md` (new "Choosing between credential
