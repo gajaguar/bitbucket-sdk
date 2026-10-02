@@ -2,7 +2,7 @@
 type: playbook
 title: Release checklist
 description: What to verify before tagging a release.
-tags: [release]
+tags: [release, versioning]
 status: stable
 ---
 

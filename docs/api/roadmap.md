@@ -2,7 +2,7 @@
 type: playbook
 title: Roadmap to full API coverage
 description: The phased plan from the current endpoint coverage to full Bitbucket Cloud API parity.
-tags: [api]
+tags: [api, release]
 status: stable
 ---
 

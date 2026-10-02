@@ -2,7 +2,7 @@
 type: rule
 title: Endpoint comments
 description: Every resource method names the Bitbucket endpoint it calls in a comment, since docstrings are not allowed.
-tags: [architecture]
+tags: [architecture, documentation]
 status: stable
 ---
 

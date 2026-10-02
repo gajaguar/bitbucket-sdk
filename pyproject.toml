@@ -55,6 +55,7 @@ exclude_also = ["if __name__ == .__main__.:", "raise NotImplementedError"]
 
 [tool.ruff]
 line-length = 119
+extend-exclude = ["tools"]
 lint.select = ["ALL"]
 lint.ignore = ["CPY", "D", "missing-trailing-comma"]
 lint.isort.force-single-line = true
@@ -70,7 +71,7 @@ lint.per-file-ignores."src/bitbucket/**/pull_requests.py" = ["too-many-public-me
 
 [tool.mypy]
 strict = true
-exclude = ["tests/"]
+exclude = ["tests/", "tools/"]
 
 [tool.pyright]
 include = ["src"]
