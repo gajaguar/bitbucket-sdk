@@ -14,6 +14,11 @@
 * **Updated**: the `Links` model for issue 54: `clone` is a list of links, one
   per protocol, as Bitbucket Cloud returns it, so a repository from the real API
   validates. `x-revision` `6856b45887d7` is unchanged.
+* **Addition**: `conventions/versioning.md` sets the SemVer bump criteria, tags
+  only minor and major bumps, and leaves releases on demand.
+* **Addition**: `AGENTS.md` links to `conventions/versioning.md`.
+* **Change**: `conventions/tag-vocabulary.md` states the tag form: lowercase, one
+  word by default, no parent prefix.
 
 ## 2026-10-01
 
