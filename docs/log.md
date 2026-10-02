@@ -2,10 +2,15 @@
 
 ## 2026-10-02
 
+* **Change**: the first `make docs-retag` run re-assigned the tags of several
+  notes.
+* **Addition**: `conventions/help-check.md` and `conventions/claude-md-check.md`,
+  which the Makefile targets of the same names already enforce.
+* **Addition**: `okf-base.yaml`, `make docs-lint`, `tools/docs-retag.py`,
+  `conventions/tag-vocabulary.md` and `toolchain/retag-notes.md`.
 * **Updated**: the version files for release `1.0.2`, a patch release that
   leaves the API alone: `Links.clone` is a list of links (issue 54).
   `x-revision` `6856b45887d7` is unchanged.
-
 * **Updated**: the `Links` model for issue 54: `clone` is a list of links, one
   per protocol, as Bitbucket Cloud returns it, so a repository from the real API
   validates. `x-revision` `6856b45887d7` is unchanged.
@@ -15,7 +20,6 @@
 * **Updated**: the version files for release `1.0.1`, a patch release that
   leaves the API alone: `downloads.get` and `source.read` follow the redirect
   the spec describes (issue 43). `x-revision` `6856b45887d7` is unchanged.
-
 * **Updated**: `api/endpoint-coverage.md`, `sdk/credential-contract.md` and
   `sdk/credential-tests.md` for the fix to `downloads.get` (issue 43): the
   `Downloads` note records the `302` the spec declares in place of a `200`,
@@ -23,14 +27,12 @@
   say a redirect followed to another origin carries no authentication header.
   `x-revision` `6856b45887d7` is unchanged and the summary still adds up to
   294.
-
 * **Updated**: `api/roadmap.md`, `release/release-checklist.md` and the
   version files for release `1.0.0`: Phase 5 is shipped (291 of 294
   operations; the three `Addon` ones stay `unsupported`), the milestone table
   and "Where we are today" name the release, and the checklist gives the
   semantic-versioning rule from `1.0.0`. `x-revision` `6856b45887d7` is
   unchanged.
-
 * **Added**: `architecture/public-api-conventions.md`, the rules the public
   surface follows from `1.0.0`: a `*_page` for every paginated iterator, `None`
   for a `204`, and `put` as create-or-replace. It lists the asymmetries that
@@ -40,7 +42,6 @@
   the spec declares only `204`, and the 18 iterators that had no page method
   now have one. `x-revision` `6856b45887d7` is unchanged and the summary still
   adds up to 294.
-
 * **Updated**: `api/endpoint-coverage.md`, `api/roadmap.md` and `README.md` for
   the rest of the `Snippets` group (291 of 294 operations): commits,
   revisions, raw files, diff and patch. The new notes record the `405` on a
@@ -117,7 +118,6 @@
   kinds" section), `sdk/credential-tests.md` (new "Selection" group),
   `sdk/credentials.md` and `README.md` for the stricter rule: two credential
   kinds of the same strength raise `ConfigurationError`.
-
 * **Updated**: `sdk/credentials.md`, `architecture/async-client.md`,
   `architecture/layering.md`, `README.md` and `api/roadmap.md` for shipped
   bearer-token authentication and its sync/async credential contract.

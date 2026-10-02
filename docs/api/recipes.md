@@ -2,7 +2,7 @@
 type: playbook
 title: Usage recipes
 description: Runnable examples that list and comment on pull requests, merge one and wait for the result, and create a repository, branch and file read.
-tags: [api]
+tags: [api, git]
 status: stable
 ---
 
