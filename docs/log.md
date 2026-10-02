@@ -1,5 +1,11 @@
 # Directory Update Log
 
+## 2026-10-02
+
+* **Updated**: the `Links` model for issue 54: `clone` is a list of links, one
+  per protocol, as Bitbucket Cloud returns it, so a repository from the real API
+  validates. `x-revision` `6856b45887d7` is unchanged.
+
 ## 2026-10-01
 
 * **Updated**: the version files for release `1.0.1`, a patch release that
