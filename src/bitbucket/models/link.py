@@ -36,7 +36,7 @@ class Links(BitbucketModel):
     milestones: Link | None = None
     pullrequests: Link | None = None
     source: Link | None = None
-    clone: Link | None = None
+    clone: list[Link] | None = None
 
 
 class AccountLinks(BitbucketModel):

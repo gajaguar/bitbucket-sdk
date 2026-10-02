@@ -32,6 +32,35 @@ def test_links_self_field_can_be_constructed_by_python_name() -> None:
     assert links.model_dump(mode="json", by_alias=True)["self"] == {"href": "https://x", "name": None}
 
 
+def test_links_clone_is_a_list_of_links_per_protocol() -> None:
+    # Arrange
+    payload = {
+        "clone": [
+            {"name": "https", "href": "https://bitbucket.org/ws/repo.git"},
+            {"name": "ssh", "href": "git@bitbucket.org:ws/repo.git"},
+        ],
+    }
+    # Act
+    links = Links.model_validate(payload)
+    # Assert
+    assert links.clone is not None
+    assert [link.name for link in links.clone] == ["https", "ssh"]
+
+
+def test_repository_validates_the_real_api_clone_links() -> None:
+    # Arrange
+    payload = {
+        "name": "repo",
+        "links": {"clone": [{"name": "https", "href": "https://bitbucket.org/ws/repo.git"}]},
+    }
+    # Act
+    repository = Repository.model_validate(payload)
+    # Assert
+    assert repository.links is not None
+    assert repository.links.clone is not None
+    assert repository.links.clone[0].href == "https://bitbucket.org/ws/repo.git"
+
+
 def test_comment_inline_from_field_uses_reserved_word_alias() -> None:
     # Arrange
     payload = {"path": "a.py", "from": 3, "to": 4}
