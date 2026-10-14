@@ -134,6 +134,34 @@ def test_pull_request_diff_returns_raw_text(client: BitbucketClient) -> None:
 
 
 @respx.mock
+def test_pull_request_diff_follows_the_redirect_to_the_repository_diff(client: BitbucketClient) -> None:
+    # Arrange
+    target = f"{BASE_URL}/repositories/ws/repo/diff/abc123"
+    respx.get(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/diff").mock(
+        return_value=Response(302, headers={"Location": target}),
+    )
+    respx.get(target).mock(return_value=Response(200, text="diff --git a b"))
+    # Act
+    diff = _pull_requests(client).diff(5)
+    # Assert
+    assert diff == "diff --git a b"
+
+
+@respx.mock
+def test_pull_request_mbox_export_follows_the_redirect_to_the_raw_text(client: BitbucketClient) -> None:
+    # Arrange
+    target = f"{BASE_URL}/repositories/ws/repo/patch/abc123"
+    respx.get(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/patch").mock(
+        return_value=Response(302, headers={"Location": target}),
+    )
+    respx.get(target).mock(return_value=Response(200, text="From abc123"))
+    # Act
+    result = _pull_requests(client).patch(5)
+    # Assert
+    assert result == "From abc123"
+
+
+@respx.mock
 def test_pull_request_diff_raises_not_found_for_unknown_id(client: BitbucketClient) -> None:
     # Arrange
     respx.get(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/diff").mock(
@@ -312,6 +340,41 @@ def test_pull_request_diffstat_returns_line_counts(client: BitbucketClient) -> N
     stats = list(_pull_requests(client).diffstat(5))
     # Assert
     assert [stat.lines_added for stat in stats] == [3]
+
+
+@respx.mock
+def test_pull_request_diffstat_follows_the_redirect_to_the_repository_diffstat(client: BitbucketClient) -> None:
+    # Arrange
+    target = f"{BASE_URL}/repositories/ws/repo/diffstat/abc123"
+    respx.get(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/diffstat").mock(
+        return_value=Response(302, headers={"Location": target}),
+    )
+    respx.get(target).mock(
+        return_value=Response(200, json={"values": [{"lines_added": 3, "lines_removed": 1}], "next": None}),
+    )
+    # Act
+    stats = list(_pull_requests(client).diffstat(5))
+    # Assert
+    assert [stat.lines_added for stat in stats] == [3]
+
+
+@respx.mock
+def test_pull_request_conflicts_follows_the_redirect_to_the_repository_file_conflicts(client: BitbucketClient) -> None:
+    # Arrange
+    target = f"{BASE_URL}/repositories/ws/repo/file-conflicts/abc123"
+    respx.get(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/conflicts").mock(
+        return_value=Response(302, headers={"Location": target}),
+    )
+    respx.get(target).mock(
+        return_value=Response(
+            200,
+            json={"values": [{"path": "a.py", "scenario": "content", "message": "gone"}], "next": None},
+        ),
+    )
+    # Act
+    conflicts = list(_pull_requests(client).conflicts(5))
+    # Assert
+    assert [(conflict.path, conflict.scenario) for conflict in conflicts] == [("a.py", FileConflictScenario.CONTENT)]
 
 
 @respx.mock

@@ -58,6 +58,7 @@ line-length = 119
 extend-exclude = ["tools"]
 lint.select = ["ALL"]
 lint.ignore = ["CPY", "D", "missing-trailing-comma"]
+lint.pylint.max-args = 6
 lint.isort.force-single-line = true
 lint.isort.case-sensitive = true
 lint.flake8-type-checking.runtime-evaluated-base-classes = [

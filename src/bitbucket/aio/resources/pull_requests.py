@@ -100,11 +100,12 @@ class AsyncPullRequestsResource(
     async def conflicts_page(
         self, pull_request_id: PullRequestId | int, *, cursor: str | None = None
     ) -> Page[FileConflict]:
+        # The spec declares only a 302 to the repository file conflicts, so the redirect is followed.
         if cursor:
-            data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY)
+            data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY, follow_redirects=True)
         else:
             path = f"{self._item_path(pull_request_id)}/conflicts"
-            data = await self._transport.request("GET", path, kind=CqsKind.QUERY)
+            data = await self._transport.request("GET", path, kind=CqsKind.QUERY, follow_redirects=True)
         return page_from_payload(cast("dict[str, Any]", data), FileConflict)
 
     # POST {path}/{id}/decline
@@ -116,8 +117,9 @@ class AsyncPullRequestsResource(
 
     # GET {path}/{id}/diff
     async def diff(self, pull_request_id: PullRequestId | int) -> str:
+        # The spec declares only a 302 to the repository diff, so the redirect is followed.
         return await self._transport.request_text(
-            "GET", f"{self._item_path(pull_request_id)}/diff", kind=CqsKind.QUERY
+            "GET", f"{self._item_path(pull_request_id)}/diff", kind=CqsKind.QUERY, follow_redirects=True
         )
 
     # GET {path}/{id}/diffstat (auto-paginating)
@@ -128,11 +130,12 @@ class AsyncPullRequestsResource(
     async def diffstat_page(
         self, pull_request_id: PullRequestId | int, *, cursor: str | None = None
     ) -> Page[DiffStat]:
+        # The spec declares only a 302 to the repository diffstat, so the redirect is followed.
         if cursor:
-            data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY)
+            data = await self._transport.request("GET", cursor, kind=CqsKind.QUERY, follow_redirects=True)
         else:
             path = f"{self._item_path(pull_request_id)}/diffstat"
-            data = await self._transport.request("GET", path, kind=CqsKind.QUERY)
+            data = await self._transport.request("GET", path, kind=CqsKind.QUERY, follow_redirects=True)
         return page_from_payload(cast("dict[str, Any]", data), DiffStat)
 
     # POST {path}/{id}/merge
@@ -178,8 +181,9 @@ class AsyncPullRequestsResource(
 
     # GET {path}/{id}/patch
     async def patch(self, pull_request_id: PullRequestId | int) -> str:
+        # The spec declares only a 302 to the repository patch, so the redirect is followed.
         return await self._transport.request_text(
-            "GET", f"{self._item_path(pull_request_id)}/patch", kind=CqsKind.QUERY
+            "GET", f"{self._item_path(pull_request_id)}/patch", kind=CqsKind.QUERY, follow_redirects=True
         )
 
     def properties(self, pull_request_id: PullRequestId | int) -> AsyncPropertiesResource:
