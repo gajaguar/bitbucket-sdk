@@ -1,5 +1,13 @@
 # Directory Update Log
 
+## 2026-10-14
+
+* **Updated**: `api/endpoint-coverage.md` for the fix to `pull_requests.diff`,
+  `patch`, `diffstat` and `conflicts` (issue 67): the four pull request
+  operations declare only a `302` to the matching commits operation, and the
+  SDK follows it. `x-revision` `6856b45887d7` is unchanged and the summary
+  still adds up to 294.
+
 ## 2026-10-02
 
 * **Change**: the first `make docs-retag` run re-assigned the tags of several

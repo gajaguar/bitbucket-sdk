@@ -93,11 +93,12 @@ class PullRequestsResource(NestedResource[PullRequest, PullRequestCreate, PullRe
 
     # GET {path}/{id}/conflicts
     def conflicts_page(self, pull_request_id: PullRequestId | int, *, cursor: str | None = None) -> Page[FileConflict]:
+        # The spec declares only a 302 to the repository file conflicts, so the redirect is followed.
         if cursor:
-            data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)
+            data = self._transport.request("GET", cursor, kind=CqsKind.QUERY, follow_redirects=True)
         else:
             path = f"{self._item_path(pull_request_id)}/conflicts"
-            data = self._transport.request("GET", path, kind=CqsKind.QUERY)
+            data = self._transport.request("GET", path, kind=CqsKind.QUERY, follow_redirects=True)
         return page_from_payload(cast("dict[str, Any]", data), FileConflict)
 
     # POST {path}/{id}/decline
@@ -109,7 +110,10 @@ class PullRequestsResource(NestedResource[PullRequest, PullRequestCreate, PullRe
 
     # GET {path}/{id}/diff
     def diff(self, pull_request_id: PullRequestId | int) -> str:
-        return self._transport.request_text("GET", f"{self._item_path(pull_request_id)}/diff", kind=CqsKind.QUERY)
+        # The spec declares only a 302 to the repository diff, so the redirect is followed.
+        return self._transport.request_text(
+            "GET", f"{self._item_path(pull_request_id)}/diff", kind=CqsKind.QUERY, follow_redirects=True
+        )
 
     # GET {path}/{id}/diffstat (auto-paginating)
     def diffstat(self, pull_request_id: PullRequestId | int) -> Iterator[DiffStat]:
@@ -117,11 +121,12 @@ class PullRequestsResource(NestedResource[PullRequest, PullRequestCreate, PullRe
 
     # GET {path}/{id}/diffstat
     def diffstat_page(self, pull_request_id: PullRequestId | int, *, cursor: str | None = None) -> Page[DiffStat]:
+        # The spec declares only a 302 to the repository diffstat, so the redirect is followed.
         if cursor:
-            data = self._transport.request("GET", cursor, kind=CqsKind.QUERY)
+            data = self._transport.request("GET", cursor, kind=CqsKind.QUERY, follow_redirects=True)
         else:
             path = f"{self._item_path(pull_request_id)}/diffstat"
-            data = self._transport.request("GET", path, kind=CqsKind.QUERY)
+            data = self._transport.request("GET", path, kind=CqsKind.QUERY, follow_redirects=True)
         return page_from_payload(cast("dict[str, Any]", data), DiffStat)
 
     # POST {path}/{id}/merge
@@ -167,7 +172,10 @@ class PullRequestsResource(NestedResource[PullRequest, PullRequestCreate, PullRe
 
     # GET {path}/{id}/patch
     def patch(self, pull_request_id: PullRequestId | int) -> str:
-        return self._transport.request_text("GET", f"{self._item_path(pull_request_id)}/patch", kind=CqsKind.QUERY)
+        # The spec declares only a 302 to the repository patch, so the redirect is followed.
+        return self._transport.request_text(
+            "GET", f"{self._item_path(pull_request_id)}/patch", kind=CqsKind.QUERY, follow_redirects=True
+        )
 
     def properties(self, pull_request_id: PullRequestId | int) -> PropertiesResource:
         return PropertiesResource(self._transport, self._item_path(pull_request_id))

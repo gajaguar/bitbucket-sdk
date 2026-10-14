@@ -245,6 +245,12 @@ anything else is a `400`. A `429` (its own rate limit) is retried like any
 other, under the default `RetryPolicy`; a `500` means custom merge checks or
 the merge queue could not be read.
 
+Note: `diff`, `patch`, `diffstat` and `conflicts` declare only a `302` to the
+corresponding operation on the commits group (`diff`, `patch`, `diffstat`,
+`file-conflicts`) with the revspec that corresponds to the pull request, and no
+`200`. The SDK follows the redirect, and the request to the other origin (if
+Bitbucket ever serves one from there) carries no `Authorization` header.
+
 ## Pull request comments
 
 | Endpoint                                                                  | SDK method                                                    | Status |

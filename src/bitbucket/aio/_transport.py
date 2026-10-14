@@ -45,8 +45,11 @@ class AsyncTransport:
         kind: CqsKind,
         params: Mapping[str, str | float | bool | list[str] | None] | None = None,
         json: JSONValue = None,
+        follow_redirects: bool = False,
     ) -> JSONValue:
-        response = await self._send(method, path, kind=kind, params=params, json=json)
+        response = await self._send(
+            method, path, kind=kind, params=params, json=json, follow_redirects=follow_redirects
+        )
         return _json_or_error(response)
 
     async def request_text(
@@ -56,8 +59,11 @@ class AsyncTransport:
         *,
         kind: CqsKind,
         params: Mapping[str, str | float | bool | list[str] | None] | None = None,
+        follow_redirects: bool = False,
     ) -> str:
-        response = await self._send(method, path, kind=kind, params=params, json=None)
+        response = await self._send(
+            method, path, kind=kind, params=params, json=None, follow_redirects=follow_redirects
+        )
         return _text_or_error(response)
 
     async def request_bytes(
@@ -103,6 +109,7 @@ class AsyncTransport:
         kind: CqsKind,
         params: Mapping[str, str | float | bool | list[str] | None] | None,
         json: JSONValue,
+        follow_redirects: bool,
     ) -> httpx.Response:
         try:
             response = await self._client.request(
@@ -110,6 +117,7 @@ class AsyncTransport:
                 path,
                 params=_resolved_params(params),
                 json=json,
+                follow_redirects=follow_redirects,
                 extensions={"bitbucket_cqs": kind},
             )
         except httpx.TransportError as error:

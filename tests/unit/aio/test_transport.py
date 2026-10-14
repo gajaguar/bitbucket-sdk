@@ -111,3 +111,29 @@ async def test_async_request_bytes_does_not_follow_a_redirect_by_default(atransp
         await atransport.request_bytes("GET", "/log", kind=CqsKind.QUERY)
     # Assert
     assert raised.value.status_code == 307
+
+
+@respx.mock
+async def test_async_request_text_follows_a_redirect_without_leaking_authorization(
+    atransport: AsyncTransport,
+) -> None:
+    # Arrange
+    other_url = "https://redirect.example.com/repositories/ws/repo/diff/abc"
+    respx.get(f"{BASE_URL}/diff/5").mock(return_value=Response(302, headers={"Location": other_url}))
+    other = respx.get(other_url).mock(return_value=Response(200, text="diff --git a b"))
+    # Act
+    diff = await atransport.request_text("GET", "/diff/5", kind=CqsKind.QUERY, follow_redirects=True)
+    # Assert
+    assert diff == "diff --git a b"
+    assert "Authorization" not in other.calls[0].request.headers
+
+
+@respx.mock
+async def test_async_request_text_does_not_follow_a_redirect_by_default(atransport: AsyncTransport) -> None:
+    # Arrange
+    respx.get(f"{BASE_URL}/diff/abc").mock(return_value=Response(302, headers={"Location": f"{BASE_URL}/other"}))
+    # Act
+    with pytest.raises(BitbucketAPIError) as raised:
+        await atransport.request_text("GET", "/diff/abc", kind=CqsKind.QUERY)
+    # Assert
+    assert raised.value.status_code == 302
