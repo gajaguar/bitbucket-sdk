@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 
 import pytest
 
@@ -15,7 +15,7 @@ def test_parse_instant_normalizes_to_utc() -> None:
     # Act
     parsed = parse_instant(value)
     # Assert
-    assert parsed == datetime.datetime(2024, 1, 1, 15, 0, tzinfo=datetime.UTC)
+    assert parsed == dt.datetime(2024, 1, 1, 15, 0, tzinfo=dt.UTC)
 
 
 def test_parse_instant_treats_naive_value_as_utc() -> None:
@@ -24,7 +24,7 @@ def test_parse_instant_treats_naive_value_as_utc() -> None:
     # Act
     parsed = parse_instant(value)
     # Assert
-    assert parsed == datetime.datetime(2024, 1, 1, 10, 0, tzinfo=datetime.UTC)
+    assert parsed == dt.datetime(2024, 1, 1, 10, 0, tzinfo=dt.UTC)
 
 
 def test_parse_instant_rejects_non_string() -> None:
@@ -47,7 +47,7 @@ def test_parse_instant_rejects_malformed_string() -> None:
 
 def test_format_instant_round_trips_through_parse() -> None:
     # Arrange
-    original = datetime.datetime(2024, 6, 15, 12, 30, 45, tzinfo=datetime.UTC)
+    original = dt.datetime(2024, 6, 15, 12, 30, 45, tzinfo=dt.UTC)
     # Act
     formatted = format_instant(original)
     # Assert
@@ -56,7 +56,7 @@ def test_format_instant_round_trips_through_parse() -> None:
 
 def test_format_instant_naive_datetime_is_treated_as_utc() -> None:
     # Arrange
-    naive = datetime.datetime(2024, 6, 15, 12, 30, 45)  # ruff: ignore[call-datetime-without-tzinfo]
+    naive = dt.datetime(2024, 6, 15, 12, 30, 45)  # ruff: ignore[call-datetime-without-tzinfo]
     # Act
     formatted = format_instant(naive)
     # Assert
