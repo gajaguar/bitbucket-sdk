@@ -307,6 +307,33 @@ async def test_pull_request_update_puts_only_the_changed_title(aclient: AsyncBit
 
 
 @respx.mock
+async def test_pull_request_create_posts_draft(aclient: AsyncBitbucketClient) -> None:
+    # Arrange
+    route = respx.post(f"{BASE_URL}/repositories/ws/repo/pullrequests").mock(
+        return_value=Response(200, json={"id": 7, "title": "New PR", "draft": True}),
+    )
+    payload = PullRequestCreate(title="New PR", source=EndpointSpec(branch=BranchSpec(name="feature")), draft=True)
+    # Act
+    result = await _pull_requests(aclient).create(payload)
+    # Assert
+    assert result.id == 7
+    assert route.calls[0].request.content == b'{"title":"New PR","source":{"branch":{"name":"feature"}},"draft":true}'
+
+
+@respx.mock
+async def test_pull_request_update_puts_only_draft(aclient: AsyncBitbucketClient) -> None:
+    # Arrange
+    route = respx.put(f"{BASE_URL}/repositories/ws/repo/pullrequests/5").mock(
+        return_value=Response(200, json={"id": 5, "title": "Renamed", "draft": False}),
+    )
+    # Act
+    result = await _pull_requests(aclient).update(5, PullRequestUpdate(draft=False))
+    # Assert
+    assert result.draft is False
+    assert route.calls[0].request.content == b'{"draft":false}'
+
+
+@respx.mock
 async def test_pull_request_commits_returns_commit_hashes(aclient: AsyncBitbucketClient) -> None:
     # Arrange
     respx.get(f"{BASE_URL}/repositories/ws/repo/pullrequests/5/commits").mock(

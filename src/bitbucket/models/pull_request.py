@@ -135,6 +135,7 @@ class PullRequestCreate(BitbucketModel):
     description: str | None = None
     reviewers: list[ReviewerSpec] | None = None
     close_source_branch: bool | None = None
+    draft: bool | None = None
 
 
 class PullRequestUpdate(BitbucketModel):
@@ -142,3 +143,4 @@ class PullRequestUpdate(BitbucketModel):
     description: str | None = None
     reviewers: list[ReviewerSpec] | None = None
     destination: EndpointSpec | None = None
+    draft: bool | None = None
